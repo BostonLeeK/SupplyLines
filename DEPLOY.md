@@ -63,7 +63,7 @@ token with Google and stores only a salted hash of the Google account id (in `au
 1. Open [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials) and create a project if you have none.
 2. Configure the **OAuth consent screen**: External, app name "Supply Lines", your support email, the domain `globalwar.xyz`. Only the default scopes are needed (`openid`, `email`, `profile`), so no verification review is required.
 3. **Create credentials → OAuth client ID → Web application.**
-   Authorized JavaScript origins: `https://globalwar.xyz` (and `http://localhost:5177` for local testing). No redirect URIs are needed.
+   Authorized JavaScript origins: `https://globalwar.xyz`, `https://www.globalwar.xyz` and, for local testing, `http://localhost:5177`. Leave redirect URIs empty.
 4. Copy the client ID (`…apps.googleusercontent.com`) into `.env`:
 
    ```env

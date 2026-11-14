@@ -3,7 +3,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
-COPY index.html world.html net.js sw.js manifest.json ./
+COPY index.html world.html net.js sw.js manifest.json og.jpg ./
 COPY game ./game
 COPY icons ./icons
 COPY server/server.mjs ./server/server.mjs
