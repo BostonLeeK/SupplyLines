@@ -34,10 +34,17 @@ The map is the real world with three changes:
 | | |
 |---|---|
 | **Shared live world** | One server-authoritative world for everybody. Bots fill the ranks so the war is alive even with a single player; every human who joins replaces ten of them. |
-| **Seasons** | A season is 7 game days. Points come from cities and whole regions. Your rank and XP stay with you. |
+| **Seasons** | A season is 7 game days. Points come from cities and whole regions. Take the enemy capital and hold it for 12 game hours to win at once. Your rank and XP stay with you. |
 | **Fog of war** | You see enemy garrisons and convoys only near your own network. The server sends each faction only its own view. |
 | **Abilities** | Fortify, sabotage, airdrop, blockade, fleets, rally points, signals, three convoy types (standard, fast, heavy). |
 | **Intel** | Satellites lift the fog over a wide area; spies reveal an enemy city and its plans, and are caught one time in four. |
+| **Canals and straits** | Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca: hold the controlling city and their sea lanes close to the enemy. |
+| **Doctrine** | Each season the general picks Blitzkrieg, Sea power, Air power or Diplomacy for the whole faction. |
+| **Build** | Lay railways between your cities and build airfields that launch airdrops. |
+| **Deception** | Decoy convoys look real to the enemy and send no troops; spies nearby expose them. Sabotage blows up railways. |
+| **Unrest** | Free-nation cities taken by force stop producing for a while and may rise up; envoys win them without trouble. |
+| **Weather** | Follows the real calendar: northern winter snows slow land convoys in the north, the summer monsoon in South Asia. |
+| **Day and night** | Cities at night are harder to see; air defence weakens, spies slip through and sabotage lasts longer. |
 | **Free nations** | Envoys raise a nation's favour; at 100 all its free cities join you. Betrayal has a price. |
 | **Resources** | Uranium feeds the nuclear program, oil speeds convoys, grain boosts production. |
 | **World events** | Every game day: oil shock, solar storm, peace summit, hurricane season, disarmament talks… |

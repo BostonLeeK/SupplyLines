@@ -34,7 +34,8 @@ export function createWire({ E, NET, FN, REGIONS, GEVENTS, url = 'globalwar.xyz'
         const c = C[ev.city]; if (!loud(ev.city)) return;
         const fromEnemy = ev.prev === 1 - f; // early grabs of neutral cities are expansion, not news
         if (fromEnemy) flips.set(ev.city, (flips.get(ev.city) || 0) + 1);
-        if (c.cap >= 0 && ev.prev === c.cap) return add(100, pick([`${c.name} falls. ${A} storms the ${B} capital`, `${B} capital ${c.name} is in ${A} hands`, `${A} takes ${c.name}: the ${B} capital has fallen`]), { breaking: true, type: 'capital', city: ev.city });
+        if (c.cap >= 0 && ev.prev === c.cap) return add(100, pick([`${c.name} falls. ${A} storms the ${B} capital`, `${B} capital ${c.name} is in ${A} hands`, `${A} takes ${c.name}: the ${B} capital has fallen`]), { breaking: true, type: 'capital', city: ev.city, after: `If ${A} holds it for 12 hours, the war is over` });
+        if (c.choke >= 0) { const ch = E.chokes.find(x => x.k === c.choke); return add(fromEnemy ? 38 : 26, pick([`${A} seizes ${c.name} and takes the ${ch.name}`, `The ${ch.name} is in ${A} hands: ${c.name} falls`]), { type: 'choke', city: ev.city }); }
         if (c.tier === 3) return add(fromEnemy ? 40 : 10, fromEnemy ? pick([`${A} seizes the ${B} megahub of ${c.name}`, `${c.name} megahub falls to ${A}`, `${A} flags fly over ${c.name}`]) : pick([`${A} secures ${c.name}, a global megahub`, `${c.name} megahub joins ${A}`]), { type: 'hub', city: ev.city });
         if (c.ncap && !fromEnemy) return add(9, pick([`${A} marches into ${c.name}, capital of ${nation(c.nation)}`, `${nation(c.nation)} loses its capital ${c.name} to ${A}`]), { type: 'ncap', city: ev.city });
         if (c.tier === 2 && fromEnemy) return add(c.port ? 20 : 16, c.port ? pick([`${A} takes the ${B} port of ${c.name}`, `Port of ${c.name} changes hands: now ${A}`]) : pick([`${A} captures ${c.name} from ${B}`, `${c.name} falls to ${A}`]), { type: 'city', city: ev.city });
@@ -77,7 +78,7 @@ export function createWire({ E, NET, FN, REGIONS, GEVENTS, url = 'globalwar.xyz'
       if (it.city >= 0 && cities.has(it.city)) continue;
       seen.set(it.type, n + 1); if (it.city >= 0) cities.add(it.city); pri.splice(it.score >= 50 ? 0 : pri.length, 0, it);
     }
-    const [a, b] = ev.pts, head = `${HEAD} · Season ${season} ends\n` + (ev.winter ? '❄ Nuclear winter. Nobody wins this war' : w >= 0 ? `${FN[w]} wins ${Math.max(a, b)}–${Math.min(a, b)}` : `A draw, ${a}–${b}`);
+    const [a, b] = ev.pts, head = `${HEAD} · Season ${season} ends\n` + (ev.winter ? '❄ Nuclear winter. Nobody wins this war' : w >= 0 && ev.capital >= 0 ? `${FN[w]} wins by holding ${loud(ev.capital) ? C[ev.capital].name : 'the enemy capital'} for 12 hours` : w >= 0 ? `${FN[w]} wins ${Math.max(a, b)}–${Math.min(a, b)}` : `A draw, ${a}–${b}`);
     const tail = `\nNext war starts now → ${url} ${TAG}`;
     for (let n = Math.min(4, pri.length); n >= 0; n--) {
       const t = [head, ...pri.slice(0, n).sort((x, y) => x.d - y.d).map(it => `▪ D${it.d} · ${it.text}`), tail].join('\n');

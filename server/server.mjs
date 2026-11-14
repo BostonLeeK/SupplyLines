@@ -8,6 +8,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import webpush from 'web-push';
@@ -106,6 +107,7 @@ function pushForEvent(ev) {
     if (cmdr) pushTo(cmdr, { title: '⚠ Your city is under attack', body: `${FN[ev.f]} is moving on ${c.name}: ${ev.n} vs ${ev.def}. Send help or fortify.`, tag: 'threat-' + ev.city, urgent: true });
     if (c.cap >= 0) for (const p of factionPlayers(v)) pushTo(p, { title: '⚠ Your capital is under attack', body: `${FN[ev.f]} is moving on ${c.name}.`, tag: 'capital', urgent: true });
   }
+  if (ev.k === 'cap_hold') for (const p of factionPlayers(1 - ev.f)) pushTo(p, { title: '⚠ Our capital has fallen', body: `${FN[ev.f]} holds ${cname(ev.city)}. Retake it within 12 game hours or the war is lost.`, tag: 'capital', urgent: true }, 10000);
   if (ev.k === 'nuke_ready') for (const p of factionPlayers(ev.f)) pushTo(p, { title: '☢ Warhead ready', body: "Your faction's warhead is built. Open the game to pick a target.", tag: 'nuke' });
   if (ev.k === 'nuke_armed') for (const p of factionPlayers(ev.f)) if (p.name !== ev.by) pushTo(p, { title: '☢ A launch needs your key', body: `${ev.by} armed a strike at ${cname(ev.target)}. A second commander must confirm.`, tag: 'nukekey', urgent: true }, 10000);
   if (ev.k === 'nuke_launch') for (const p of factionPlayers(1 - ev.f)) pushTo(p, { title: '☢ NUCLEAR LAUNCH DETECTED', body: `${FN[ev.f]} launched at ${cname(ev.target)}. Boost air defence now.`, tag: 'launch', urgent: true }, 10000);
@@ -120,16 +122,38 @@ let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); s
 // ---------- static files ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
 const PUBLIC = new Set(['/og.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
+// static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
+const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
+function cachedFile(p) {
+  const fp = path.join(ROOT, p), st = fs.statSync(fp); let c = fileCache.get(p);
+  if (!c || c.mtime !== st.mtimeMs) {
+    const raw = fs.readFileSync(fp), pack = PACK.test(p);
+    c = { mtime: st.mtimeMs, raw, etag: `"${st.mtimeMs.toString(36)}-${raw.length.toString(36)}"`,
+      gz: pack ? zlib.gzipSync(raw, { level: 9 }) : null, br: pack ? zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 } }) : null };
+    fileCache.set(p, c);
+  }
+  return c;
+}
+function sendPacked(req, res, type, body, extra = {}) {
+  const ae = String(req.headers['accept-encoding'] || ''), buf = Buffer.isBuffer(body) ? body : Buffer.from(body);
+  const head = { 'content-type': type, vary: 'Accept-Encoding', ...extra };
+  if (buf.length > 1024 && /\bbr\b/.test(ae)) { res.writeHead(200, { ...head, 'content-encoding': 'br' }); return res.end(zlib.brotliCompressSync(buf, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 5 } })); }
+  if (buf.length > 1024 && /\bgzip\b/.test(ae)) { res.writeHead(200, { ...head, 'content-encoding': 'gzip' }); return res.end(zlib.gzipSync(buf)); }
+  res.writeHead(200, head); res.end(buf);
+}
 const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
-  if (p === '/world.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache', 'access-control-allow-origin': '*' }); return res.end(JSON.stringify(worldState())); }
+  if (p === '/world.json') return sendPacked(req, res, 'application/json', JSON.stringify(worldState()), { 'cache-control': 'no-cache', 'access-control-allow-origin': '*' });
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
   if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts : null, staff: realWar.staff })); }
   if (p === '/wire.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(wireLog.slice(0, 30))); }
-  if (p === '/archive.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(archive.slice(-30).reverse())); }
+  if (p === '/archive.json') return sendPacked(req, res, 'application/json', JSON.stringify(archive.slice(-30).reverse()), { 'cache-control': 'no-cache' });
   if (!PUBLIC.has(p)) { res.writeHead(404); return res.end('not found'); }
-  res.writeHead(200, { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache' });
-  fs.createReadStream(path.join(ROOT, p)).pipe(res);
+  let c; try { c = cachedFile(p); } catch { res.writeHead(404); return res.end('not found'); }
+  const ae = String(req.headers['accept-encoding'] || ''), enc = c.br && /\bbr\b/.test(ae) ? 'br' : c.gz && /\bgzip\b/.test(ae) ? 'gzip' : null;
+  const head = { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache', etag: c.etag, vary: 'Accept-Encoding' };
+  if (req.headers['if-none-match'] === c.etag) { res.writeHead(304, head); return res.end(); }
+  res.writeHead(200, enc ? { ...head, 'content-encoding': enc } : head); res.end(enc === 'br' ? c.br : enc === 'gzip' ? c.gz : c.raw);
 });
 
 // ---------- players & connections ----------
@@ -237,8 +261,10 @@ function chronicle(ev) {
   else if (ev.k === 'nuke_hit') text = `☢ ${cn(ev.target)} was destroyed`;
   else if (ev.k === 'nuke_intercept') { text = `☢ The missile at ${cn(ev.target)} was shot down`; f = 1 - ev.f; }
   else if (ev.k === 'gevent' && GEVENTS[ev.ev]) { text = `${GEVENTS[ev.ev].icon} World event: ${GEVENTS[ev.ev].name}`; f = -1; }
+  else if (ev.k === 'cap_hold') text = `⚑ ${FN[ev.f]} holds the enemy capital ${cn(ev.city)}: 12 hours to victory`;
+  else if (ev.k === 'cap_freed' && ev.f >= 0) text = `🛡 ${FN[ev.f]} retook ${cn(ev.city)}`;
   else if (ev.k === 'ally') text = `🤝 ${(NET.nations[ev.nation] || ['A nation'])[0]} joined ${FN[ev.f]}`;
-  else if (ev.k === 'end') { text = ev.winter ? 'Nuclear winter: the season ended with no winner' : `Season ${season} is over: ${ev.winner >= 0 ? FN[ev.winner] + ' won' : 'a draw'}`; f = ev.winter ? -1 : ev.winner ?? -1; }
+  else if (ev.k === 'end') { text = ev.winter ? 'Nuclear winter: the season ended with no winner' : `Season ${season} is over: ${ev.winner >= 0 ? FN[ev.winner] + ' won' + (ev.capital >= 0 ? ' by holding ' + cn(ev.capital) : '') : 'a draw'}`; f = ev.winter ? -1 : ev.winner ?? -1; }
   else if (ev.k === 'start') { text = `Season ${season} began`; f = -1; }
   if (!text) return;
   wlog.unshift({ at: Date.now(), t: +E.S.simT.toFixed(1), text, f }); if (wlog.length > 40) wlog.length = 40;
@@ -276,7 +302,7 @@ E.onEvent(ev => {
 });
 // events are part of the fog of war too: intel, plans and launch keys stay inside the faction that made them,
 // and a convoy closing in is news only for the side it is coming at
-const PRIVATE_EVENTS = new Set(['spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed']);
+const PRIVATE_EVENTS = new Set(['decoy', 'spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed']);
 const seesEvent = (ev, f) => ev.k === 'threat' ? ev.f !== f : PRIVATE_EVENTS.has(ev.k) ? ev.f === f : true;
 setInterval(() => {
   if (E.S.ended) {
