@@ -82,14 +82,14 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .rwStaff b{font-size:18px;font-variant-numeric:tabular-nums}
 .rwStaff small{color:var(--mut)}
 .rwStaff a{color:var(--mut);font-size:10.5px;text-decoration:none;align-self:flex-end}
-@media (max-width:700px){ .rwGrid{grid-template-columns:1fr 1fr} .rw:not(:nth-child(3n+1)){padding-left:0;border-left:0} .rw:nth-child(even){padding-left:14px;border-left:1px solid var(--edge)} .rw>b{font-size:24px} }
 .rwSub{margin-top:16px;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--mut);text-transform:uppercase}
 .rwGrid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px;border-top:1px solid rgba(233,238,245,.22)}
-.rw{padding:16px 18px 18px 0;border-bottom:1px solid var(--edge);display:flex;flex-direction:column;gap:6px}
+.rw{min-width:0;overflow-wrap:anywhere;padding:16px 18px 18px 0;border-bottom:1px solid var(--edge);display:flex;flex-direction:column;gap:6px}
 .rw:not(:nth-child(3n+1)){padding-left:18px;border-left:1px solid var(--edge)}
 .rw>b{font:800 30px/1 var(--disp);letter-spacing:-.01em;color:var(--ink);font-variant-numeric:tabular-nums}
 .rw span{font-size:13px;line-height:1.4;color:var(--dim)} .rw span b{color:var(--ink)}
 .rw a{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);text-decoration:none;margin-top:auto;padding-top:4px} .rw a:hover{color:var(--ink);text-decoration:underline}
+@media (max-width:700px){ .rwGrid{grid-template-columns:repeat(2,minmax(0,1fr))} .rwSheet h1{font-size:28px!important} .rwStaff,.rwList{margin-left:0} .rw:not(:nth-child(3n+1)){padding-left:0;border-left:0} .rw:nth-child(even){padding-left:14px;border-left:1px solid var(--edge)} .rw>b{font-size:24px} }
 #rwNote{position:fixed;left:50%;top:150px;transform:translateX(-50%) translateY(-8px);z-index:9;width:min(620px,calc(100% - 28px));display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;background:rgba(9,14,22,.94);border:1px solid rgba(255,216,77,.45);font-size:13px;line-height:1.4;opacity:0;pointer-events:none;transition:opacity .6s,transform .6s}
 #rwNote.on{opacity:1;transform:translateX(-50%);pointer-events:auto}
 #rwNote button{flex:none;background:none;border:1px solid rgba(255,216,77,.5);color:#ffd84d;font:800 10.5px inherit;letter-spacing:.06em;padding:7px 10px;border-radius:5px;cursor:pointer}
@@ -360,9 +360,9 @@ input[type=range]{accent-color:var(--ink)}
 #tip .m{color:var(--dim);margin-top:4px}
 
 /* modals */
-.modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:16px;background:linear-gradient(180deg,rgba(5,8,13,.35),rgba(5,8,13,.92) 70%)}
+.modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(5,8,13,.35),rgba(5,8,13,.92) 70%)}
 .modal.hidden{display:none}
-.sheet{width:min(800px,100%);max-height:94vh;overflow:auto}
+.sheet{width:min(800px,100%);max-height:94vh;max-height:calc(100dvh - 32px);overflow:auto;overflow-x:hidden}
 .sheet h1{font:800 clamp(38px,7.5vw,72px)/.95 var(--disp);margin:0;letter-spacing:-.01em}
 .sheet .lead{font-size:15px;color:#b5c1cf;margin:12px 0 22px;max-width:600px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
