@@ -274,6 +274,10 @@ E.onEvent(ev => {
   }
   if (ev.k === 'start' && archive.length) season = archive[archive.length - 1].season + 1;
 });
+// events are part of the fog of war too: intel, plans and launch keys stay inside the faction that made them,
+// and a convoy closing in is news only for the side it is coming at
+const PRIVATE_EVENTS = new Set(['spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed']);
+const seesEvent = (ev, f) => ev.k === 'threat' ? ev.f !== f : PRIVATE_EVENTS.has(ev.k) ? ev.f === f : true;
 setInterval(() => {
   if (E.S.ended) {
     if (!restartAt) restartAt = Date.now() + RESTART_AFTER_MS;
@@ -286,12 +290,13 @@ setInterval(() => {
 
 setInterval(() => {
   if (!sockets.size) { events = []; return; }
-  const views = [E.snapshot(0), E.snapshot(1)], online = humansOnline(), evs = events, sigs = signals; events = []; signals = [[], []];  // fog of war: each faction gets its own view
+  const views = [E.snapshot(0), E.snapshot(1)], online = humansOnline(), sigs = signals; signals = [[], []];  // fog of war: each faction gets its own view
+  const evs = [0, 1].map(f => events.filter(ev => seesEvent(ev, f))); events = [];
   const extra = { online, bots: E.bots, board: E.leaderboard().slice(0, 12), history: E.S.ended ? E.S.history : undefined, frames: E.S.ended ? E.S.frames : undefined, restartIn: restartAt ? Math.max(0, restartAt - Date.now()) : 0 };
   for (const [ws, s] of sockets) {
     if (!s.pid || ws.readyState !== 1) continue;
     const p = E.players.get(s.pid);
-    ws.send(JSON.stringify({ type: 'snap', ...views[p.f], ...extra, seasonNo: season, you: you(p), ev: sigs[p.f].length ? evs.concat(sigs[p.f]) : evs }));
+    ws.send(JSON.stringify({ type: 'snap', ...views[p.f], ...extra, seasonNo: season, you: you(p), ev: sigs[p.f].length ? evs[p.f].concat(sigs[p.f]) : evs[p.f] }));
   }
 }, SNAP_MS);
 

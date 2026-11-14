@@ -351,6 +351,10 @@ input[type=range]{accent-color:var(--ink)}
 #card .big{font:800 26px/1 var(--disp);margin:10px 0 2px}
 #card .sub{font-size:11px;color:var(--dim)}
 #card .tag{font-size:11px;font-weight:700;margin-top:6px}
+#dragFx{position:fixed;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;display:none;overflow:visible}
+#dragFx path{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:2 9;filter:drop-shadow(0 0 4px currentColor)}
+#dragFx .hd{fill:currentColor;filter:drop-shadow(0 0 6px currentColor)}
+#dragFx .rg{fill:none;stroke:currentColor;stroke-width:2}
 #tip{position:fixed;z-index:6;pointer-events:none;background:#0b1118;border:1px solid var(--edge);border-radius:6px;padding:9px 11px;font-size:12px;display:none;min-width:190px;max-width:270px}
 #tip b.h{font:700 12px/1.2 var(--disp)}
 #tip .vs{display:flex;align-items:center;gap:8px;margin-top:7px;font:800 15px/1 var(--disp)}
@@ -559,6 +563,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div id="rwNote"><span>This siren was a game. In Kyiv the real one has sounded for <b>2,822 hours</b> since 2022. Are you sure you are ready for a real war?</span><button id="rwNoteGo">SEE THE REAL NUMBERS</button><button id="rwNoteX" title="Close">×</button></div>
 <div id="gevCard"><div class="gk">WORLD EVENT · <span id="gevDay"></span></div><div class="gi" id="gevIcon"></div><div class="gn" id="gevName"></div><div class="gt" id="gevText"></div></div>
 <div id="conn" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:8;background:#3c0e0a;border:1px solid var(--bad);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700">Connection lost. Reconnecting…</div>
+<svg id="dragFx"><path id="dfPath"/><circle class="rg" id="dfRing" r="14"/><circle class="hd" id="dfHead" r="4"/><circle class="rg" id="dfSrc" r="16"/></svg>
 <div id="tip"></div>
 
 <div class="modal" id="intro"><div class="sheet">
@@ -768,6 +773,59 @@ for (const c of cities) {
   c.size = s; c.disc = surf(discGeo, c, s, 1.0035, NCOL.clone(), 1); c.ring = surf(ringGeo, c, s, 1.0036, 0xffffff); c.hex = surf(hexGeo, c, s, 1.0037, 0xe9eef5); c.sab = surf(sabGeo, c, s, 1.0038, 0xff6b5b);
 }
 
+// ---------- capitals: a smooth pearl spire with a glowing orb, a thin halo and a soft light pool ----------
+// no hard edges: lathe-turned spire, soft gradient textures instead of flat rings
+const citadels = [];
+{
+  const softTex = ring => { const cv = document.createElement('canvas'); cv.width = cv.height = 128; const g = cv.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    if (ring) { gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(0.72, 'rgba(255,255,255,0)'); gr.addColorStop(0.86, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); }
+    else { gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); }
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(cv); };
+  const glowTex = softTex(false), ringTex = softTex(true);
+  // light beam: bright at the orb, fading out as it climbs
+  const beamTex = (() => { const cv = document.createElement('canvas'); cv.width = 4; cv.height = 128; const g = cv.getContext('2d'), gr = g.createLinearGradient(0, 128, 0, 0);
+    gr.addColorStop(0, 'rgba(255,255,255,0.9)'); gr.addColorStop(0.15, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 4, 128); return new THREE.CanvasTexture(cv); })();
+  const beamGeo = new THREE.CylinderGeometry(0.0007, 0.0018, 0.2, 32, 1, true); beamGeo.translate(0, 0.1, 0);
+  const ADD = { transparent: true, blending: THREE.AdditiveBlending, depthWrite: false };
+  const flat = new THREE.PlaneGeometry(1, 1); flat.rotateX(-Math.PI / 2);
+  const prof = []; for (let k = 0; k <= 24; k++) { const u = k / 24; prof.push(new THREE.Vector2(0.0008 + 0.0042 * Math.pow(1 - u, 2.2) + (u < 0.06 ? 0.0012 * (1 - u / 0.06) : 0), u * 0.032)); }
+  prof.push(new THREE.Vector2(0, 0.032));
+  const spireGeo = new THREE.LatheGeometry(prof, 48), orbGeo = new THREE.SphereGeometry(0.0021, 24, 16), haloGeo = new THREE.TorusGeometry(0.0085, 0.0004, 12, 96);
+  for (const c of cities) if (c.cap >= 0) {
+    const col = FCOL[c.cap];
+    const pearl = new THREE.MeshPhongMaterial({ color: 0xe3ebf4, emissive: col.clone().multiplyScalar(0.22), specular: 0xffffff, shininess: 110 });
+    const orbM = new THREE.MeshBasicMaterial({ color: col.clone().lerp(new THREE.Color(0xffffff), 0.35) });
+    const haloM = new THREE.MeshBasicMaterial({ color: col, opacity: 0.85, ...ADD }), poolM = new THREE.MeshBasicMaterial({ map: glowTex, color: col, opacity: 0.5, ...ADD });
+    const beamM = new THREE.MeshBasicMaterial({ map: beamTex, color: col, opacity: 0.8, side: THREE.DoubleSide, ...ADD });
+    const pulseM = new THREE.MeshBasicMaterial({ map: ringTex, color: col, opacity: 0, ...ADD }), sparkM = new THREE.SpriteMaterial({ map: glowTex, color: col, ...ADD });
+    const g = new THREE.Group(), add = (geo, m, y) => { const o = new THREE.Mesh(geo, m); o.position.y = y; g.add(o); return o; };
+    const pool = add(flat, poolM, 0.0006); pool.scale.setScalar(0.05);
+    const pulse = add(flat, pulseM, 0.0008);
+    add(spireGeo, pearl, 0);
+    const orb = add(orbGeo, orbM, 0.0345), halo = add(haloGeo, haloM, 0.018); halo.rotation.x = Math.PI / 2;
+    add(beamGeo, beamM, 0.0345);
+    const spark = new THREE.Sprite(sparkM); spark.position.y = 0.0345; spark.scale.setScalar(0.016); g.add(spark);
+    g.position.copy(c.v).multiplyScalar(1.0012); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), c.v.clone().normalize());
+    scene.add(g);
+    citadels.push({ c, g, pearl, orbM, haloM, poolM, pulseM, sparkM, beamM, halo, spark, pulse, held: c.cap });
+  }
+}
+function paintCitadels() {
+  for (const k of citadels) {
+    const o = S.rad && S.rad[k.c.i] ? -2 : owner[k.c.i]; if (o === k.held) continue; k.held = o;
+    const col = o === -2 ? RADC : o >= 0 ? FCOL[o] : NCOL;
+    k.pearl.emissive.copy(col).multiplyScalar(0.22); k.orbM.color.copy(col).lerp(new THREE.Color(0xffffff), 0.35);
+    for (const m of [k.haloM, k.poolM, k.pulseM, k.sparkM, k.beamM]) m.color.copy(col);
+  }
+}
+function animCitadels(t) {
+  for (const k of citadels) {
+    const ph = t / 1000 + k.c.i;
+    k.halo.position.y = 0.018 + Math.sin(ph * 1.2) * 0.0025; k.halo.rotation.y = Math.sin(ph * 0.6) * 0.2;
+    k.spark.scale.setScalar(0.014 + Math.sin(ph * 2.2) * 0.003); k.beamM.opacity = 0.65 + Math.sin(ph * 2.2) * 0.15;
+    const p = (t / 2600 + k.c.i * 0.37) % 1; k.pulse.scale.setScalar(0.03 + p * 0.06); k.pulseM.opacity = (1 - p) * 0.7;
+  }
+}
 const MAXP = 7000;
 const cvGeo = new THREE.BufferGeometry();
 cvGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(MAXP * 3), 3));
@@ -1227,6 +1285,7 @@ function targetOutcome(i) {
 }
 let targetCount = 0;
 function paintCities() {
+  paintCitadels();
   targetCount = 0;
   const dist = camera.position.length(), vis = cities.filter(c => c.vis);
   const prio = c => (c.i === selected || c.i === hoverCity ? 100 : 0) + (c.cap >= 0 ? 50 : 0) + c.tier * 10 + (owner[c.i] === me ? 3 : 0);
@@ -1347,6 +1406,19 @@ function refreshUI() { paintCities(); paintRoutes(); updateCard(); updateHint();
 
 let down = null, mouse = [0, 0];
 let dragFrom = -1, dragging = false;
+// while dragging troops: a glowing dotted arc from the city to the cursor; it snaps to a valid own city and turns green
+function drawDragFx(t) {
+  const svg = $('dragFx');
+  if (!dragging || dragFrom < 0) { if (svg.style.display !== 'none') svg.style.display = 'none'; return; }
+  const a = cities[dragFrom], h = hoverCity, ok = h >= 0 && h !== dragFrom && owner[h] === me && selRoute && isFinite(selRoute.dist[h]);
+  const bx = ok ? cities[h].sx : mouse[0], by = ok ? cities[h].sy : mouse[1], mx = (a.sx + bx) / 2, my = (a.sy + by) / 2 - Math.min(90, Math.hypot(bx - a.sx, by - a.sy) * 0.25);
+  svg.style.display = 'block'; svg.style.color = ok ? 'var(--good)' : FCSS[me];
+  const p = $('dfPath'); p.setAttribute('d', `M${a.sx},${a.sy} Q${mx},${my} ${bx},${by}`); p.style.stroke = 'currentColor'; p.style.strokeDashoffset = -(t / 40) % 11;
+  const k = (t / 900) % 1;
+  $('dfHead').setAttribute('cx', bx); $('dfHead').setAttribute('cy', by);
+  $('dfRing').setAttribute('cx', bx); $('dfRing').setAttribute('cy', by); $('dfRing').setAttribute('r', ok ? 12 + k * 10 : 8 + k * 8); $('dfRing').style.opacity = 1 - k;
+  $('dfSrc').setAttribute('cx', a.sx); $('dfSrc').setAttribute('cy', a.sy); $('dfSrc').style.opacity = 0.5;
+}
 addEventListener('selectstart', e => { if (dragFrom >= 0 || !e.target.closest || !e.target.closest('.sheet, input, textarea')) e.preventDefault(); });
 addEventListener('dragstart', e => { if (!e.target.closest || !e.target.closest('.sheet')) e.preventDefault(); });
 renderer.domElement.addEventListener('pointerdown', e => {
@@ -2207,6 +2279,7 @@ function frame(t) {
   rtT += dt; if (rtT > 0.25) { rtT = 0; paintRoutes(); }
   visT += dt; if (visT > 0.5) { visT = 0; refreshVis(); }
   syncStorms(t);
+  animCitadels(t); drawDragFx(t);
   placeLabels(); placeSats(t); placeNations(); placePings(t); placeFleets(); if (tut) refreshCoach();
   labT += dt; if (labT > 0.12) { labT = 0; paintCities(); }
   hudT += dt; if (hudT > 0.25) { hudT = 0; hud(); if (hoverCity >= 0 || dragging) showTip(mouse[0], mouse[1]); }
