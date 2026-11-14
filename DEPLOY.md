@@ -54,6 +54,26 @@ VAPID_SUBJECT=mailto:you@your-domain
 
 `SIM_SPEED` sets the pace: at `1` a season lasts 15 minutes of real time, at `0.25` an hour, at `0.0417` a full day.
 
+## Optional: sign in with Google
+
+Players can stay anonymous forever. If you set `GOOGLE_CLIENT_ID`, the intro screen and the Locker also offer
+"Sign in with Google" so a player keeps their rank, XP, trail and squad on every device. The server checks each
+token with Google and stores only a salted hash of the Google account id (in `auth.json` in the data volume): no email, no name.
+
+1. Open [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials) and create a project if you have none.
+2. Configure the **OAuth consent screen**: External, app name "Supply Lines", your support email, the domain `globalwar.xyz`. Only the default scopes are needed (`openid`, `email`, `profile`), so no verification review is required.
+3. **Create credentials → OAuth client ID → Web application.**
+   Authorized JavaScript origins: `https://globalwar.xyz` (and `http://localhost:5177` for local testing). No redirect URIs are needed.
+4. Copy the client ID (`…apps.googleusercontent.com`) into `.env`:
+
+   ```env
+   GOOGLE_CLIENT_ID=1234567890-abc.apps.googleusercontent.com
+   ```
+
+5. `docker compose up -d` to restart. The button appears on the intro screen.
+
+For local development without Google, `GOOGLE_CLIENT_ID=test` shows a "TEST SIGN-IN" button that accepts any made-up account id. Never use `test` on a public server.
+
 ## Updating
 
 ```bash

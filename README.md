@@ -46,6 +46,7 @@ The map is the real world with three changes:
 | **Squads** | Create a squad, share the invite link: friends land on your side, and coordinated hits get a combo bonus. |
 | **Ranks and cosmetics** | Eight ranks with insignia; each unlocks a convoy trail every player can see. |
 | **World report** | A public page with the live map, score, chronicle and leaders, made for sharing. |
+| **Optional Google sign-in** | Play anonymously, or sign in to keep your rank, XP and trail on every device. Only a salted hash of the account id is stored. |
 | **Push alerts** | Optional browser notifications when your cities are attacked or a launch is detected (PWA). |
 
 ![A nuclear strike in Supply Lines](docs/nuke.jpg)
@@ -86,6 +87,7 @@ Useful environment variables:
 | `SIM_SPEED` | `1` | Sim seconds per real second. At `1` a season lasts 15 minutes; `0.1` makes it 2.5 hours |
 | `BOTS` | `300` | Bots per faction when nobody is online |
 | `DATA_DIR` | `server/data` | Where the world, players, squads and the VAPID key are saved |
+| `GOOGLE_CLIENT_ID` | (empty) | Turns on optional Google sign-in, see DEPLOY.md |
 | `VAPID_SUBJECT` | `mailto:admin@supply-lines.invalid` | Contact for web push |
 
 ```bash
@@ -109,7 +111,7 @@ To rebuild the map, download Natural Earth *Admin 1 – States, Provinces* (10m,
 
 ## Roadmap
 
-- [ ] Optional sign-in with Google to keep your rank and XP across devices (playing stays anonymous by default)
+- [x] Optional sign-in with Google to keep your rank and XP across devices (playing stays anonymous by default)
 - [ ] Ukrainian / English language switch
 - [ ] Season replay export as a video for social media
 - [ ] Twitter/X bot with season results

@@ -623,7 +623,7 @@ export function createEngine(NET, opts = {}) {
   E.leaderboard = () => heroes.map(h => ({ name: h.name, f: h.f, caps: h.caps })).concat([...players.values()].filter(p => p.online || p.caps).map(p => ({ name: p.name, f: p.f, caps: p.caps, id: p.pub, rank: rankOf(p.xp).name }))).sort((a, b) => b.caps - a.caps);
 
   E.publicPlayer = p => ({ cp: +p.cp.toFixed(2), cpMax: E.cpMax(p.f), f: p.f, name: p.name, pub: p.pub, caps: p.caps, sent: p.sent, clashes: p.clashes, forts: p.forts, sabs: p.sabs, drops: p.drops, blocks: p.blocks || 0,
-    trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200) });
+    linked: !!p.linked, trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200) });
   // ---------- player commands (validated: the server trusts nothing else) ----------
   const fail = msg => ({ ok: false, msg });
   E.command = (pid, c) => {

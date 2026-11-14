@@ -27,9 +27,33 @@ const NET = JSON.parse(fs.readFileSync(path.join(ROOT, 'net.js'), 'utf8').replac
 const E = createEngine(NET);
 // players persist across seasons and restarts (name, rank/XP); offline players are re-balanced each season
 const saved = readJson('players.json', {});
+// ---------- optional Google sign-in ----------
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const auth = readJson('auth.json', null) || { salt: crypto.randomBytes(16).toString('hex'), accounts: {} };
+const saveAuth = () => writeJson('auth.json', auth);
+if (GOOGLE_CLIENT_ID) saveAuth();
+const accountKey = sub => crypto.createHash('sha256').update(auth.salt + ':' + sub).digest('hex');
+async function verifyGoogle(credential) {
+  if (typeof credential !== 'string' || credential.length > 4096) return null;
+  if (GOOGLE_CLIENT_ID === 'test' && credential.startsWith('test:')) return credential.slice(5); // local tests only
+  try {
+    const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(credential), { signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return null; const t = await r.json();
+    if (t.aud !== GOOGLE_CLIENT_ID || !['accounts.google.com', 'https://accounts.google.com'].includes(t.iss) || +t.exp * 1000 < Date.now() || !t.sub) return null;
+    return t.sub;
+  } catch { return null; }
+}
+// fold an anonymous player's progress into the account's player
+function mergeInto(dst, src) {
+  if (!dst || !src || dst === src) return;
+  dst.xp = Math.max(dst.xp || 0, src.xp || 0);
+  if (src.trail && (!dst.trail || dst.trail === 'std')) dst.trail = src.trail;
+  if (!dst.squad && src.squad) dst.squad = src.squad;
+  if (!dst.push && src.push) dst.push = src.push;
+}
 for (const [code, sq] of Object.entries(readJson('squads.json', {}))) E.squads.set(code, sq);
 const saveSquads = () => writeJson('squads.json', Object.fromEntries([...E.squads].filter(([code]) => E.squadMembers(code).length || [...E.players.values()].some(p => p.pendingSquad === code))));
-const loadSavedPlayers = () => { for (const [pid, p] of Object.entries(saved)) { if (!E.players.has(pid)) { const pl = E.addPlayer(pid, p.f ?? 0, p.name, p.pub, p.xp || 0); pl.online = false; if (p.squad) pl.squad = p.squad; if (p.trail) pl.trail = p.trail; if (p.pendingSquad) pl.pendingSquad = p.pendingSquad; } if (p.push && !E.players.get(pid).push) E.players.get(pid).push = p.push; } };
+const loadSavedPlayers = () => { for (const [pid, p] of Object.entries(saved)) { if (!E.players.has(pid)) { const pl = E.addPlayer(pid, p.f ?? 0, p.name, p.pub, p.xp || 0); pl.online = false; if (p.squad) pl.squad = p.squad; if (p.trail) pl.trail = p.trail; if (p.linked) pl.linked = true; if (p.pendingSquad) pl.pendingSquad = p.pendingSquad; } if (p.push && !E.players.get(pid).push) E.players.get(pid).push = p.push; } };
 loadSavedPlayers();
 // resume the running season if the server restarted mid-way
 const world = readJson('world.json', null);
@@ -81,7 +105,7 @@ function pushForEvent(ev) {
 }
 let season = archive.length ? archive[archive.length - 1].season + 1 : 1;
 function savePlayers() { saveSquads(); savePlayersInner(); }
-function savePlayersInner() { const o = {}; for (const p of E.players.values()) o[p.id] = { pub: p.pub, name: p.name, xp: p.xp, f: p.f, push: p.push, squad: p.squad, pendingSquad: p.pendingSquad, trail: p.trail }; writeJson('players.json', o); }
+function savePlayersInner() { const o = {}; for (const p of E.players.values()) o[p.id] = { pub: p.pub, name: p.name, xp: p.xp, f: p.f, push: p.push, squad: p.squad, pendingSquad: p.pendingSquad, trail: p.trail, linked: p.linked || undefined }; writeJson('players.json', o); }
 setInterval(savePlayers, 30000);
 let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { savePlayers(); saveWorld(); }, 1000); };
 
@@ -130,7 +154,7 @@ wss.on('connection', (ws, req) => {
       if (!pid || !E.players.has(pid)) { pid = pid || crypto.randomBytes(12).toString('hex'); E.addPlayer(pid, inv && E.squadMembers(inv.code).length < K.SQUAD_MAX ? inv.f : pickFaction()); savePlayersSoon(); }
       const p = E.players.get(pid); p.online = true; s.pid = pid;
       let squadMsg = null; if (m.squad) { const r = inv ? E.joinSquad(pid, inv.code) : { ok: false, msg: 'This invite link is no longer valid' }; squadMsg = r.already ? null : r.ok ? (r.msg || `You joined ${inv.name}`) : r.msg; savePlayersSoon(); }
-      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, caps: E.CAPS, squadMsg }));
+      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, caps: E.CAPS, squadMsg, google: GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'test' ? GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID ? 'test' : null }));
       ws.send(JSON.stringify({ type: 'snap', ...E.snapshot(p.f), seasonNo: season, you: you(p), online: humansOnline() }));
       rebalanceBots();
       return;
@@ -147,6 +171,27 @@ wss.on('connection', (ws, req) => {
       if (!SIGNALS.has(m.kind) || city < 0 || city >= E.N || now - (s.lastSignal || 0) < 3000) return;
       s.lastSignal = now; signals[p.f].push({ k: 'signal', f: p.f, city, kind: m.kind, name: p.name, who: p.pub, rank: E.rankOf(p.xp).name });
       return;
+    }
+    if (m.type === 'google') {
+      if (!GOOGLE_CLIENT_ID) return;
+      const pid = s.pid; s.tokens = Math.min(s.tokens, 0); // one sign-in attempt at a time
+      verifyGoogle(m.credential).then(sub => {
+        if (!sub) return ws.readyState === 1 && ws.send(JSON.stringify({ type: 'google_res', ok: false, msg: 'Google sign-in failed. Try again.' }));
+        const key = accountKey(sub), cur = E.players.get(pid), owner = auth.accounts[key];
+        if (owner && owner !== pid && E.players.has(owner)) {
+          // this Google account already has a player (another device): continue as that one
+          const acc = E.players.get(owner); mergeInto(acc, cur); acc.linked = true; savePlayersSoon();
+          ws.send(JSON.stringify({ type: 'google_res', ok: true, pid: owner, msg: 'Welcome back: your progress is restored' }));
+        } else {
+          auth.accounts[key] = pid; saveAuth(); if (cur) cur.linked = true; savePlayersSoon();
+          ws.send(JSON.stringify({ type: 'google_res', ok: true, msg: 'Signed in: your rank and XP are saved to your Google account' }));
+        }
+      });
+      return;
+    }
+    if (m.type === 'google_out') {
+      // the account keeps its player; this browser starts again as a fresh anonymous player
+      ws.send(JSON.stringify({ type: 'google_res', ok: true, signedOut: true })); return;
     }
     if (m.type === 'squad') {
       const p = E.players.get(s.pid); let r;
