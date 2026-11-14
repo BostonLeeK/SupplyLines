@@ -1024,7 +1024,7 @@ export function createEngine(NET, opts = {}) {
   E.snapshot = (viewer = -1) => {
     const vis = viewer >= 0 ? E.visibility(viewer) : null, hide = i => vis && !vis[i] && S.owner[i] !== viewer && S.owner[i] >= 0;
     return {
-    t: +S.simT.toFixed(2), season: S.season, ended: S.ended, fog: viewer,
+    t: +S.simT.toFixed(4), season: S.season, ended: S.ended, fog: viewer,
     owner: Array.from(S.owner), troops: Array.from(S.troops, (x, i) => hide(i) ? -1 : Math.round(x * 10) / 10),
     fort: pairs(S.fort, S.simT).filter(([i]) => !hide(i)), sab: pairs(S.sab, S.simT), heat: pairs(S.heat, 0.01),
     block: pairs(S.block, S.simT).map(([i, v]) => [i, v, S.blockBy[i]]),

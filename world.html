@@ -204,7 +204,7 @@ cv.addEventListener('mouseleave', () => $('tip').style.display = 'none');
 // --- data ---
 const RANKS = ['Private', 'Corporal', 'Sergeant', 'Lieutenant', 'Captain', 'Major', 'Colonel', 'General'];
 const GMIN = s => 7 * 1440 / s.seasonLen;
-const clock = (s, t) => { const gm = t * GMIN(s), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; };
+const clock = (s, t) => { const gm = Math.min(t * GMIN(s), 7 * 1440 - 1), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; };
 const GEV = { oil: '⛽ Oil shock', crop: '🌾 Crop failure', solar: '☀ Solar storm', summit: '🕊 Peace summit', hurricane: '🌀 Hurricane season', arms: '⚙ Arms fair', disarm: '☮ Disarmament talks', rally: '✊ Patriotic wave' };
 function chart(h) {
   if (!h || h.length < 2) return '<div class="empty">The season has just begun.</div>';

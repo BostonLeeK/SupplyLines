@@ -1128,7 +1128,7 @@ function onGameEvent(ev) {
       if (ev.ev === 'rally') extra = ev.f < 0 ? ' Scores are level: nobody gets it.' : ev.f === me ? ' <b>That is your faction.</b>' : ` <b>${FN[ev.f]} gets it.</b>`;
       if (ev.ev === 'oil' && !E.resHeld(me).o) extra = ' <b>You hold no oil: take an oil field ⛽.</b>';
       if (ev.ev === 'crop' && !E.resHeld(me).g) extra = ' <b>You hold no grain: take a grain field 🌾.</b>';
-      $('gevDay').textContent = 'DAY ' + gameTime()[0]; $('gevIcon').textContent = g.icon; $('gevName').textContent = g.name; $('gevText').innerHTML = g.text + extra;
+      $('gevDay').textContent = 'DAY ' + (ev.until ? Math.round(ev.until / (K.SEASON / 7)) : gameTime()[0]); $('gevIcon').textContent = g.icon; $('gevName').textContent = g.name; $('gevText').innerHTML = g.text + extra;
       const c = $('gevCard'); c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), 9000); c.onclick = () => c.classList.remove('on');
       event(`${g.icon} World event: ${g.name} until midnight`, 'warn'); sfx('fort'); break;
     }
@@ -1546,7 +1546,8 @@ renderer.domElement.addEventListener('pointerleave', () => { hoverCity = -1; tip
 
 // ================= HUD =================
 const feedEl = $('feed');
-function gameTime() { const gm = S.simT * GMIN, d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; }
+// the last minute of day 7 is as far as the clock goes: at the very end it must not wrap to 'day 7, 00:00'
+function gameTime() { const gm = Math.min(S.simT * GMIN, 7 * 1440 - 1), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; }
 function event(html, f, city) {
   // local mistakes show next to the action; news about your cities stays in the feed
   if (f === 'warn' && !/sabotaged|blockaded|repelled|shot down/.test(html)) return toast(html, 'bad', typeof city === 'number' ? city : -1);
@@ -1840,7 +1841,7 @@ $('docGrid').onclick = ev => { const b = ev.target.closest('[data-doc]'); if (b)
 $('docHide').onclick = () => { docHidden = true; $('docCard').classList.remove('on'); };
 function updateDocCard() { const show = !S.ended && amChief() && S.doctrine && !S.doctrine[me] && simT < K.SEASON / 7 && !docHidden; $('docCard').classList.toggle('on', !!show); }
 // named operation of your faction: targets, progress and the deadline
-const gameTimeAt = t => { const gm = t * GMIN, d = Math.min(7, Math.floor(gm / 1440) + 1); return `day ${d}, ${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:00`; };
+const gameTimeAt = t => { const gm = Math.min(t * GMIN, 7 * 1440 - 1), d = Math.min(7, Math.floor(gm / 1440) + 1); return `day ${d}, ${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:00`; };
 function updateOpPanel() {
   const op = S.ops && S.ops[me], el = $('opPanel');
   if (!op || S.ended) { if (el.innerHTML) el.innerHTML = ''; return; }
