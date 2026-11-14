@@ -242,7 +242,7 @@ function worldState() {
     regionHeld: E.S.regionHeld, strikes: E.S.strikes, winter: E.S.winter, gev: E.S.gev && E.ge(E.S.gev.k) ? E.S.gev.k : null,
     online: humansOnline(), chief, board: E.leaderboard().slice(0, 10).map(h => ({ name: h.name, f: h.f, caps: h.caps, rank: h.rank || null })),
     squads: [...sq.values()].sort((a, b) => b.caps - a.caps).slice(0, 5), log: wlog.slice(0, 20),
-    history: (E.S.history || []).slice(-80), seasons: archive.slice(-6).reverse().map(a => ({ season: a.season, winner: a.winner, pts: a.pts, endedAt: a.endedAt })),
+    history: (E.S.history || []).slice(-80), seasons: archive.slice(-6).reverse().map(a => ({ season: a.season, winner: a.winner, winter: a.winter, pts: a.pts, endedAt: a.endedAt })),
     alerts: realWar.alerts && Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts.on.length : null,
   };
 }
@@ -251,7 +251,7 @@ E.onEvent(ev => {
   try { pushForEvent(ev); } catch (e) { console.error('push', e.message); }
   if (ev.k === 'end') {
     const top = E.leaderboard().slice(0, 5).map(h => ({ name: h.name, f: h.f, caps: h.caps }));
-    archive.push({ season, endedAt: new Date().toISOString(), pts: ev.pts, cities: ev.cities, winner: ev.winner, history: E.S.history, owner: Array.from(E.S.owner), frames: E.S.frames, top,
+    archive.push({ season, endedAt: new Date().toISOString(), pts: ev.pts, cities: ev.cities, winner: ev.winner, winter: !!ev.winter, history: E.S.history, owner: Array.from(E.S.owner), frames: E.S.frames, top,
       players: [...E.players.values()].filter(p => p.caps || p.sent).length });
     writeJson('archive.json', archive.slice(-200)); savePlayers();
   }

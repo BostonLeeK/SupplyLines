@@ -27,6 +27,8 @@
   --disp:"Unbounded",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
+*{scrollbar-width:thin;scrollbar-color:#2a3644 transparent}
+::-webkit-scrollbar{width:8px;height:8px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:#2a3644;border-radius:8px;border:2px solid transparent;background-clip:padding-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);-webkit-font-smoothing:antialiased}
 a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
@@ -232,7 +234,7 @@ function render(s) {
   $('squads').innerHTML = s.squads.length ? s.squads.map(q => `<div class="row"><span class="nm" style="color:${FC[q.f]}">${esc(q.name)}</span><small>${q.n} ${q.n === 1 ? 'player' : 'players'}</small><b>${q.caps}</b></div>`).join('') : '<div class="empty">No squads yet. Create one in the game and invite friends by link.</div>';
   $('chart').innerHTML = chart(s.history);
   $('regions').innerHTML = REGIONS.map((r, k) => { const h = s.regionHeld[k]; return `<div><i style="${h >= 0 ? `background:${FC[h]}` : ''}"></i>${r}</div>`; }).join('');
-  $('seasons').innerHTML = s.seasons.length ? s.seasons.map(a => `<div class="row"><span class="nm">Season ${a.season}</span><span style="color:${a.winner >= 0 ? FC[a.winner] : 'var(--dim)'}">${a.winner >= 0 ? FN[a.winner] : 'No winner'}</span><b>${a.pts ? a.pts.join(' – ') : ''}</b></div>`).join('') : '<div class="empty">This is the first season.</div>';
+  $('seasons').innerHTML = s.seasons.length ? s.seasons.map(a => `<div class="row"><span class="nm">Season ${a.season}</span><span style="color:${a.winner >= 0 ? FC[a.winner] : 'var(--dim)'}">${a.winner >= 0 ? FN[a.winner] : (a.winter || (a.pts && a.pts[0] !== a.pts[1])) ? '☢ Nuclear winter' : 'Draw'}</span><b>${a.pts ? a.pts.join(' – ') : ''}</b></div>`).join('') : '<div class="empty">This is the first season.</div>';
   if (s.alerts != null) { $('real').style.display = 'flex'; $('realTxt').innerHTML = s.alerts ? `This is a game. Right now there is a real air-raid alert in <b>${s.alerts} regions of Ukraine</b>.` : 'This is a game. In Ukraine the war is real, and the sirens come back every day.'; }
   document.title = `Supply Lines · ${FN[0]} ${s.pts[0]} – ${s.pts[1]} ${FN[1]}`;
 }
