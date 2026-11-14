@@ -5,7 +5,7 @@
 export const K = {
   SEASON: 900, SPEED: [230, 360, 950],
   PROD: [0, 0.35, 0.7, 1.25], CAPT: [0, 80, 150, 260], NEUTRAL: [0, 24, 52, 96], VALUE: [0, 1, 3, 6],
-  CP_BASE: 10, CP_REGEN: 8, AIR_CAP: 40, BOT_RATE: 0.005,
+  CP_BASE: 10, CP_REGEN: 8, AIR_CAP: 40, BOT_RATE: 0.005, HOLD_TIME: 60,
   REGION_BONUS: 8, FORT_MULT: 1.6, FORT_TIME: 100, FORT_COST: 2,
   SAB_MULT: 0.7, SAB_TIME: 86, SAB_COST: 3, DROP_COST: 3, DROP_KM: 3500, DROP_CAP: 30, RALLY_TIME: 120,
   CMDR_MULT: 1.15, NCAP_MAX: 3, BLOCK_COST: 3, BLOCK_TIME: 86, AA_KM: 1500, AA_LOSS: 0.4,
@@ -114,7 +114,7 @@ export function createEngine(NET, opts = {}) {
   // ---------- setup ----------
   E.reset = () => {
     S.owner = new Int8Array(N).fill(-1); S.troops = new Float32Array(N); S.supplied = new Uint8Array(N); S.frontDist = new Int16Array(N);
-    S.fort = new Float32Array(N); S.sab = new Float32Array(N); S.heat = new Float32Array(edges.length);
+    S.fort = new Float32Array(N); S.sab = new Float32Array(N); S.heat = new Float32Array(edges.length); S.hold = new Float32Array(N);
     S.regionHeld = REGIONS.map(() => -1); S.mobil = [1, 1]; S.orders = [-1, -1]; S.history = []; S.convoys = [];
     S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
     S.nuke = [0, 1].map(() => ({ prog: 0, ready: false, used: false, arm: null, rate: 0.7 + Math.random() * 0.7 }));
@@ -279,14 +279,14 @@ export function createEngine(NET, opts = {}) {
   }
   function arrive(cv, v) {
     const f = cv.f;
-    if (S.owner[v] === f) { if (cv.hop < cv.es.length - 1) { cv.hop++; enterEdge(cv); return; } S.troops[v] += cv.n; cv.alive = false; return; }
+    if (S.owner[v] === f) { if (cv.hop < cv.es.length - 1) { cv.hop++; enterEdge(cv); return; } S.troops[v] += cv.n; cv.alive = false; if (players.has(cv.who)) S.hold[v] = S.simT + K.HOLD_TIME; return; }
     cv.alive = false;
     if (cv.drop) { const h = E.aaCover(v, f); if (h >= 0) { const lost = Math.round(cv.n * K.AA_LOSS); cv.n -= lost; emit({ k: 'aa', f, city: v, hub: h, lost, who: pubOf(cv.who) }); } }
     const m = E.defMult(v), def = S.troops[v] * m, pw = kindOf(cv).power * (siegeAt(v, f) ? K.FLEET_SIEGE : 1) * (E.markAt(f, v, 'attack') ? K.MARK_ATK : 1) * comboAt(cv, v);
     cv.n *= pw; // compare effective strength
     if (!cv.e.temp) S.heat[cv.e.i] = Math.min(1, S.heat[cv.e.i] + 0.5);
     if (cv.n > def) {
-      const prev = S.owner[v]; S.owner[v] = f; S.troops[v] = cv.n - def; S.fort[v] = 0; S.sab[v] = 0; S.block[v] = 0;
+      const prev = S.owner[v]; S.owner[v] = f; S.troops[v] = cv.n - def; S.fort[v] = 0; S.sab[v] = 0; S.block[v] = 0; S.hold[v] = players.has(cv.who) ? S.simT + K.HOLD_TIME : 0;
       if (prev < 0 && cities[v].nation >= 0 && S.favour) { const n = cities[v].nation, fv = S.favour[n]; if (fv[f] > 0 && fv[f] < 100) { const had = fv[f]; fv[f] = 0; fv[1 - f] = Math.min(99, fv[1 - f] + K.BETRAY_GIFT); emit({ k: 'betray', f, nation: n, city: v, lost: Math.round(had) }); } }
       const p = players.get(cv.who); if (p) p.caps++; else creditHero(f);
       if (p) {
@@ -399,6 +399,8 @@ export function createEngine(NET, opts = {}) {
   function botAct(f) {
     const own = []; for (let i = 0; i < N; i++) if (S.owner[i] === f && S.troops[i] >= 12) own.push(i);
     if (!own.length) return;
+    // cities where a player is massing troops are theirs to use: bots may fortify them but never draw troops from them
+    const free = own.filter(i => !(S.hold[i] > S.simT));
     const r = Math.random();
     if (r < 0.05) {
       let b = -1, bv = 0; for (let k = 0; k < 6; k++) { const i = own[(Math.random() * own.length) | 0]; if (S.frontDist[i] === 0 && S.fort[i] <= S.simT) { const v = K.VALUE[cities[i].tier] + (cities[i].cap >= 0 ? 5 : 0); if (v > bv) { bv = v; b = i; } } }
@@ -409,7 +411,7 @@ export function createEngine(NET, opts = {}) {
     } else if (r < 0.11 && r >= 0.095) {
       for (let k = 0; k < 8; k++) { const i = (Math.random() * N) | 0; if (E.canBlockade(f, i) && K.VALUE[cities[i].tier] >= 3) { S.block[i] = S.simT + K.BLOCK_TIME; S.blockBy[i] = f; emit({ k: 'blockade', f, city: i, who: 'bot' }); return; } }
     } else if (r < 0.095) {
-      const hubs = own.filter(i => cities[i].tier === 3 && S.troops[i] > 50);
+      const hubs = free.filter(i => cities[i].tier === 3 && S.troops[i] > 50);
       if (hubs.length) { const h = hubs[(Math.random() * hubs.length) | 0]; let b = -1, bs = 0;
         for (let i = 0; i < N; i++) if (E.canDrop(h, i) && S.owner[i] !== f) { const s = K.VALUE[cities[i].tier] / (E.defOf(i) + 5); if (K.DROP_CAP > E.defOf(i) * 1.1 && s > bs) { bs = s; b = i; } }
         if (b >= 0) { airdrop(f, h, b, 'bot'); return; } }
@@ -420,7 +422,7 @@ export function createEngine(NET, opts = {}) {
     }
     if (r >= 0.11 && r < 0.125) { // navy
       const mine = S.fleets.filter(x => x.f === f);
-      if (mine.length < 3) { const ports = own.filter(i => E.harbour(i) && S.troops[i] > 70); if (ports.length) { buildFleet(f, ports[(Math.random() * ports.length) | 0], 'bot'); return; } }
+      if (mine.length < 3) { const ports = free.filter(i => E.harbour(i) && S.troops[i] > 70); if (ports.length) { buildFleet(f, ports[(Math.random() * ports.length) | 0], 'bot'); return; } }
       const idle = mine.filter(x => !x.moving); if (idle.length) {
         const fl = idle[(Math.random() * idle.length) | 0]; let best = -1, bs = 0;
         for (let i = 0; i < N; i++) { if (!E.harbour(i) || i === fl.at) continue; const enemy = S.owner[i] === 1 - f, front = S.owner[i] === f && S.frontDist[i] === 0;
@@ -428,8 +430,9 @@ export function createEngine(NET, opts = {}) {
         if (best >= 0) { sailFleet(fl, best); return; }
       }
     }
+    if (!free.length) return;
     let src = -1, bt = -1;
-    for (let k = 0; k < 5; k++) { const i = own[(Math.random() * own.length) | 0], w = S.troops[i] * (S.frontDist[i] === 0 ? 1.4 : 1); if (w > bt) { bt = w; src = i; } }
+    for (let k = 0; k < 5; k++) { const i = free[(Math.random() * free.length) | 0], w = S.troops[i] * (S.frontDist[i] === 0 ? 1.4 : 1); if (w > bt) { bt = w; src = i; } }
     if (S.frontDist[src] === 0) {
       let best = -1, bs = 0;
       for (const { to, e } of adj[src]) {
@@ -862,7 +865,7 @@ export function createEngine(NET, opts = {}) {
 
   // ---------- persistence: everything needed to resume a season ----------
   E.save = () => ({
-    v: 1, S: { simT: S.simT, season: S.season, ended: S.ended, owner: Array.from(S.owner), troops: Array.from(S.troops), fort: Array.from(S.fort), sab: Array.from(S.sab),
+    v: 1, S: { simT: S.simT, season: S.season, ended: S.ended, owner: Array.from(S.owner), troops: Array.from(S.troops), fort: Array.from(S.fort), sab: Array.from(S.sab), hold: Array.from(S.hold),
       heat: Array.from(S.heat), regionHeld: S.regionHeld, mobil: S.mobil, orders: S.orders, history: S.history, frames: S.frames, cmdr: S.cmdr,
       block: Array.from(S.block), blockBy: Array.from(S.blockBy), storms: S.storms, rad: Array.from(S.rad), penalty: S.penalty, rage: S.rage, strikes: S.strikes, winter: S.winter, nuke: S.nuke, favour: S.favour, gev: S.gev, marks: S.marks, sats: S.sats, spies: S.spies, gevDay: S.gevDay, gevUsed: S.gevUsed, missiles: S.missiles, fleets: S.fleets.map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(e => e.i) } : null })) },
     conv: S.convoys.map(c => ({ kind: c.kind, f: c.f, n: c.n, es: c.drop ? null : c.es.map(x => x.i), drop: c.drop ? [c.es[0].a, c.es[0].b] : null, nodes: c.nodes, hop: c.hop, t: c.t, who: c.who })),
@@ -873,7 +876,7 @@ export function createEngine(NET, opts = {}) {
     if (!d || d.v !== 1) return false;
     const s = d.S;
     Object.assign(S, { simT: s.simT, season: s.season, ended: s.ended, regionHeld: s.regionHeld, mobil: s.mobil, orders: s.orders, history: s.history, frames: s.frames || [], cmdr: s.cmdr, storms: s.storms || [] });
-    S.owner = Int8Array.from(s.owner); S.troops = Float32Array.from(s.troops); S.fort = Float32Array.from(s.fort); S.sab = Float32Array.from(s.sab);
+    S.owner = Int8Array.from(s.owner); S.troops = Float32Array.from(s.troops); S.fort = Float32Array.from(s.fort); S.sab = Float32Array.from(s.sab); S.hold = s.hold ? Float32Array.from(s.hold) : new Float32Array(N);
     S.rad = Uint8Array.from(s.rad || new Array(N).fill(0)); S.penalty = s.penalty || [0, 0]; S.rage = s.rage || [0, 0]; S.strikes = s.strikes || 0; S.winter = !!s.winter;
     S.nuke = s.nuke || [0, 1].map(() => ({ prog: 0, ready: false, used: false, arm: null })); S.missiles = s.missiles || [];
     S.gev = s.gev || null; S.marks = s.marks || []; S.sats = s.sats || []; S.spies = s.spies || []; S.gevDay = s.gevDay || 0; S.gevUsed = s.gevUsed || [];

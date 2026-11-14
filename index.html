@@ -381,6 +381,7 @@ input[type=range]{accent-color:var(--ink)}
 .gAuth button.out{background:none;border:none;color:var(--mut);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .gAuth .gbtn{min-height:32px}
 .introLinks{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+body.fastroom #sideA .nm::after,body.fastroom #sideB .nm::after{content:' · FAST';color:var(--cp)}
 @media (max-width:560px){ .introLinks .btn2{flex:1 1 30%;padding:10px 6px;font-size:10px;text-align:center} }
 #manual,#realwar,#locker{z-index:12;background:rgba(5,8,13,.97)}
 .manSheet{max-width:820px}
@@ -575,7 +576,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
       <b>Outnumber the garrison</b><span>More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.</span></div>
   </div>
   <div class="foot"><div><div class="team" id="assign"></div><div class="team" id="netStatus" style="font-size:12px;margin-top:6px;color:var(--dim)"></div><div class="gAuth" id="gAuthIntro"></div></div><button class="play" id="go">PLAY</button></div>
-  <div class="introLinks"><button class="btn2" id="manualBtn" type="button">FIELD MANUAL</button><button class="btn2" id="tutAgain" type="button">REPLAY TUTORIAL</button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a></div>
+  <div class="introLinks"><button class="btn2" id="manualBtn" type="button">FIELD MANUAL</button><button class="btn2" id="tutAgain" type="button">REPLAY TUTORIAL</button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a><a class="btn2" id="roomLink" href="#" title="A separate world where a season lasts about half an hour. Handy for a quick test; it does not count for the main war." style="text-decoration:none;display:none">QUICK 30-MIN ROOM ↗</a></div>
 </div></div>
 <div class="modal hidden" id="end"><div class="sheet" id="endC"></div></div>
 
@@ -945,7 +946,12 @@ function toast(html, kind = 'info', city = -1) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.innerHTML = html;
   const c = city >= 0 ? cities[city] : null, p = c && c.vis ? [c.sx, c.sy - 16] : [mouse[0], mouse[1] - 12];
   d.style.left = Math.max(120, Math.min(innerWidth - 120, p[0])) + 'px'; d.style.top = Math.max(60, p[1]) + 'px';
-  document.body.appendChild(d); { const w = d.offsetWidth / 2 + 10; d.style.left = Math.max(w, Math.min(innerWidth - w, parseFloat(d.style.left))) + 'px'; } setTimeout(() => d.remove(), 2500);
+  document.body.appendChild(d); { const w = d.offsetWidth / 2 + 10; d.style.left = Math.max(w, Math.min(innerWidth - w, parseFloat(d.style.left))) + 'px'; }
+  // two notices over the same spot (a spy is sent and reports back at once): stack the new one above the old
+  { const x = parseFloat(d.style.left), y0 = parseFloat(d.style.top), others = [...document.querySelectorAll('.toast')].filter(o => o !== d);
+    const free = y => y >= 50 && !others.some(o => Math.abs(parseFloat(o.style.left) - x) < (o.offsetWidth + d.offsetWidth) / 2 && Math.abs(parseFloat(o.style.top) - y) < 30);
+    const y = [0, -32, -64, -96, 32, 64, 96].map(dy => y0 + dy).find(free); if (y !== undefined) d.style.top = y + 'px'; }
+  setTimeout(() => d.remove(), 2500);
   if (kind === 'bad') { const h = $('hint'); h.classList.add('flash'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.remove('flash'), 1600); }
 }
 // meta: { city, ok } describes where to show the result and what to say on success
@@ -1055,19 +1061,23 @@ function onGameEvent(ev) {
 E.onEvent(ev => { if (!online) onGameEvent(ev); });
 
 // ================= networking =================
+// the game can be served from a sub-path (the fast room lives at /fast/): sockets and the saved identity follow it
+const BASE = location.pathname.replace(/[^/]*$/, ''), PID_KEY = BASE === '/' ? 'sl-pid' : 'sl-pid:' + BASE;
 function connect() {
-  let pid = null; try { pid = localStorage.getItem('sl-pid'); } catch (e) {}
+  let pid = null; try { pid = localStorage.getItem(PID_KEY); } catch (e) {}
   let opened = false;
-  try { ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws'); } catch (e) { return offlineFallback(); }
+  try { ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + BASE + 'ws'); } catch (e) { return offlineFallback(); }
   const timer = setTimeout(() => { if (!opened) { try { ws.close(); } catch (e) {} offlineFallback(); } }, 2500);
   ws.onopen = () => { opened = true; clearTimeout(timer); ws.send(JSON.stringify({ type: 'hello', pid, squad: (qp.get('squad') || '').toUpperCase() || undefined })); };
   ws.onmessage = m => {
     const msg = JSON.parse(m.data);
     if (msg.type === 'welcome') {
-      online = true; myId = msg.pub; me = msg.f; serverSpeed = msg.speed;
-      try { localStorage.setItem('sl-pid', msg.pid); } catch (e) {}
+      online = true; myId = msg.pub; me = msg.f; serverSpeed = msg.speed; if (msg.cpRegen) K.CP_REGEN = msg.cpRegen;
+      try { localStorage.setItem(PID_KEY, msg.pid); } catch (e) {}
       document.body.classList.add('online'); facUI();
-      $('netStatus').innerHTML = `Online: you are <b>${msg.name}</b> in a shared world`;
+      $('netStatus').innerHTML = msg.room === 'fast' ? `Fast room: you are <b>${msg.name}</b>. A season here lasts ${Math.round(K.SEASON / msg.speed / 60)} minutes and does not count for the main war` : `Online: you are <b>${msg.name}</b> in a shared world`;
+      if (msg.room === 'fast') { document.body.classList.add('fastroom'); if (msg.mainUrl) { $('roomLink').href = msg.mainUrl; $('roomLink').textContent = 'MAIN WAR ↗'; $('roomLink').style.display = ''; } }
+      else if (msg.fastUrl) { $('roomLink').href = msg.fastUrl; $('roomLink').style.display = ''; }
       if (qp.get('squad')) { try { const u = new URL(location.href); u.searchParams.delete('squad'); history.replaceState(null, '', u); } catch (e) {} }
       googleId = msg.google || null; renderAuth();
       if (msg.squadMsg) { $('netStatus').innerHTML += ` · <b style="color:var(--cp)">${msg.squadMsg}</b>`; setTimeout(() => toast(msg.squadMsg, 'good'), 1500); }
@@ -1076,8 +1086,8 @@ function connect() {
     else if (msg.type === 'res') onResult(msg);
     else if (msg.type === 'google_res') {
       if (!msg.ok) toast('✕ ' + msg.msg, 'bad');
-      else if (msg.signedOut) { try { localStorage.removeItem('sl-pid'); } catch (e) {} location.reload(); }
-      else if (msg.pid) { try { localStorage.setItem('sl-pid', msg.pid); localStorage.setItem('sl-auth-msg', msg.msg); } catch (e) {} location.reload(); }
+      else if (msg.signedOut) { try { localStorage.removeItem(PID_KEY); } catch (e) {} location.reload(); }
+      else if (msg.pid) { try { localStorage.setItem(PID_KEY, msg.pid); localStorage.setItem('sl-auth-msg', msg.msg); } catch (e) {} location.reload(); }
       else { toast('✓ ' + msg.msg, 'good'); if (youInfo) youInfo.linked = true; renderAuth(); }
     }
     else if (msg.type === 'squad_res') { if (!msg.ok) toast('✕ ' + msg.msg, 'bad'); else if (msg.act === 'create') { toast('✓ Squad created: copy the invite link', 'good'); setTimeout(squadHud, 400); } else toast('You left the squad', 'good'); }

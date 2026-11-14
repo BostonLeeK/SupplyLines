@@ -12,10 +12,17 @@ import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import webpush from 'web-push';
 import { createEngine, K, FN, REGIONS, GEVENTS, rankOf } from '../game/engine.js';
+import { createWire } from './wire.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = +process.env.PORT || 5177;
 const SIM_SPEED = +process.env.SIM_SPEED || 0.125;         // sim-seconds per real second
+// command points refill in real time, whatever the season length: one point every CP_SECONDS.
+// The warhead price and bot nuke funding scale with it, so the nuclear program keeps its pace within a season.
+const CP_SECONDS = +process.env.CP_SECONDS || 45;
+{ const k = K.CP_REGEN / (CP_SECONDS * SIM_SPEED); K.CP_REGEN = CP_SECONDS * SIM_SPEED; K.NUKE_COST = Math.round(K.NUKE_COST * k); K.NUKE_BOT_RATE *= k; }
+// ROOM=fast runs a side world for quick tests: no news posts, and the main world links to it (FAST_URL) and back (MAIN_URL)
+const ROOM = process.env.ROOM === 'fast' ? 'fast' : 'main', FAST_URL = process.env.FAST_URL || '', MAIN_URL = process.env.MAIN_URL || '';
 const BOTS = +process.env.BOTS || 120;                    // simulated players per faction (filler)
 const HUMAN_WEIGHT = +process.env.HUMAN_WEIGHT || 10;     // one online human replaces this many bots
 const MAX_CONN_PER_IP = 6, CMD_PER_SEC = 8, SNAP_MS = 250, TICK_MS = 100, RESTART_AFTER_MS = 20000;
@@ -85,7 +92,7 @@ const vapid = readJson('vapid.json', null) || (() => { const k = webpush.generat
 webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:admin@supply-lines.invalid', vapid.publicKey, vapid.privateKey);
 const lastPush = new Map();
 function pushTo(p, payload, minGapMs = 90000) {
-  if (!p || !p.push) return;
+  if (!p || !p.push || ROOM !== 'main') return; // the fast room is for quick tests: no notifications
   if ([...sockets.values()].some(s => s.pid === p.id)) return;            // they are playing: the game shows it
   const key = p.id + ':' + (payload.tag || ''), now = Date.now(); if (now - (lastPush.get(key) || 0) < minGapMs) return; lastPush.set(key, now);
   webpush.sendNotification(p.push, JSON.stringify(payload)).catch(err => { if (err.statusCode === 404 || err.statusCode === 410) delete p.push; });
@@ -118,6 +125,7 @@ const server = http.createServer((req, res) => {
   if (p === '/world.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache', 'access-control-allow-origin': '*' }); return res.end(JSON.stringify(worldState())); }
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
   if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts : null, staff: realWar.staff })); }
+  if (p === '/wire.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(wireLog.slice(0, 30))); }
   if (p === '/archive.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(archive.slice(-30).reverse())); }
   if (!PUBLIC.has(p)) { res.writeHead(404); return res.end('not found'); }
   res.writeHead(200, { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache' });
@@ -155,7 +163,7 @@ wss.on('connection', (ws, req) => {
       if (!pid || !E.players.has(pid)) { pid = pid || crypto.randomBytes(12).toString('hex'); E.addPlayer(pid, inv && E.squadMembers(inv.code).length < K.SQUAD_MAX ? inv.f : pickFaction()); savePlayersSoon(); }
       const p = E.players.get(pid); p.online = true; s.pid = pid;
       let squadMsg = null; if (m.squad) { const r = inv ? E.joinSquad(pid, inv.code) : { ok: false, msg: 'This invite link is no longer valid' }; squadMsg = r.already ? null : r.ok ? (r.msg || `You joined ${inv.name}`) : r.msg; savePlayersSoon(); }
-      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, caps: E.CAPS, squadMsg, google: GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'test' ? GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID ? 'test' : null }));
+      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, cpRegen: K.CP_REGEN, room: ROOM, fastUrl: ROOM === 'main' ? FAST_URL : '', mainUrl: ROOM === 'fast' ? MAIN_URL : '', caps: E.CAPS, squadMsg, google: GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'test' ? GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID ? 'test' : null }));
       ws.send(JSON.stringify({ type: 'snap', ...E.snapshot(p.f), seasonNo: season, you: you(p), online: humansOnline() }));
       rebalanceBots();
       return;
@@ -248,8 +256,15 @@ function worldState() {
     alerts: realWar.alerts && Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts.on.length : null,
   };
 }
+// ---------- news wire: season bulletins and breaking posts (dry run: kept in wire.json, not posted anywhere yet) ----------
+const wireLog = readJson('wire.json', []);
+const wire = createWire({ E, NET, FN, REGIONS, GEVENTS, url: process.env.WIRE_URL || 'globalwar.xyz', publish: post => {
+  wireLog.unshift(post); wireLog.length = Math.min(wireLog.length, 100); writeJson('wire.json', wireLog);
+  console.log(`[wire] ${post.kind}\n${post.text}\n`);
+} });
 E.onEvent(ev => {
   events.push(ev); try { chronicle(ev); } catch (e) {}
+  if (ROOM === 'main') try { wire.onEvent(ev, season); } catch (e) { console.error('wire', e.message); }
   try { pushForEvent(ev); } catch (e) { console.error('push', e.message); }
   if (ev.k === 'end') {
     const top = E.leaderboard().slice(0, 5).map(h => ({ name: h.name, f: h.f, caps: h.caps }));
@@ -280,4 +295,4 @@ setInterval(() => {
   }
 }, SNAP_MS);
 
-server.listen(PORT, () => console.log(`Supply Lines server on http://localhost:${PORT}  (season ${(K.SEASON / SIM_SPEED / 60).toFixed(0)} min real time, ${BOTS} bots per faction)`));
+server.listen(PORT, () => console.log(`Supply Lines ${ROOM} room on http://localhost:${PORT}  (season ${(K.SEASON / SIM_SPEED / 60).toFixed(0)} min real time, 1 CP every ${CP_SECONDS} s, warhead ${K.NUKE_COST} CP, ${BOTS} bots per faction)`));

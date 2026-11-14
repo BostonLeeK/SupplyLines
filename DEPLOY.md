@@ -52,7 +52,29 @@ BOTS=120
 VAPID_SUBJECT=mailto:you@your-domain
 ```
 
-`SIM_SPEED` sets the pace: at `0.125` (the default) a season lasts 2 hours of real time, at `1` 15 minutes, at `0.0104` a full day.
+`SIM_SPEED` sets the pace: at `0.125` (the default) a season lasts 2 hours of real time, at `1` 15 minutes, at `0.0104` a full day. `CP_SECONDS` (default `45`) is how many real seconds one command point takes to refill, so a longer season does not starve players of CP.
+
+## Optional: the fast room
+
+`docker compose up` also starts a second world, the **fast room**, on port `5178`: a season there lasts about 30 minutes
+(`FAST_SIM_SPEED=0.5`, one CP every `FAST_CP_SECONDS=15` s). It is for a quick test game, keeps its own players and seasons,
+posts no news and sends no push notifications. Serve it under `/fast/` next to the main game:
+
+```nginx
+    location = /fast { return 301 /fast/; }
+    location /fast/ {
+        proxy_pass http://127.0.0.1:5178/;     # the trailing slash strips /fast from the path
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 1h;
+    }
+```
+
+Then add `FAST_URL=/fast/` to `.env` and restart: the main intro screen shows a **QUICK 30-MIN ROOM** button, and the fast room
+links back to the main war. Without `FAST_URL` the button stays hidden. Do not want the fast room at all? `docker compose up -d game`.
 
 ## Optional: sign in with Google
 
