@@ -1,7 +1,8 @@
 // Supply Lines multiplayer server: one shared world, anonymous players, server-authoritative.
 // Serves the static game and runs the simulation; clients only send commands and render snapshots.
 //
-//   node server/server.mjs            (PORT=5177, SIM_SPEED=1 → a season lasts 15 minutes)
+//   node server/server.mjs            (PORT=5177, SIM_SPEED=0.125 → a season lasts 2 hours)
+//   SIM_SPEED=1 node server/...       (a 15-minute season, handy for testing)
 //   SIM_SPEED=0.0015 node server/...  (≈ a 7-day real-time season)
 import http from 'http';
 import fs from 'fs';
@@ -14,7 +15,7 @@ import { createEngine, K, FN, REGIONS, GEVENTS, rankOf } from '../game/engine.js
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = +process.env.PORT || 5177;
-const SIM_SPEED = +process.env.SIM_SPEED || 1;          // sim-seconds per real second
+const SIM_SPEED = +process.env.SIM_SPEED || 0.125;         // sim-seconds per real second
 const BOTS = +process.env.BOTS || 120;                    // simulated players per faction (filler)
 const HUMAN_WEIGHT = +process.env.HUMAN_WEIGHT || 10;     // one online human replaces this many bots
 const MAX_CONN_PER_IP = 6, CMD_PER_SEC = 8, SNAP_MS = 250, TICK_MS = 100, RESTART_AFTER_MS = 20000;

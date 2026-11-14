@@ -47,12 +47,12 @@ Put them in a `.env` file next to `docker-compose.yml` (it is git-ignored):
 
 ```env
 HOST_PORT=5177
-SIM_SPEED=1
+SIM_SPEED=0.125
 BOTS=120
 VAPID_SUBJECT=mailto:you@your-domain
 ```
 
-`SIM_SPEED` sets the pace: at `1` a season lasts 15 minutes of real time, at `0.25` an hour, at `0.0417` a full day.
+`SIM_SPEED` sets the pace: at `0.125` (the default) a season lasts 2 hours of real time, at `1` 15 minutes, at `0.0104` a full day.
 
 ## Optional: sign in with Google
 

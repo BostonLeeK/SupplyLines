@@ -84,7 +84,7 @@ Useful environment variables:
 | Variable | Default | Meaning |
 |---|---|---|
 | `PORT` | `5177` | HTTP and WebSocket port |
-| `SIM_SPEED` | `1` | Sim seconds per real second. At `1` a season lasts 15 minutes; `0.1` makes it 2.5 hours |
+| `SIM_SPEED` | `0.125` | Sim seconds per real second. At `0.125` a season lasts 2 hours; `1` makes it 15 minutes |
 | `BOTS` | `120` | Bots per faction when nobody is online |
 | `DATA_DIR` | `server/data` | Where the world, players, squads and the VAPID key are saved |
 | `GOOGLE_CLIENT_ID` | (empty) | Turns on optional Google sign-in, see DEPLOY.md |
