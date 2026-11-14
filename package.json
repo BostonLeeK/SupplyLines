@@ -4,7 +4,7 @@
   "description": "A free, no-sign-up browser RTS of global logistics: two factions, one shared world, convoys on a 3D globe.",
   "type": "module",
   "private": true,
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server/server.mjs",

@@ -123,4 +123,4 @@ To rebuild the map, download Natural Earth *Admin 1 – States, Provinces* (10m,
 
 ## License
 
-[MIT](LICENSE)
+[GNU GPL v3.0](LICENSE)
