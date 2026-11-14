@@ -10,7 +10,7 @@ export const K = {
   SAB_MULT: 0.7, SAB_TIME: 86, SAB_COST: 3, DROP_COST: 3, DROP_KM: 3500, DROP_CAP: 30, RALLY_TIME: 120,
   CMDR_MULT: 1.15, NCAP_MAX: 3, BLOCK_COST: 3, BLOCK_TIME: 86, AA_KM: 1500, AA_LOSS: 0.4,
   STORM_SLOW: 0.4, STORM_EVERY: 70, STORM_MAX: 3, FOG_KM: 1200,
-  NUKE_HUBS: 3, NUKE_COST: 120, NUKE_BOT_RATE: 0.0011, NUKE_DECAY: 0.004, NUKE_RANGE: 8000, NUKE_BLAST: 500, NUKE_FLIGHT: 75,
+  NUKE_HUBS: 3, NUKE_COST: 120, NUKE_BOT_RATE: 0.15, NUKE_DECAY: 0.004, NUKE_RANGE: 8000, NUKE_BLAST: 500, NUKE_FLIGHT: 75,
   NUKE_ARM_WINDOW: 20, NUKE_HQ_DELAY: 12, NUKE_AA_PER_HUB: 0.25, NUKE_AA_KM: 2000, NUKE_AA_BOOST: 0.15, NUKE_AA_MAX: 0.75, NUKE_AA_COST: 3,
   NUKE_PENALTY: 25, NUKE_RAGE: 128,
   SQUAD_MAX: 6, COMBO_TIME: 20, COMBO_MULT: 1.15,
@@ -109,7 +109,7 @@ export function createEngine(NET, opts = {}) {
   let botAcc, nextSupply, nextBotOrder, nextHist, orderUntil, heroes, convoySeq = 1, alertAt, nextStorm = 20;
   const listeners = [];
   const emit = ev => { for (const l of listeners) l(ev); };
-  const E = { K, cities, edges, adj, N, CAPS, regionCities, S, players, kmBetween, bots: [300, 300], onEvent: cb => listeners.push(cb) };
+  const E = { K, cities, edges, adj, N, CAPS, regionCities, S, players, kmBetween, bots: [120, 120], onEvent: cb => listeners.push(cb) };
 
   // ---------- setup ----------
   E.reset = () => {
@@ -125,7 +125,10 @@ export function createEngine(NET, opts = {}) {
     heroes = []; for (let f = 0; f < 2; f++) for (let k = 0; k < 40; k++) heroes.push({ name: randomName(), f, caps: 0, skill: Math.pow(Math.random(), 2.2) + 0.05 });
     for (const e of edges) e.convoys.length = 0;
     for (const c of cities) S.troops[c.i] = K.NEUTRAL[c.tier];
-    for (let f = 0; f < 2; f++) { const c = CAPS[f]; S.owner[c] = f; S.troops[c] = 70; for (const { to } of adj[c]) if (S.owner[to] < 0) { S.owner[to] = f; S.troops[to] = 18; } }
+    // equal starts: the capital plus its four nearest neighbours, never a megahub (those must be won)
+    for (let f = 0; f < 2; f++) { const c = CAPS[f]; S.owner[c] = f; S.troops[c] = 70; const nb = adj[c].filter(x => S.owner[x.to] < 0 && cities[x.to].tier < 3).sort((x, y) => x.e.km - y.e.km).slice(0, 4); for (const { to } of nb) { S.owner[to] = f; S.troops[to] = 18; } }
+    // Atlantica is boxed in by the oceans while Pacifica can march overland into Eurasia and Africa: give it a bridgehead in Europe
+    { const lon = cities.findIndex(c => c.name === 'London'); if (lon >= 0 && S.owner[lon] < 0) { S.owner[lon] = 0; S.troops[lon] = 40; } }
     for (const p of players.values()) resetStats(p);
     computeSupply(); computeFront(); pickOrders(true);
     emit({ k: 'start', season: S.season });
@@ -527,7 +530,7 @@ export function createEngine(NET, opts = {}) {
   function updateNukes(dt) {
     for (let f = 0; f < 2; f++) {
       const nk = S.nuke[f]; if (nk.used) continue;
-      if (E.hubsHeld(f) >= K.NUKE_HUBS && E.resHeld(f).u) { if (!nk.ready) nukeFund(f, E.bots[f] * E.online(f) * K.NUKE_BOT_RATE * (nk.rate || 1) * dt, 'bots'); }
+      if (E.hubsHeld(f) >= K.NUKE_HUBS && E.resHeld(f).u) { if (!nk.ready) nukeFund(f, (E.bots[f] > 0 ? 1 : 0) * E.online(f) * K.NUKE_BOT_RATE * (nk.rate || 1) * dt, 'bots'); }
       else if (!nk.ready && nk.prog > 0) nk.prog = Math.max(0, nk.prog - K.NUKE_DECAY * dt);
       // two keys: a second player, or HQ when nobody else of the faction is online
       if (nk.arm) {
@@ -589,14 +592,14 @@ export function createEngine(NET, opts = {}) {
     for (const p of players.values()) p.cp = Math.min(E.cpMax(p.f), p.cp + dt / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
     const mult = [E.grainMult(0), E.grainMult(1)], oil = [E.oilMult(0), E.oilMult(1)];
     for (let i = 0; i < N; i++) if (S.owner[i] >= 0 && S.supplied[i] && S.sab[i] <= S.simT) {
-      const c = cities[i], o = S.owner[i], cap = K.CAPT[c.tier] + (c.cap === o ? 120 : 0), rb = S.regionHeld[c.region] === o ? 1.3 : 1;
-      if (S.troops[i] < cap) S.troops[i] = Math.min(cap, S.troops[i] + (K.PROD[c.tier] + (c.cap === o ? 0.9 : 0)) * rb * S.mobil[o] * mult[o] * dt);
+      const c = cities[i], o = S.owner[i], tp = c.cap === o ? 3 : c.tier, cap = K.CAPT[tp] + (c.cap === o ? 120 : 0), rb = S.regionHeld[c.region] === o ? 1.3 : 1;
+      if (S.troops[i] < cap) S.troops[i] = Math.min(cap, S.troops[i] + (K.PROD[tp] + (c.cap === o ? 0.9 : 0)) * rb * S.mobil[o] * mult[o] * dt);
     }
     for (const cv of S.convoys) { if (!cv.alive) continue; cv.t += K.SPEED[cv.e.type] * (cv.e.storm ? K.STORM_SLOW : 1) * oil[cv.f] * kindOf(cv).speed * dt / cv.e.km; if (cv.t >= 1) { leaveEdge(cv); arrive(cv, cv.nodes[cv.hop + 1]); } }
     fightOnEdges();
     for (const cv of S.convoys) if (!cv.alive && cv.e) leaveEdge(cv);
     S.convoys = S.convoys.filter(c => c.alive);
-    for (let f = 0; f < 2; f++) { botAcc[f] += E.bots[f] * E.online(f) * K.BOT_RATE * dt; let g = 0; while (botAcc[f] >= 1 && g++ < 50) { botAct(f); botAcc[f]--; } }
+    for (let f = 0; f < 2; f++) { botAcc[f] += E.bots[f] * E.online(f) * K.BOT_RATE * (1 + 3 * (S.mobil[f] - 1)) * dt; let g = 0; while (botAcc[f] >= 1 && g++ < 50) { botAct(f); botAcc[f]--; } }
     updateNukes(dt); updateFleets(dt);
     if (S.ended) return;
     if (S.simT >= nextSupply) { updateStorms(0.5); computeSupply(); computeFront(); updateRegions(); updateMobil(); nextSupply = S.simT + 0.5; }

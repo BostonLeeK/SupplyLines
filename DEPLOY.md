@@ -48,7 +48,7 @@ Put them in a `.env` file next to `docker-compose.yml` (it is git-ignored):
 ```env
 HOST_PORT=5177
 SIM_SPEED=1
-BOTS=300
+BOTS=120
 VAPID_SUBJECT=mailto:you@your-domain
 ```
 

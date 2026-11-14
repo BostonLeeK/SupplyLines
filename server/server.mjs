@@ -15,7 +15,7 @@ import { createEngine, K, FN, REGIONS, GEVENTS, rankOf } from '../game/engine.js
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = +process.env.PORT || 5177;
 const SIM_SPEED = +process.env.SIM_SPEED || 1;          // sim-seconds per real second
-const BOTS = +process.env.BOTS || 300;                    // simulated players per faction (filler)
+const BOTS = +process.env.BOTS || 120;                    // simulated players per faction (filler)
 const HUMAN_WEIGHT = +process.env.HUMAN_WEIGHT || 10;     // one online human replaces this many bots
 const MAX_CONN_PER_IP = 6, CMD_PER_SEC = 8, SNAP_MS = 250, TICK_MS = 100, RESTART_AFTER_MS = 20000;
 
