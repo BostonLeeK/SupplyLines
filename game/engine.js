@@ -68,7 +68,7 @@ export const MISSIONS = [
   { id: 'region', text: 'Capture a city in {R}', goal: 1 },
   { id: 'send10', text: 'Send 10 convoys', goal: 10 },
 ];
-export const XP = { MISSION: 50, CAPTURE: 5, WIN: 30 };
+export const XP = { MISSION: 50, CAPTURE: 5, WIN: 30, VOLUNTEER: 30 };
 const D = Math.PI / 180;
 export const unit = (lat, lng) => { const p = (lng + 180) * D, t = (90 - lat) * D; return [-Math.cos(p) * Math.sin(t), Math.cos(t), Math.sin(p) * Math.sin(t)]; };
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -216,6 +216,8 @@ export function createEngine(NET, opts = {}) {
   E.pathTo = (r, t) => { const nodes = [t], es = []; let v = t; while (r.prev[v] >= 0) { es.unshift(r.pe[v]); v = r.prev[v]; nodes.unshift(v); } return { nodes, es }; };
   E.sendAmount = (src, dst, r, frac) => { let n = Math.floor(Math.min(S.troops[src] * frac, S.troops[src] - 1)); if (r && r.air[dst]) n = Math.min(n, K.AIR_CAP); return Math.max(0, n); };
   E.cmdrActive = i => { const p = S.cmdr[i] && players.get(S.cmdr[i]); return !!(p && p.online && p.f === S.owner[i]) || !!(S.cmdrOnline && S.cmdrOnline[i]); };
+  // a faction "clearly wins" when it leads by 30% and at least 30 points; its players may volunteer for the other side
+  E.volunteerOk = f => { const p = E.scores().pts, l = 1 - f; return p[f] >= Math.max(1, p[l]) * 1.3 && p[f] - p[l] >= 30; };
   E.markAt = (f, i, kind) => (S.marks || []).some(m => m.f === f && m.i === i && m.kind === kind && m.until > S.simT);
   E.defMult = i => (S.owner[i] >= 0 && E.markAt(S.owner[i], i, 'defend') ? K.MARK_DEF : 1) * (cities[i].cap >= 0 ? 1.3 : 1) * (S.fort[i] > S.simT ? K.FORT_MULT : 1) * (S.sab[i] > S.simT ? K.SAB_MULT : 1) * (E.cmdrActive(i) ? K.CMDR_MULT : 1);
   E.aaCover = (i, attacker) => { const o = S.owner[i]; if (o < 0 || o === attacker) return -1; for (const h of hubs) if (S.owner[h] === o && kmBetween(h, i) <= K.AA_KM) return h; return -1; };
@@ -626,7 +628,7 @@ export function createEngine(NET, opts = {}) {
   E.leaderboard = () => heroes.map(h => ({ name: h.name, f: h.f, caps: h.caps })).concat([...players.values()].filter(p => p.online || p.caps).map(p => ({ name: p.name, f: p.f, caps: p.caps, id: p.pub, rank: rankOf(p.xp).name }))).sort((a, b) => b.caps - a.caps);
 
   E.publicPlayer = p => ({ cp: +p.cp.toFixed(2), cpMax: E.cpMax(p.f), f: p.f, name: p.name, pub: p.pub, caps: p.caps, sent: p.sent, clashes: p.clashes, forts: p.forts, sabs: p.sabs, drops: p.drops, blocks: p.blocks || 0,
-    linked: !!p.linked, trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200) });
+    volunteered: p.volunteered === S.season, linked: !!p.linked, trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200) });
   // ---------- player commands (validated: the server trusts nothing else) ----------
   const fail = msg => ({ ok: false, msg });
   E.command = (pid, c) => {
@@ -718,6 +720,15 @@ export function createEngine(NET, opts = {}) {
         const t = TRAILS[c.trail]; if (!t) return fail('Unknown trail');
         if (rankOf(p.xp || 0).idx < t.rank) return fail(`${t.name} unlocks at ${RANKS[t.rank][1]}`);
         p.trail = c.trail; return { ok: true };
+      }
+      case 'volunteer': {
+        if (!E.volunteerOk(f)) return fail('You can switch only while your faction leads by 30% or more');
+        if (p.squad) return fail('Squads fight together: leave your squad first');
+        if (p.volunteered === S.season) return fail('You have already switched sides this season');
+        const to = 1 - f; for (let i = 0; i < N; i++) if (S.cmdr[i] === pid) S.cmdr[i] = '';
+        if (S.chief[f] === pid) S.chief[f] = null;
+        resetStats(p); p.f = to; p.vote = null; p.volunteered = S.season; p.xp = (p.xp || 0) + XP.VOLUNTEER;
+        emit({ k: 'volunteer', f: to, from: f, name: p.name, who: pubOf(pid) }); return { ok: true, f: to };
       }
       case 'vote': {
         const t = [...players.values()].find(x => x.pub === c.pub && x.f === f);

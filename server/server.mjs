@@ -202,6 +202,7 @@ wss.on('connection', (ws, req) => {
     }
     if (m.type === 'cmd' && m.cmd && typeof m.cmd === 'object') {
       const res = E.command(s.pid, m.cmd); if (m.cmd.type === 'cosmetic' && res.ok) savePlayersSoon();
+      if (m.cmd.type === 'volunteer' && res.ok) { rebalanceBots(); savePlayersSoon(); }
       ws.send(JSON.stringify({ type: 'res', id: m.id, ...res }));
     }
   });
