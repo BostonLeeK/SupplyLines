@@ -1,0 +1,20 @@
+{
+  "name": "supply-lines",
+  "version": "1.0.0",
+  "description": "A free, no-sign-up browser RTS of global logistics: two factions, one shared world, convoys on a 3D globe.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server/server.mjs",
+    "test": "node tools/test-engine.mjs && node tools/test-persist.mjs",
+    "balance": "node tools/balance.mjs 16",
+    "build:net": "cd tools && npm install && node build-net.mjs",
+    "icons": "node tools/make-icons.mjs"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7",
+    "ws": "^8.18.0"
+  }
+}

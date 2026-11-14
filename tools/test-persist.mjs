@@ -1,0 +1,10 @@
+import fs from 'fs';
+import { createEngine } from '../game/engine.js';
+const NET = JSON.parse(fs.readFileSync(new URL('../net.js', import.meta.url), 'utf8').replace(/^window\.NET=/, '').replace(/;\s*$/, ''));
+const A = createEngine(NET); A.addPlayer('pid1', 0, 'Tester');
+for (let k = 0; k < 2500; k++) A.step(0.1);
+const saved = JSON.parse(JSON.stringify(A.save()));
+const B = createEngine(NET); B.load(saved);
+const same = (x, y) => JSON.stringify(Array.from(x)) === JSON.stringify(Array.from(y));
+console.log('owner', same(A.S.owner, B.S.owner), 'troops', same(A.S.troops.map(Math.round), B.S.troops.map(Math.round)), 'convoys', A.S.convoys.length, B.S.convoys.length, 't', A.S.simT.toFixed(1), B.S.simT.toFixed(1), 'player', B.players.get('pid1').name, 'size KB', (JSON.stringify(saved).length / 1024).toFixed(0));
+while (!B.S.ended) B.step(0.1); console.log('resumed season finished', B.scores().pts);

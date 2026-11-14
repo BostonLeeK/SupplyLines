@@ -1,0 +1,18 @@
+# dependencies
+node_modules/
+tools/node_modules/
+
+# runtime state: world saves, players, squads and the VAPID private key — never commit
+server/data/
+data/
+
+# large source data for tools/build-net.mjs (download it, see README)
+tools/data/
+
+# local leftovers
+_archive/
+.claude/
+*.log
+.DS_Store
+Thumbs.db
+.env

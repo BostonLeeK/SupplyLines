@@ -1,0 +1,17 @@
+# The game server in one container. Put it behind the web server / reverse proxy you already run,
+# or open the port directly.
+#   docker compose up -d --build
+services:
+  game:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-5177}:5177"
+    environment:
+      - SIM_SPEED=${SIM_SPEED:-1}
+      - BOTS=${BOTS:-300}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@example.com}
+    volumes:
+      - game-data:/data
+volumes:
+  game-data:

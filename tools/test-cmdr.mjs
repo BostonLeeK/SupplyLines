@@ -1,0 +1,13 @@
+import fs from 'fs';
+import { createEngine } from '../game/engine.js';
+const NET = JSON.parse(fs.readFileSync(new URL('../net.js', import.meta.url), 'utf8').replace(/^window\.NET=/, '').replace(/;\s*$/, ''));
+const E = createEngine(NET), S = E.S; E.bots = [0, 0];
+E.addPlayer('pid', 0);
+const cap = E.CAPS[0]; S.troops[cap] = 200;
+const r = E.routeFrom(cap, 0); const t = E.cities.find(c => S.owner[c.i] < 0 && isFinite(r.dist[c.i]));
+S.troops[t.i] = 1;
+console.log(E.command('pid', { type: 'send', src: cap, dst: t.i, pct: 0.5 }));
+for (let k = 0; k < 300; k++) E.step(0.1);
+console.log(t.name, 'owner', S.owner[t.i], 'cmdr', S.cmdr[t.i], 'active', E.cmdrActive(t.i), 'defMult', E.defMult(t.i).toFixed(2));
+E.players.get('pid').online = false;
+console.log('offline active', E.cmdrActive(t.i), 'defMult', E.defMult(t.i).toFixed(2), 'snapshot cmdr', JSON.stringify(E.snapshot(0).cmdr));

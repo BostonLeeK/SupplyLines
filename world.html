@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supply Lines · World report</title>
+<meta name="description" content="Live report from Supply Lines, a free browser war of logistics: who holds the world right now, the leaders, the latest battles. No sign-up.">
+<meta property="og:title" content="Supply Lines: the world at war right now">
+<meta property="og:description" content="Two factions, one planet, no sign-up. See who holds the world right now and join the front line.">
+<meta property="og:image" content="icons/icon-512.png">
+<meta name="theme-color" content="#05080d">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080d; --ink:#e9eef5; --dim:#7d8a9a; --mut:#5d6b7c; --faint:#3a4656;
+  --plate:#0b1118; --plate2:#111a24; --edge:#1f2a37;
+  --a:#4aa3ff; --b:#ffad33; --good:#5be08a; --bad:#ff6b5b; --cp:#ffc23d;
+  --disp:"Unbounded",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font:800 22px/1 var(--disp);letter-spacing:.02em;text-decoration:none}
+.logo small{display:block;font:700 10px/1 var(--disp);letter-spacing:.18em;color:var(--dim);margin-top:6px}
+.live{display:flex;align-items:center;gap:8px;font:700 11px/1 var(--disp);letter-spacing:.08em;color:var(--dim)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 0 rgba(255,107,91,.6);animation:pulse 1.6s infinite}
+.live.off i{background:var(--faint);animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(255,107,91,0)}100%{box-shadow:0 0 0 0 rgba(255,107,91,0)}}
+.cta{margin-left:auto;background:var(--ink);color:#05080d;text-decoration:none;font:800 13px/1 var(--disp);letter-spacing:.06em;padding:14px 22px;border-radius:8px}
+.cta:hover{background:#fff}
+.score{margin-top:22px;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:18px}
+.side .fn{font:800 13px/1 var(--disp);letter-spacing:.12em}
+.side .pts{font:800 54px/1 var(--disp);margin-top:6px;font-variant-numeric:tabular-nums}
+.side .sub{color:var(--dim);font-size:12.5px;margin-top:6px}
+.side.b{text-align:right}
+.side.a .fn,.side.a .pts{color:var(--a)} .side.b .fn,.side.b .pts{color:var(--b)}
+.mid{text-align:center;color:var(--dim);font:700 11px/1.6 var(--disp);letter-spacing:.08em;padding-bottom:8px}
+.mid b{display:block;color:var(--ink);font-size:13px}
+.tug{height:8px;border-radius:4px;background:#18222e;overflow:hidden;display:flex;margin-top:14px}
+.tug i{display:block;height:100%} .tug .ta{background:var(--a)} .tug .tb{background:var(--b);margin-left:auto}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+.chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--edge);color:var(--dim)}
+.chip.warn{color:var(--cp);border-color:rgba(255,194,61,.45)} .chip.bad{color:#d7e66a;border-color:rgba(215,230,106,.45)}
+.mapCard{position:relative;margin-top:18px;border:1px solid var(--edge);border-radius:12px;overflow:hidden;background:#070b11}
+#map{display:block;width:100%;aspect-ratio:360/134;cursor:crosshair}
+.legend{position:absolute;left:12px;bottom:10px;display:flex;gap:12px;font-size:11px;color:var(--dim);background:rgba(5,8,13,.7);padding:5px 10px;border-radius:6px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0}
+#tip{position:fixed;pointer-events:none;z-index:5;background:rgba(9,14,22,.95);border:1px solid var(--edge);border-radius:6px;padding:6px 9px;font-size:12px;display:none;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-top:14px}
+.card{background:var(--plate);border:1px solid var(--edge);border-radius:12px;padding:14px 16px;min-width:0}
+.card h2{margin:0 0 10px;font:700 11px/1 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.log div{display:flex;gap:10px;padding:6px 0;border-top:1px solid #141d28;font-size:13px}
+.log div:first-child{border-top:none}
+.log time{flex:none;width:72px;color:var(--mut);font-size:11.5px;padding-top:1px;font-variant-numeric:tabular-nums}
+.log span{border-left:3px solid var(--faint);padding-left:8px}
+.row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-top:1px solid #141d28}
+.row:first-of-type{border-top:none}
+.row .n{width:18px;color:var(--mut);font-size:11.5px}
+.row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{color:var(--mut)} .row b{font-variant-numeric:tabular-nums}
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12.5px}
+.regions div{display:flex;align-items:center;gap:7px} .regions i{width:9px;height:9px;border-radius:2px;background:var(--faint);flex:none}
+.empty{color:var(--mut);font-size:12.5px}
+svg.chart{width:100%;height:90px;display:block}
+.real{margin-top:14px;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid rgba(255,216,77,.35);border-left:4px solid #0057b7;background:rgba(255,216,77,.04);font-size:14px;text-decoration:none}
+.real i{width:9px;height:9px;border-radius:50%;background:var(--bad);flex:none;animation:pulse 1.6s infinite}
+.real b{color:#ffd84d}
+.real em{margin-left:auto;font-style:normal;font:700 11px/1 var(--disp);letter-spacing:.06em;color:#ffd84d;white-space:nowrap}
+footer{margin-top:26px;color:var(--mut);font-size:12px;display:flex;gap:16px;flex-wrap:wrap}
+@media (max-width:900px){ .grid{grid-template-columns:1fr} .side .pts{font-size:38px} .score{grid-template-columns:1fr 1fr} .mid{grid-column:1/-1;order:3} }
+@media (max-width:560px){ .wrap{padding:16px 16px 40px} .cta{margin-left:0;width:100%;text-align:center} .legend{display:none} .real{flex-wrap:wrap} .real em{margin-left:0} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="/">SUPPLY LINES<small>WORLD REPORT</small></a>
+    <div class="live" id="live"><i></i><span id="liveTxt">Connecting…</span></div>
+    <a class="cta" href="/">JOIN THE WAR</a>
+  </header>
+
+  <section class="score">
+    <div class="side a"><div class="fn">ATLANTICA</div><div class="pts" id="ptsA">–</div><div class="sub" id="subA"></div></div>
+    <div class="mid" id="mid"></div>
+    <div class="side b"><div class="fn">PACIFICA</div><div class="pts" id="ptsB">–</div><div class="sub" id="subB"></div></div>
+  </section>
+  <div class="tug"><i class="ta" id="tugA"></i><i class="tb" id="tugB"></i></div>
+  <div class="chips" id="chips"></div>
+
+  <div class="mapCard"><canvas id="map"></canvas>
+    <div class="legend"><span><i style="background:var(--a)"></i>Atlantica</span><span><i style="background:var(--b)"></i>Pacifica</span><span><i style="background:#56606c"></i>Free</span><span><i style="background:#d7e66a"></i>Fallout</span></div>
+  </div>
+
+  <a class="real" id="real" href="/?realwar=1" style="display:none"><i></i><span id="realTxt"></span><em>THE REAL NUMBERS →</em></a>
+
+  <div class="grid">
+    <div class="card"><h2>Chronicle</h2><div class="log" id="log"><div class="empty">Waiting for the first battles…</div></div></div>
+    <div class="card"><h2>Top commanders this season</h2><div id="board"></div><h2 style="margin-top:16px">Squads</h2><div id="squads"></div></div>
+    <div class="card"><h2>Course of the war</h2><div id="chart"></div><h2 style="margin-top:16px">Regions</h2><div class="regions" id="regions"></div><h2 style="margin-top:16px">Past seasons</h2><div id="seasons"></div></div>
+  </div>
+
+  <footer><span>Supply Lines is a free browser game. Open the page and you are on the front line: no sign-up.</span><a href="/">Play now</a></footer>
+</div>
+<div id="tip"></div>
+<script src="net.js"></script>
+<script>
+const NET = window.NET, FN = ['Atlantica', 'Pacifica'], FC = ['#4aa3ff', '#ffad33'], FRGB = [[74, 163, 255], [255, 173, 51]];
+const REGIONS = ['Europe', 'Caucasus', 'Middle East', 'Africa', 'Central Asia', 'South Asia', 'Southeast Asia', 'East Asia', 'Oceania', 'North America', 'South America', 'Volga–Ural', 'Siberia & Far East', 'The North'];
+const $ = id => document.getElementById(id);
+const cities = NET.cities.map(([name, lat, lng, tier, port, cap, region], i) => ({ i, name, lat, lng, tier, cap, region }));
+const LAT0 = 78, LAT1 = -56, GW = 360, GH = LAT0 - LAT1;
+let W = 0, H = 0, dpr = 1, state = null;
+const px = lng => (lng + 180) / 360 * W, py = lat => (LAT0 - lat) / GH * H;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// --- static layers: land and nearest-city table (computed once) ---
+const D = Math.PI / 180, unit = (lat, lng) => [Math.cos(lat * D) * Math.cos(lng * D), Math.cos(lat * D) * Math.sin(lng * D), Math.sin(lat * D)];
+const CU = cities.map(c => unit(c.lat, c.lng));
+const TW = 720, TH = Math.round(TW * GH / 360), near = new Int16Array(TW * TH), nearD = new Float32Array(TW * TH);
+for (let y = 0; y < TH; y++) for (let x = 0; x < TW; x++) {
+  const u = unit(LAT0 - (y + 0.5) / TH * GH, (x + 0.5) / TW * 360 - 180); let b = -1, bd = -2;
+  for (let k = 0; k < CU.length; k++) { const d = u[0] * CU[k][0] + u[1] * CU[k][1] + u[2] * CU[k][2]; if (d > bd) { bd = d; b = k; } }
+  near[y * TW + x] = b; nearD[y * TW + x] = Math.acos(Math.min(1, bd)) * 6371;
+}
+const terr = document.createElement('canvas'); terr.width = TW; terr.height = TH; const tctx = terr.getContext('2d'), timg = tctx.createImageData(TW, TH);
+function paintTerritory() {
+  const own = state ? state.owner : [], rad = new Set(state ? state.rad : []), d = timg.data;
+  for (let p = 0; p < TW * TH; p++) {
+    const c = near[p], o = own[c] ?? -1, fade = Math.max(0, 1 - nearD[p] / 1700);
+    let r = 86, g = 96, b = 108, a = 0.22;
+    if (rad.has(c)) { r = 215; g = 230; b = 106; a = 0.55; } else if (o >= 0) { [r, g, b] = FRGB[o]; a = 0.55; }
+    d[p * 4] = r; d[p * 4 + 1] = g; d[p * 4 + 2] = b; d[p * 4 + 3] = 255 * a * (0.35 + 0.65 * fade);
+  }
+  tctx.putImageData(timg, 0, 0);
+}
+function landPath(ctx) {
+  ctx.beginPath();
+  for (const [, rings] of NET.polys) for (const r of rings) for (const off of [-360, 0, 360]) {
+    let minX = Infinity, maxX = -Infinity; for (let k = 0; k < r.length; k += 2) { const lx = r[k] + off; if (lx < minX) minX = lx; if (lx > maxX) maxX = lx; }
+    if (maxX < -180 || minX > 180) continue;
+    for (let k = 0; k < r.length; k += 2) { const X = px(r[k] + off), Y = py(r[k + 1]); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }
+    ctx.closePath();
+  }
+}
+const cv = $('map'), ctx = cv.getContext('2d');
+let landLayer = null;
+function resize() {
+  dpr = Math.min(2, devicePixelRatio || 1); const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+  cv.width = W * dpr; cv.height = H * dpr;
+  landLayer = document.createElement('canvas'); landLayer.width = cv.width; landLayer.height = cv.height;
+  const l = landLayer.getContext('2d'); l.setTransform(dpr, 0, 0, dpr, 0, 0); landPath(l); l.fillStyle = '#121a24'; l.fill('evenodd'); l.strokeStyle = 'rgba(160,180,205,.18)'; l.lineWidth = 0.6; l.stroke();
+  draw();
+}
+function draw() {
+  if (!W) return;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.drawImage(landLayer, 0, 0);
+  // territory clipped to land
+  const t = document.createElement('canvas'); t.width = cv.width; t.height = cv.height; const tc = t.getContext('2d');
+  tc.imageSmoothingEnabled = true; tc.drawImage(terr, 0, 0, cv.width, cv.height); tc.globalCompositeOperation = 'destination-in'; tc.drawImage(landLayer, 0, 0);
+  ctx.drawImage(t, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // routes
+  for (const [a, b, type] of NET.edges) {
+    const A = cities[a], B = cities[b]; if (!A || !B) continue; const x1 = px(A.lng), x2 = px(B.lng); if (Math.abs(x1 - x2) > W / 2) continue;
+    const oa = state ? state.owner[a] : -1, ob = state ? state.owner[b] : -1;
+    ctx.strokeStyle = oa >= 0 && oa === ob ? `rgba(${FRGB[oa].join(',')},.35)` : 'rgba(150,170,195,.13)'; ctx.lineWidth = 0.8;
+    ctx.setLineDash(type === 1 ? [3, 3] : type === 2 ? [1, 4] : []); ctx.beginPath(); ctx.moveTo(x1, py(A.lat)); ctx.lineTo(x2, py(B.lat)); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  // cities
+  const rad = new Set(state ? state.rad : []);
+  for (const c of cities) {
+    const o = state ? state.owner[c.i] : -1, x = px(c.lng), y = py(c.lat), r = [1.6, 2.1, 2.8, 3.8][c.tier] * (W > 900 ? 1.15 : W > 560 ? 0.9 : 0.5);
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = rad.has(c.i) ? '#d7e66a' : o >= 0 ? FC[o] : '#56606c'; ctx.fill();
+    if (c.cap >= 0) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(x, y, r + (W > 560 ? 2.6 : 1.6), 0, 7); ctx.stroke(); }
+    if (c.tier === 3 && W > 700) { ctx.font = '600 10.5px Manrope, sans-serif'; ctx.fillStyle = 'rgba(233,238,245,.75)'; ctx.fillText(c.name, x + r + 4, y + 3.5); }
+  }
+}
+// hover
+cv.addEventListener('mousemove', e => {
+  const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top; let best = null, bd = 14 * 14;
+  for (const c of cities) { const dx = px(c.lng) - mx, dy = py(c.lat) - my, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = c; } }
+  const tip = $('tip'); if (!best) { tip.style.display = 'none'; return; }
+  const o = state ? state.owner[best.i] : -1, rad = state && state.rad.includes(best.i);
+  tip.innerHTML = `<b>${esc(best.name)}</b> · ${rad ? '<span style="color:#d7e66a">fallout</span>' : o >= 0 ? `<span style="color:${FC[o]}">${FN[o]}</span>` : 'free'}${best.cap >= 0 ? ' · capital' : ''} · ${REGIONS[best.region] || ''}`;
+  tip.style.display = 'block'; tip.style.left = e.clientX + 14 + 'px'; tip.style.top = e.clientY + 12 + 'px';
+});
+cv.addEventListener('mouseleave', () => $('tip').style.display = 'none');
+
+// --- data ---
+const RANKS = ['Private', 'Corporal', 'Sergeant', 'Lieutenant', 'Captain', 'Major', 'Colonel', 'General'];
+const GMIN = s => 7 * 1440 / s.seasonLen;
+const clock = (s, t) => { const gm = t * GMIN(s), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; };
+const GEV = { oil: '⛽ Oil shock', crop: '🌾 Crop failure', solar: '☀ Solar storm', summit: '🕊 Peace summit', hurricane: '🌀 Hurricane season', arms: '⚙ Arms fair', disarm: '☮ Disarmament talks', rally: '✊ Patriotic wave' };
+function chart(h) {
+  if (!h || h.length < 2) return '<div class="empty">The season has just begun.</div>';
+  const max = Math.max(10, ...h.flat()), w = 300, ht = 90, X = k => k / (h.length - 1) * w, Y = v => ht - 6 - v / max * (ht - 14);
+  const line = f => h.map((p, k) => `${k ? 'L' : 'M'}${X(k).toFixed(1)},${Y(p[f]).toFixed(1)}`).join('');
+  return `<svg class="chart" viewBox="0 0 ${w} ${ht}" preserveAspectRatio="none"><path d="${line(0)}" fill="none" stroke="${FC[0]}" stroke-width="2" vector-effect="non-scaling-stroke"/><path d="${line(1)}" fill="none" stroke="${FC[1]}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+let lastOwner = '';
+function render(s) {
+  state = s; const [d, hh] = clock(s, s.t);
+  $('live').classList.toggle('off', !!s.ended);
+  $('liveTxt').textContent = s.ended ? `SEASON ${s.season} OVER · next in ${Math.ceil(s.restartIn / 1000)} s` : `LIVE · SEASON ${s.season} · DAY ${d} OF 7 · ${hh} UTC`;
+  $('ptsA').textContent = s.pts[0]; $('ptsB').textContent = s.pts[1];
+  const sub = f => `${s.cities[f]} cities · ${s.online[f]} ${s.online[f] === 1 ? 'player' : 'players'} online${s.chief[f] ? ` · General ${esc(s.chief[f].name)}` : ''}`;
+  $('subA').innerHTML = sub(0); $('subB').innerHTML = sub(1);
+  const tot = Math.max(1, s.pts[0] + s.pts[1]); $('tugA').style.width = Math.max(0, s.pts[0]) / tot * 100 + '%'; $('tugB').style.width = Math.max(0, s.pts[1]) / tot * 100 + '%';
+  const lead = s.pts[0] === s.pts[1] ? 'Dead even' : `${FN[s.pts[0] > s.pts[1] ? 0 : 1]} leads by ${Math.abs(s.pts[0] - s.pts[1])}`;
+  $('mid').innerHTML = `<b>${lead}</b>${s.cities[0] + s.cities[1]} of ${cities.length} cities taken`;
+  const chips = [];
+  if (s.gev && GEV[s.gev]) chips.push(`<span class="chip warn">World event: ${GEV[s.gev]}</span>`);
+  if (s.strikes) chips.push(`<span class="chip bad">☢ ${s.strikes} nuclear ${s.strikes === 1 ? 'strike' : 'strikes'} this season</span>`);
+  if (s.winter) chips.push('<span class="chip bad">Nuclear winter</span>');
+  $('chips').innerHTML = chips.join('');
+  const ok = s.owner.join(',') + '|' + s.rad.join(','); if (ok !== lastOwner) { lastOwner = ok; paintTerritory(); draw(); }
+  $('log').innerHTML = s.log.length ? s.log.map(e => { const [ld, lh] = clock(s, e.t); return `<div><time>D${ld} ${lh}</time><span style="border-color:${e.f >= 0 ? FC[e.f] : 'var(--faint)'}">${esc(e.text)}</span></div>`; }).join('') : '<div class="empty">Waiting for the first battles…</div>';
+  $('board').innerHTML = s.board.length ? s.board.map((h, k) => `<div class="row"><span class="n">${k + 1}</span><span class="nm" style="color:${FC[h.f]}">${esc(h.name)}</span>${h.rank ? `<small>${esc(h.rank)}</small>` : ''}<b>${h.caps}</b></div>`).join('') : '<div class="empty">No captures yet.</div>';
+  $('squads').innerHTML = s.squads.length ? s.squads.map(q => `<div class="row"><span class="nm" style="color:${FC[q.f]}">${esc(q.name)}</span><small>${q.n} ${q.n === 1 ? 'player' : 'players'}</small><b>${q.caps}</b></div>`).join('') : '<div class="empty">No squads yet. Create one in the game and invite friends by link.</div>';
+  $('chart').innerHTML = chart(s.history);
+  $('regions').innerHTML = REGIONS.map((r, k) => { const h = s.regionHeld[k]; return `<div><i style="${h >= 0 ? `background:${FC[h]}` : ''}"></i>${r}</div>`; }).join('');
+  $('seasons').innerHTML = s.seasons.length ? s.seasons.map(a => `<div class="row"><span class="nm">Season ${a.season}</span><span style="color:${a.winner >= 0 ? FC[a.winner] : 'var(--dim)'}">${a.winner >= 0 ? FN[a.winner] : 'No winner'}</span><b>${a.pts ? a.pts.join(' – ') : ''}</b></div>`).join('') : '<div class="empty">This is the first season.</div>';
+  if (s.alerts != null) { $('real').style.display = 'flex'; $('realTxt').innerHTML = s.alerts ? `This is a game. Right now there is a real air-raid alert in <b>${s.alerts} regions of Ukraine</b>.` : 'This is a game. In Ukraine the war is real, and the sirens come back every day.'; }
+  document.title = `Supply Lines · ${FN[0]} ${s.pts[0]} – ${s.pts[1]} ${FN[1]}`;
+}
+async function poll() {
+  try { const r = await fetch('world.json', { cache: 'no-store' }); render(await r.json()); }
+  catch (e) { $('live').classList.add('off'); $('liveTxt').textContent = 'The world server is offline'; }
+}
+addEventListener('resize', () => { clearTimeout(resize.t); resize.t = setTimeout(resize, 150); });
+paintTerritory(); resize(); poll(); setInterval(poll, 4000);
+</script>
+</body>
+</html>
