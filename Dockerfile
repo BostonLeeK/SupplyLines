@@ -6,7 +6,7 @@ RUN npm ci --omit=dev
 COPY index.html world.html net.js sw.js manifest.json og.jpg ./
 COPY game ./game
 COPY icons ./icons
-COPY server/server.mjs ./server/server.mjs
+COPY server/*.mjs ./server/
 # world saves, players and the generated VAPID key live here
 ENV DATA_DIR=/data PORT=5177
 RUN mkdir -p /data && chown node:node /data
