@@ -12,7 +12,7 @@ import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import webpush from 'web-push';
-import { createEngine, K, FN, REGIONS, GEVENTS, rankOf } from '../game/engine.js';
+import { createEngine, K, FN, REGIONS, GEVENTS, SCENARIOS, rankOf } from '../game/engine.js';
 import { createWire } from './wire.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -66,7 +66,8 @@ const loadSavedPlayers = () => { for (const [pid, p] of Object.entries(saved)) {
 loadSavedPlayers();
 // resume the running season if the server restarted mid-way
 const world = readJson('world.json', null);
-if (world && E.load(world)) loadSavedPlayers(), console.log(`Resumed season at day ${Math.floor(E.S.simT / K.SEASON * 7) + 1} with ${E.players.size} players`);
+if (!(world && E.load(world))) { prepareSeason(); E.reset(); }
+if (world && E.S.simT > 0) loadSavedPlayers(), console.log(`Resumed season at day ${Math.floor(E.S.simT / K.SEASON * 7) + 1} with ${E.players.size} players`);
 const saveWorld = () => writeJson('world.json', E.save());
 setInterval(saveWorld, 15000);
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { saveWorld(); savePlayers(); process.exit(0); });
@@ -114,6 +115,17 @@ function pushForEvent(ev) {
   if (ev.k === 'end') for (const p of E.players.values()) pushTo(p, { title: 'Season over', body: ev.winter ? 'Nuclear winter: nobody won.' : ev.winner >= 0 ? `${FN[ev.winner]} won ${ev.pts[0]}–${ev.pts[1]}. A new season starts now.` : 'A draw. A new season starts now.', tag: 'end' }, 1000);
 }
 let season = archive.length ? archive[archive.length - 1].season + 1 : 1;
+// a campaign ("Great War") is CAMPAIGN_LEN seasons; its score and the fallout of its bombs carry from season to season
+const CAMPAIGN_LEN = 7, campaignOf = n => Math.ceil(n / CAMPAIGN_LEN);
+function campaignInfo() {
+  const n = campaignOf(season), wins = [0, 0]; for (const a of archive) if (campaignOf(a.season) === n && a.winner >= 0 && !a.winter) wins[a.winner]++;
+  const past = archive.filter(a => a.campaignDone).slice(-5).reverse().map(a => ({ n: campaignOf(a.season), winner: a.campaignWinner, wins: a.campaignWins }));
+  return { n, k: (season - 1) % CAMPAIGN_LEN + 1, len: CAMPAIGN_LEN, wins, scenario: E.S.scenario, next: E.scenarioFor(season + 1), past };
+}
+function prepareSeason() { // the next season's theme, and the cities still glowing from last season's bombs
+  E.nextScenario = E.scenarioFor(season);
+  const last = archive[archive.length - 1]; E.nextScars = last && campaignOf(last.season) === campaignOf(season) && last.rad ? last.rad : [];
+}
 function savePlayers() { saveSquads(); savePlayersInner(); }
 function savePlayersInner() { const o = {}; for (const p of E.players.values()) o[p.id] = { pub: p.pub, name: p.name, xp: p.xp, f: p.f, push: p.push, squad: p.squad, pendingSquad: p.pendingSquad, trail: p.trail, linked: p.linked || undefined }; writeJson('players.json', o); }
 setInterval(savePlayers, 30000);
@@ -265,7 +277,7 @@ function chronicle(ev) {
   else if (ev.k === 'cap_freed' && ev.f >= 0) text = `🛡 ${FN[ev.f]} retook ${cn(ev.city)}`;
   else if (ev.k === 'ally') text = `🤝 ${(NET.nations[ev.nation] || ['A nation'])[0]} joined ${FN[ev.f]}`;
   else if (ev.k === 'end') { text = ev.winter ? 'Nuclear winter: the season ended with no winner' : `Season ${season} is over: ${ev.winner >= 0 ? FN[ev.winner] + ' won' + (ev.capital >= 0 ? ' by holding ' + cn(ev.capital) : '') : 'a draw'}`; f = ev.winter ? -1 : ev.winner ?? -1; }
-  else if (ev.k === 'start') { text = `Season ${season} began`; f = -1; }
+  else if (ev.k === 'start') { text = `Season ${season} began: ${(SCENARIOS[E.S.scenario] || SCENARIOS.classic).name}`; f = -1; }
   if (!text) return;
   wlog.unshift({ at: Date.now(), t: +E.S.simT.toFixed(1), text, f }); if (wlog.length > 40) wlog.length = 40;
 }
@@ -278,7 +290,7 @@ function worldState() {
     regionHeld: E.S.regionHeld, strikes: E.S.strikes, winter: E.S.winter, gev: E.S.gev && E.ge(E.S.gev.k) ? E.S.gev.k : null,
     online: humansOnline(), chief, board: E.leaderboard().slice(0, 10).map(h => ({ name: h.name, f: h.f, caps: h.caps, rank: h.rank || null })),
     squads: [...sq.values()].sort((a, b) => b.caps - a.caps).slice(0, 5), log: wlog.slice(0, 20),
-    history: (E.S.history || []).slice(-80), seasons: archive.slice(-6).reverse().map(a => ({ season: a.season, winner: a.winner, winter: a.winter, pts: a.pts, endedAt: a.endedAt })),
+    campaign: campaignInfo(), history: (E.S.history || []).slice(-80), seasons: archive.slice(-6).reverse().map(a => ({ season: a.season, winner: a.winner, winter: a.winter, pts: a.pts, endedAt: a.endedAt })),
     alerts: realWar.alerts && Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts.on.length : null,
   };
 }
@@ -294,7 +306,10 @@ E.onEvent(ev => {
   try { pushForEvent(ev); } catch (e) { console.error('push', e.message); }
   if (ev.k === 'end') {
     const top = E.leaderboard().slice(0, 5).map(h => ({ name: h.name, f: h.f, caps: h.caps }));
-    archive.push({ season, endedAt: new Date().toISOString(), pts: ev.pts, cities: ev.cities, winner: ev.winner, winter: !!ev.winter, history: E.S.history, owner: Array.from(E.S.owner), frames: E.S.frames, top,
+    const cw = [0, 0]; for (const a of archive) if (campaignOf(a.season) === campaignOf(season) && a.winner >= 0 && !a.winter) cw[a.winner]++; if (ev.winner >= 0 && !ev.winter) cw[ev.winner]++;
+    const campaignDone = season % CAMPAIGN_LEN === 0, campaignWinner = cw[0] === cw[1] ? -1 : cw[0] > cw[1] ? 0 : 1;
+    archive.push({ season, endedAt: new Date().toISOString(), pts: ev.pts, cities: ev.cities, winner: ev.winner, winter: !!ev.winter, scenario: E.S.scenario, capital: ev.capital,
+      rad: Array.from(E.S.rad).map((v, i) => v ? i : -1).filter(i => i >= 0), campaignDone, campaignWinner: campaignDone ? campaignWinner : undefined, campaignWins: campaignDone ? cw : undefined, history: E.S.history, owner: Array.from(E.S.owner), frames: E.S.frames, top,
       players: [...E.players.values()].filter(p => p.caps || p.sent).length });
     writeJson('archive.json', archive.slice(-200)); savePlayers();
   }
@@ -302,12 +317,12 @@ E.onEvent(ev => {
 });
 // events are part of the fog of war too: intel, plans and launch keys stay inside the faction that made them,
 // and a convoy closing in is news only for the side it is coming at
-const PRIVATE_EVENTS = new Set(['decoy', 'spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed']);
+const PRIVATE_EVENTS = new Set(['op_start', 'op_done', 'op_failed', 'pirates', 'raid', 'decoy', 'spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed']);
 const seesEvent = (ev, f) => ev.k === 'threat' ? ev.f !== f : PRIVATE_EVENTS.has(ev.k) ? ev.f === f : true;
 setInterval(() => {
   if (E.S.ended) {
     if (!restartAt) restartAt = Date.now() + RESTART_AFTER_MS;
-    else if (Date.now() > restartAt) { restartAt = 0; for (const p of E.players.values()) if (!p.online && !p.squad) p.f = Math.random() < 0.5 ? 0 : 1; E.applyPendingSquads(); for (const p of E.players.values()) if (p.squad && E.squads.has(p.squad)) p.f = E.squads.get(p.squad).f; E.reset(); rebalanceBots(); }
+    else if (Date.now() > restartAt) { restartAt = 0; for (const p of E.players.values()) if (!p.online && !p.squad) p.f = Math.random() < 0.5 ? 0 : 1; E.applyPendingSquads(); for (const p of E.players.values()) if (p.squad && E.squads.has(p.squad)) p.f = E.squads.get(p.squad).f; season = archive.length ? archive[archive.length - 1].season + 1 : season + 1; prepareSeason(); E.reset(); rebalanceBots(); }
     return;
   }
   let dt = TICK_MS / 1000 * SIM_SPEED;
@@ -318,7 +333,7 @@ setInterval(() => {
   if (!sockets.size) { events = []; return; }
   const views = [E.snapshot(0), E.snapshot(1)], online = humansOnline(), sigs = signals; signals = [[], []];  // fog of war: each faction gets its own view
   const evs = [0, 1].map(f => events.filter(ev => seesEvent(ev, f))); events = [];
-  const extra = { online, bots: E.bots, board: E.leaderboard().slice(0, 12), history: E.S.ended ? E.S.history : undefined, frames: E.S.ended ? E.S.frames : undefined, restartIn: restartAt ? Math.max(0, restartAt - Date.now()) : 0 };
+  const extra = { online, campaign: campaignInfo(), bots: E.bots, board: E.leaderboard().slice(0, 12), history: E.S.ended ? E.S.history : undefined, frames: E.S.ended ? E.S.frames : undefined, restartIn: restartAt ? Math.max(0, restartAt - Date.now()) : 0 };
   for (const [ws, s] of sockets) {
     if (!s.pid || ws.readyState !== 1) continue;
     const p = E.players.get(s.pid);

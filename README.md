@@ -45,6 +45,11 @@ The map is the real world with three changes:
 | **Unrest** | Free-nation cities taken by force stop producing for a while and may rise up; envoys win them without trouble. |
 | **Weather** | Follows the real calendar: northern winter snows slow land convoys in the north, the summer monsoon in South Asia. |
 | **Day and night** | Cities at night are harder to see; air defence weakens, spies slip through and sabotage lasts longer. |
+| **Governors** | Hold a city you took for a game day and your name shows under it for every player. |
+| **Operations** | HQ sets each faction a named operation (take 2 of 3 cities in a region by a deadline) for points and XP. |
+| **Wonders** | Six unique cities, from the Space Center in Houston to the Stock Exchange in Tokyo, each with a faction-wide perk. |
+| **Trade and pirates** | Trade ships pay port holders and can be plundered by fleets; pirate waters cost unescorted convoys troops. |
+| **Scenarios and campaigns** | Seasons rotate themes (Pacific War, Long Winter, Age of Sail) and add up to seven-season Great Wars with scars that carry over. |
 | **Free nations** | Envoys raise a nation's favour; at 100 all its free cities join you. Betrayal has a price. |
 | **Resources** | Uranium feeds the nuclear program, oil speeds convoys, grain boosts production. |
 | **World events** | Every game day: oil shock, solar storm, peace summit, hurricane season, disarmament talks… |

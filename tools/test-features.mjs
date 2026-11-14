@@ -1,6 +1,6 @@
 // Canals and straits, doctrines, railways, airfields, the government in exile and night effects.
 import fs from 'fs';
-import { createEngine, K, DOCTRINES, WEATHER } from '../game/engine.js';
+import { createEngine, K, DOCTRINES, WEATHER, SCENARIOS } from '../game/engine.js';
 const NET = JSON.parse(fs.readFileSync(new URL('../net.js', import.meta.url), 'utf8').replace(/^window\.NET=/, '').replace(/;\s*$/, ''));
 let fail = 0; const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fail++; };
 const fresh = () => { const E = createEngine(NET); const p = E.addPlayer('p', 0, 'Tester'); p.online = true; p.cp = 50; while (E.S.simT < 3) E.step(0.1); return { E, S: E.S, p }; };
@@ -55,6 +55,7 @@ const edge = (E, a, b) => E.edges.find(e => (e.a === idx(E, a) && e.b === idx(E,
   const { E, S, p } = fresh(); E.bots = [0, 0];
   const src = [...Array(E.N).keys()].find(i => S.owner[i] === 0 && E.adj[i].some(x => S.owner[x.to] !== 0 && x.e.type === 0));
   const dst = E.adj[src].find(x => S.owner[x.to] !== 0 && x.e.type === 0).to; S.owner[dst] = 1; S.troops[dst] = 30;
+  for (const c of S.convoys) c.alive = false; for (const e of E.edges) e.convoys.length = 0; S.convoys = []; // no bot convoys already on the way
   const t0 = S.troops[src], own0 = S.owner[dst];
   ok(E.command('p', { type: 'send', src, dst, pct: 0.5, kind: 'decoy' }).ok, `decoy sent ${E.cities[src].name} → ${E.cities[dst].name}`);
   ok(Math.abs(S.troops[src] - t0) < 1, 'no troops left the city');
@@ -62,7 +63,7 @@ const edge = (E, a, b) => E.edges.find(e => (e.a === idx(E, a) && e.b === idx(E,
   ok(view && view[8] === 'std' && view[2] > 0, `the enemy sees a standard convoy of ${view && view[2]}`);
   ok(mine && mine[8] === 'decoy', 'its owner sees the decoy');
   while (S.convoys.some(c => c.id === cv.id && c.alive)) E.step(0.1);
-  ok(S.owner[dst] === own0 && S.troops[dst] >= 29, 'it vanished at the target without a fight');
+  ok(S.owner[dst] === own0 && S.troops[dst] >= 29, `it vanished at the target without a fight (owner ${S.owner[dst]}, ${S.troops[dst].toFixed(1)} troops in ${E.cities[dst].name})`);
 }
 { // sabotage cuts enemy railways into the city
   const { E, S, p } = fresh();
@@ -91,5 +92,26 @@ const edge = (E, a, b) => E.edges.find(e => (e.a === idx(E, a) && e.b === idx(E,
   const E = createEngine(NET), S = E.S, ev = {}; E.onEvent(x => { if (x.who === 'bot') ev[x.k] = (ev[x.k] || 0) + 1; });
   let decoys = 0; while (!S.ended) { E.step(0.1); for (const c of S.convoys) if (c.kind === 'decoy' && !c.seen) { c.seen = 1; decoys++; } }
   ok(ev.rail >= 2 && ev.airfield > 0 && decoys >= 1, `bots: ${ev.rail || 0} railways, ${ev.airfield || 0} airfields, ${decoys} decoys`);
+}
+{ // governors, wonders, operations, trade ships and pirates over one bot season
+  const E = createEngine(NET), S = E.S, ev = {}; E.onEvent(x => { ev[x.k] = (ev[x.k] || 0) + 1; });
+  while (!S.ended) E.step(0.1);
+  ok(S.gov.filter(Boolean).length > 20 && ev.governor > 0, `${S.gov.filter(Boolean).length} governed cities, ${ev.governor} big-city governors, ${ev.deposed || 0} deposed`);
+  ok((ev.op_start || 0) >= 4 && (ev.op_done || 0) >= 1, `operations: ${ev.op_start} started, ${ev.op_done || 0} done, ${ev.op_failed || 0} failed; points ${S.opPts}`);
+  ok(S.tradePts[0] + S.tradePts[1] > 5, `trade income ${S.tradePts.map(x => x.toFixed(1))}, ${ev.raid || 0} raids, ${ev.pirates || 0} pirate attacks`);
+  const won = E.wonders.filter(w => S.owner[w.city] >= 0).length; ok(E.wonders.length === 6, `${E.wonders.length} wonders, ${won} held at the end`);
+}
+{ // wonder perks
+  const { E, S } = fresh(); const sf = E.wonders.find(w => w.key === 'silicon').city, cp0 = E.cpMax(0); S.owner[sf] = 0;
+  ok(E.cpMax(0) === cp0 + 1 && E.satCost(0) === K.SAT_COST, 'Silicon Valley: +1 max CP'); S.owner[E.wonders.find(w => w.key === 'space').city] = 0; ok(E.satCost(0) === K.SAT_COST - 2, 'Space Center: satellites 2 CP cheaper');
+}
+{ // scenarios move the capitals and set the weather; scars of the last season
+  const E = createEngine(NET); E.nextScenario = 'pacific'; E.nextScars = [E.cities.findIndex(c => c.name === 'Cairo')]; E.reset();
+  ok(E.cities[E.CAPS[0]].name === 'Los Angeles' && E.cities[E.CAPS[1]].name === 'Sydney' && E.S.owner[E.CAPS[1]] === 1, 'Pacific War: capitals Los Angeles and Sydney');
+  const cairo = E.nextScars[0]; ok(E.S.rad[cairo] === 1, 'Cairo is still fallout from last season');
+  while (E.S.simT < K.SEASON / 7 + 1) E.step(0.1); ok(E.S.rad[cairo] === 0, 'and recovers after day 1');
+  E.nextScenario = 'frost'; E.nextScars = []; E.reset(); ok(E.S.weather.includes('snow') && E.cities[E.CAPS[0]].name === 'Toronto', 'Long Winter: snow, classic capitals back');
+  const paris = E.edges.find(e => e.type === 0 && E.cities[e.a].name === 'Paris'); ok(E.weatherSlow(paris) < 1, 'even Paris is snowed in');
+  ok(E.scenarioFor(1) === 'classic' && E.scenarioFor(2) === 'pacific' && Object.keys(SCENARIOS).length === 4, 'scenarios rotate by season');
 }
 if (fail) process.exit(1);

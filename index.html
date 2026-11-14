@@ -66,6 +66,9 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 #resRow i.none{color:var(--bad);border-color:rgba(255,107,91,.5)}
 .lbl.unrest .nm::after{content:' ✊';color:#ff9a6b}
 .lbl .af{display:none;font-size:11px;margin-left:4px;color:var(--ink)} .lbl.field .af{display:inline}
+.lbl .wd{color:#ffd27a}
+.lbl .gv{display:block;position:absolute;left:0;top:100%;margin-top:1px;font:600 9px/1 var(--body);color:var(--dim);white-space:nowrap;letter-spacing:.02em} .lbl .gv:empty,.lbl.dotonly .gv,.lbl.nn .gv{display:none}
+.lbl.optgt .n{outline:2px dashed #ffc23d;outline-offset:2px}
 .lbl .ck{margin-left:6px;font:700 9px/1 var(--disp);letter-spacing:.06em;text-transform:uppercase;color:#9fd2ff;opacity:.85;white-space:nowrap} .lbl.dotonly .ck,.lbl.nn .ck{display:none}
 .lbl .rs{font-size:11px;transform:translateY(-50%);filter:drop-shadow(0 0 3px #000)}
 #corner .rwBtn{position:absolute;right:0;bottom:calc(100% + 8px);height:36px;width:auto;padding:0 16px;font-size:13px;border-radius:8px;font-weight:800;letter-spacing:.08em;color:#ffd84d;border-color:rgba(255,216,77,.45);background:linear-gradient(180deg,rgba(0,87,183,.35),rgba(255,215,0,.12))}
@@ -177,6 +180,9 @@ body.online #squad{display:block}
 #squad .mem i{width:6px;height:6px;border-radius:50%;background:var(--faint);flex:none} #squad .mem i.on{background:var(--good)}
 #squad .mem span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} #squad .mem small{color:var(--mut)}
 #squad .leave{background:none;border:none;color:var(--mut);font-size:10.5px;cursor:pointer;padding:4px 0 0;text-decoration:underline}
+#opPanel{background:var(--plate);border:1px solid rgba(255,194,61,.35);border-radius:8px;padding:10px 12px;font-size:12px} #opPanel:empty{display:none}
+#opPanel .cap{font:800 10px/1 var(--disp);letter-spacing:.12em;color:var(--cp);margin-bottom:6px} #opPanel .on{font:800 13px/1.2 var(--disp);color:var(--ink);margin-bottom:6px}
+#opPanel .tg{display:flex;justify-content:space-between;gap:8px;padding:3px 0;color:var(--dim);cursor:pointer} #opPanel .tg.ok{color:var(--good)} #opPanel .tg:hover{color:var(--ink)} #opPanel .ft{margin-top:6px;color:var(--mut);font-size:11px}
 #missions{background:var(--plate);border:1px solid var(--edge);border-radius:8px;padding:10px 12px}
 .ms{font-size:11px;font-weight:700;color:#b8c4d2;margin:6px 0}
 .ms .bar{height:4px;background:#18222e;border-radius:2px;margin-top:4px;overflow:hidden}
@@ -498,7 +504,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 </div>
 
 <div id="feed"></div>
-<div id="leftcol"><div id="gen"><div class="cap">General of your faction <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
+<div id="leftcol"><div id="opPanel"></div><div id="gen"><div class="cap">General of your faction <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
 <div id="regions"><div class="cap fold" style="margin-bottom:8px">Regions <b id="rgCount"></b></div><div id="rgList"></div><div class="note">Hold every city in a region: +30% production there, +8 points and +1 max CP.</div></div></div>
 
 <div id="bottom">
@@ -567,7 +573,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div class="modal hidden" id="manual"><div class="sheet manSheet">
   <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">FIELD MANUAL</h1><button class="btn2" id="manClose">CLOSE</button></div>
   <div class="mtabs"><button class="mt on" data-tab="basics">Basics</button><button class="mt" data-tab="abilities">Abilities</button><button class="mt" data-tab="intel">Intel & diplomacy</button><button class="mt" data-tab="world">World</button></div>
-  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. Megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about half a day.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
+  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. Megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about half a day.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
 </div></div>
 <div class="modal hidden" id="realwar"><div class="sheet rwSheet">
   <div class="rwKick">This is a game. In Ukraine it is not.</div>
@@ -620,7 +626,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { createEngine, K, FN, REGIONS, RESOURCES, CONVOY, GEVENTS, TRAILS, RANKS, DOCTRINES, WEATHER } from './game/engine.js';
+import { createEngine, K, FN, REGIONS, RESOURCES, CONVOY, GEVENTS, TRAILS, RANKS, DOCTRINES, WEATHER, WONDERS, SCENARIOS } from './game/engine.js';
 
 // ================= engine: local (offline practice) or mirror of the server (online) =================
 const NET = window.NET, D = Math.PI / 180, $ = id => document.getElementById(id);
@@ -844,8 +850,9 @@ const citadels = [];
   const prof = []; for (let k = 0; k <= 24; k++) { const u = k / 24; prof.push(new THREE.Vector2(0.0008 + 0.0042 * Math.pow(1 - u, 2.2) + (u < 0.06 ? 0.0012 * (1 - u / 0.06) : 0), u * 0.032)); }
   prof.push(new THREE.Vector2(0, 0.032));
   const spireGeo = new THREE.LatheGeometry(prof, 48), orbGeo = new THREE.SphereGeometry(0.0021, 24, 16), haloGeo = new THREE.TorusGeometry(0.0085, 0.0004, 12, 96);
-  for (const c of cities) if (c.cap >= 0) {
-    const col = FCOL[c.cap];
+  const capNames = new Set(['Toronto', 'Shanghai', ...Object.values(SCENARIOS).flatMap(sc => sc.caps || [])]);
+  for (const c of cities) if (capNames.has(c.name)) {
+    const col = FCOL[Math.max(0, c.cap)];
     const pearl = new THREE.MeshPhongMaterial({ color: 0xe3ebf4, emissive: col.clone().multiplyScalar(0.22), specular: 0xffffff, shininess: 110 });
     const orbM = new THREE.MeshBasicMaterial({ color: col.clone().lerp(new THREE.Color(0xffffff), 0.35) });
     const haloM = new THREE.MeshBasicMaterial({ color: col, opacity: 0.85, ...ADD }), poolM = new THREE.MeshBasicMaterial({ map: glowTex, color: col, opacity: 0.5, ...ADD });
@@ -860,12 +867,12 @@ const citadels = [];
     const spark = new THREE.Sprite(sparkM); spark.position.y = 0.0345; spark.scale.setScalar(0.016); g.add(spark);
     g.position.copy(c.v).multiplyScalar(1.0012); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), c.v.clone().normalize());
     scene.add(g);
-    citadels.push({ c, g, pearl, orbM, haloM, poolM, pulseM, sparkM, beamM, halo, spark, pulse, held: c.cap });
+    g.visible = c.cap >= 0; citadels.push({ c, g, pearl, orbM, haloM, poolM, pulseM, sparkM, beamM, halo, spark, pulse, held: -9 });
   }
 }
 function paintCitadels() {
   for (const k of citadels) {
-    const o = S.rad && S.rad[k.c.i] ? -2 : owner[k.c.i]; if (o === k.held) continue; k.held = o;
+    k.g.visible = k.c.cap >= 0; const o = S.rad && S.rad[k.c.i] ? -2 : owner[k.c.i]; if (o === k.held) continue; k.held = o;
     const col = o === -2 ? RADC : o >= 0 ? FCOL[o] : NCOL;
     k.pearl.emissive.copy(col).multiplyScalar(0.22); k.orbM.color.copy(col).lerp(new THREE.Color(0xffffff), 0.35);
     for (const m of [k.haloM, k.poolM, k.pulseM, k.sparkM, k.beamM]) m.color.copy(col);
@@ -1146,6 +1153,13 @@ function onGameEvent(ev) {
       else if (mine) event(`Your rally point is set for the whole faction: ${cname(ev.city)}`, me, ev.city);
       else event(`${ev.name} set the rally point: ${cname(ev.city)}`, me, ev.city);
       break;
+    case 'governor': if (ev.f === me || owner[ev.city] === me) event(`🎖 <b>${ev.name}</b> is now governor of ${cname(ev.city)}`, ev.f, ev.city); break;
+    case 'deposed': if (cities[ev.city].tier >= 2) event(`${FN[ev.f]} took ${cname(ev.city)}: governor ${ev.name} is out`, ev.f === me ? me : 'warn', ev.city); break;
+    case 'op_start': if (ev.f === me) { event(`📜 <b>${ev.name}</b>: take ${ev.need} of ${ev.targets.map(cname).join(', ')} by ${gameTimeAt(ev.until)}`, me, ev.targets[0]); sfx('send'); } updateOpPanel(); break;
+    case 'op_done': if (ev.f === me) { event(`🎖 <b>${ev.name}</b> accomplished: +${ev.pts} points, XP for everyone who took part`, me); sfx('win'); } updateOpPanel(); break;
+    case 'op_failed': if (ev.f === me) event(`${ev.name} failed: the deadline passed`, 'warn'); updateOpPanel(); break;
+    case 'pirates': if (ev.f === me && ev.who === myId) event(`☠ Pirates off ${cname(ev.city)} took ${ev.lost} troops. A fleet in that port would have kept them away`, 'warn', ev.city); break;
+    case 'raid': if (ev.f === me) event(`⚓ Our fleet plundered a trade ship bound for ${cname(ev.city)}`, me, ev.city); break;
     case 'decoy': if (ev.f === me && ev.who === myId) event(`Your decoy reached ${cname(ev.city)} and melted away`, me, ev.city); break;
     case 'rail_cut': if (owner[ev.city] === me || ev.f !== me) event(`💥 Saboteurs blew up ${ev.n} railway${ev.n > 1 ? 's' : ''} into ${cname(ev.city)}`, 'warn', ev.city); else event(`💥 ${ev.n} enemy railway${ev.n > 1 ? 's' : ''} into ${cname(ev.city)} cut`, me, ev.city); refreshUI(); break;
     case 'uprising': if (ev.f === me) event(`✊ Uprising in ${cname(ev.city)}: ${ev.lost} troops lost`, 'warn', ev.city); break;
@@ -1242,6 +1256,7 @@ function applySnap(m) {
   if (m.frames) S.frames = m.frames;
   if (seasonChanged) onGameEvent({ k: 'start', season: m.season });
   for (const ev of m.ev || []) onGameEvent(ev);
+  if (m.campaign) campaign = m.campaign;
   if (m.ended && $('end').classList.contains('hidden')) { const sc = E.scores(); showEnd(sc.pts, sc.cities, S.history); }
 }
 
@@ -1293,7 +1308,8 @@ function sendTo(src, dst) {
 const labelsEl = $('labels');
 for (const c of cities) {
   const d = document.createElement('div'); d.className = 'lbl t' + c.tier;
-  d.innerHTML = `<span class="n"></span>${c.res ? `<span class="rs">${RESOURCES[c.res].icon}</span>` : ''}<span class="nm">${c.cap >= 0 ? '★ ' : ''}${c.name}</span><span class="af" title="Airfield">✈</span>${c.choke >= 0 ? `<span class="ck">⚓ ${E.chokes.find(x => x.k === c.choke).name}</span>` : ''}`;
+  d.innerHTML = `<span class="n"></span>${c.res ? `<span class="rs">${RESOURCES[c.res].icon}</span>` : ''}<span class="nm">${c.cap >= 0 ? '★ ' : ''}${c.name}</span><span class="af" title="Airfield">✈</span>${c.wonder ? `<span class="ck wd">🏛 ${WONDERS.find(w => w.key === c.wonder).name}</span>` : ''}${c.choke >= 0 ? `<span class="ck">⚓ ${E.chokes.find(x => x.k === c.choke).name}</span>` : ''}`;
+  d.insertAdjacentHTML('beforeend', '<span class="gv"></span>'); c.gvEl = d.lastChild; c.nmEl = d.querySelector('.nm');
   labelsEl.appendChild(d); c.el = d; c.nEl = d.firstChild; c.sx = -999; c.sy = -999; c.vis = false; c.cls = ''; c.txt = '';
 }
 const natArea = NATIONS.map(() => 0);
@@ -1361,7 +1377,7 @@ function targetOutcome(i) {
 let targetCount = 0;
 function paintCities() {
   paintCitadels();
-  targetCount = 0;
+  targetCount = 0; const myOp = S.ops && S.ops[me], opT = new Set(myOp ? myOp.targets : []);
   const dist = camera.position.length(), vis = cities.filter(c => c.vis);
   const prio = c => (c.i === selected || c.i === hoverCity ? 100 : 0) + (c.cap >= 0 ? 50 : 0) + c.tier * 10 + (owner[c.i] === me ? 3 : 0);
   vis.sort((a, b) => prio(b) - prio(a));
@@ -1382,6 +1398,9 @@ function paintCities() {
     const cls = 'lbl t' + c.tier + (o >= 0 ? ' f' + o : '') + (showName.has(c.i) ? '' : ' nn') + ((o < 0 && c.tier === 1 && dist > 2.4 || hid) && c.i !== hoverCity && !target ? ' dotonly' : '') +
       (target ? ' target ' + outcome : '') + (picking && !target && c.i !== selected && !(mode === 'convoy' && o === me) ? ' dim' : '') + (c.i === selected ? ' sel' : '') + (c.i === orders[me] ? ' order' : '') + (fort[c.i] > simT && !hid ? ' fort' : '') + (sab[c.i] > simT ? ' sab' : '') + (hid ? ' fog' : '') + (isMyCmd(c.i) ? ' cmd' : '') + (blocked(c.i) ? ' blk' : '') + (S.rad && S.rad[c.i] ? ' rad' : '') + (S.field && S.field[c.i] ? ' field' : '') + (S.unrest && S.unrest[c.i] > simT && o >= 0 ? ' unrest' : '');
     if (cls !== c.cls) { c.el.className = cls; c.cls = cls; }
+    { const nm = (c.cap >= 0 ? '★ ' : '') + c.name, gv = S.gov && S.gov[c.i] && c.tier >= 2 ? 'Gov. ' + S.gov[c.i] : '';
+      if (c.nmEl._t !== nm) { c.nmEl._t = nm; c.nmEl.textContent = nm; } if (c.gvEl._t !== gv) { c.gvEl._t = gv; c.gvEl.textContent = gv; }
+      c.el.classList.toggle('optgt', opT.has(c.i) && owner[c.i] !== me); }
     c.ring.material.opacity = c.i === selected ? 1 : c.i === orders[me] ? 0.8 : 0;
     c.ring.material.color.set(c.i === selected ? '#ffffff' : FCSS[me]);
   }
@@ -1415,7 +1434,8 @@ function showTip(x, y) {
   const favTxt = fav && o < 0 ? `<div class="m">Favour: <b style="color:var(--a)">${FN[0]} ${Math.round(fav[0])}</b> · <b style="color:var(--b)">${FN[1]} ${Math.round(fav[1])}</b> (100 = alliance)</div>` : '';
   const resTxt = c.res ? ` · <b>${RESOURCES[c.res].icon} ${RESOURCES[c.res].name}</b>` : '';
   const ch = c.choke >= 0 ? E.chokes.find(x => x.k === c.choke) : null, rails = E.edges.filter(e => S.rail && S.rail[e.i] && (e.a === c.i || e.b === c.i)).length;
-  const status = `${ch ? ` · <b style="color:#9fd2ff">⚓ controls the ${ch.name}</b> (+${K.CHOKE_PTS} points; its lanes close to the enemy)` : ''}${S.field && S.field[c.i] ? ' · ✈ airfield' : ''}${rails ? ` · 🛤 ${rails} railway${rails > 1 ? 's' : ''}` : ''}${S.unrest && S.unrest[c.i] > simT && o >= 0 ? ` · <b style="color:#ff9a6b">✊ unrest for ${hours(S.unrest[c.i] - simT)} h: no production, uprisings</b>` : ''}${(S.weather || []).filter(w => WEATHER[w].regions.includes(c.region)).map(w => ` · ${WEATHER[w].icon} ${WEATHER[w].name.toLowerCase()}: land convoys ×${w === 'snow' ? K.SNOW_SLOW : K.MONSOON_SLOW}`).join('')}${E.isNight(c.i) ? ' · 🌙 night: seen only up close, air defence −50%, spies rarely caught, sabotage lasts longer' : ''}${resTxt}${S.rad && S.rad[c.i] ? ' · <b style="color:#d7e66a">☢ fallout: nobody can take it</b>' : ''}${fort[c.i] > simT && !hid ? ' · <b style="color:var(--ink)">fortified</b>' : ''}${sab[c.i] > simT ? ' · <b style="color:var(--bad)">sabotaged</b>' : ''}${blocked(c.i) ? ' · <b style="color:#9fd2ff">blockaded</b>' : ''}${S.cmdr[c.i] && !hid ? ` · ◆ ${isMyCmd(c.i) ? 'you command it' : cmdrName(c.i)}${E.cmdrActive(c.i) ? ' (+15%)' : ''}` : ''}${c.ncap ? ' · nation capital' : ''}`;
+  const wd = c.wonder ? WONDERS.find(w => w.key === c.wonder) : null;
+  const status = `${S.gov && S.gov[c.i] ? ` · governor <b>${S.gov[c.i]}</b>` : ''}${wd ? ` · <b style="color:#ffd27a">🏛 ${wd.name}</b>: ${wd.text} for its holder (+${K.WONDER_PTS} points)` : ''}${E.pirate && E.pirate.has(c.i) ? ' · ☠ pirate waters: convoys lose 10% without a fleet here' : ''}${ch ? ` · <b style="color:#9fd2ff">⚓ controls the ${ch.name}</b> (+${K.CHOKE_PTS} points; its lanes close to the enemy)` : ''}${S.field && S.field[c.i] ? ' · ✈ airfield' : ''}${rails ? ` · 🛤 ${rails} railway${rails > 1 ? 's' : ''}` : ''}${S.unrest && S.unrest[c.i] > simT && o >= 0 ? ` · <b style="color:#ff9a6b">✊ unrest for ${hours(S.unrest[c.i] - simT)} h: no production, uprisings</b>` : ''}${(S.weather || []).filter(w => WEATHER[w].regions.includes(c.region)).map(w => ` · ${WEATHER[w].icon} ${WEATHER[w].name.toLowerCase()}: land convoys ×${w === 'snow' ? K.SNOW_SLOW : K.MONSOON_SLOW}`).join('')}${E.isNight(c.i) ? ' · 🌙 night: seen only up close, air defence −50%, spies rarely caught, sabotage lasts longer' : ''}${resTxt}${S.rad && S.rad[c.i] ? ' · <b style="color:#d7e66a">☢ fallout: nobody can take it</b>' : ''}${fort[c.i] > simT && !hid ? ' · <b style="color:var(--ink)">fortified</b>' : ''}${sab[c.i] > simT ? ' · <b style="color:var(--bad)">sabotaged</b>' : ''}${blocked(c.i) ? ' · <b style="color:#9fd2ff">blockaded</b>' : ''}${S.cmdr[c.i] && !hid ? ` · ◆ ${isMyCmd(c.i) ? 'you command it' : cmdrName(c.i)}${E.cmdrActive(c.i) ? ' (+15%)' : ''}` : ''}${c.ncap ? ' · nation capital' : ''}`;
   const vsBlock = (n, extra, all) => { if (hid) return `<div class="vs"><span style="color:${FCSS[me]}">${n}</span><small>vs</small><span>?</span></div><div class="res no" style="color:var(--dim)">Garrison unknown: fog of war</div><div class="m">${extra}${status}</div>`; const def = Math.ceil(E.defOf(c.i)), ok = n > def;
     return `<div class="vs"><span style="color:${FCSS[me]}">${n}</span><small>vs</small><span>${def}</span></div><div class="res ${ok ? 'ok' : 'no'}">${ok ? 'You will take it' : `Short by ${def - n + 1}`}</div>${!ok && all !== undefined && all > n ? `<div class="m" style="color:${all > def ? 'var(--good)' : 'var(--dim)'}">${all > def ? `Sending ALL (${all}) would take it: press 3` : `Even ALL (${all}) is not enough: reinforce ${cities[selected].name} first or wait`}</div>` : ''}<div class="m">${extra}${status}</div>`; };
   let body;
@@ -1580,14 +1600,14 @@ $('abBuild').onclick = () => { if (mode === 'build') return setMode('convoy'); i
 // on narrow screens the left column is hidden: its general, squad and missions panels move into the drawer
 function placePanels() {
   const narrow = innerWidth <= 1100, dst = narrow ? $('drawerPanels') : $('leftcol');
-  for (const id of ['gen', 'squad', 'missions']) { const el = $(id); if (el && el.parentElement !== dst) narrow ? dst.appendChild(el) : dst.insertBefore(el, $('regions')); }
+  for (const id of ['opPanel', 'gen', 'squad', 'missions']) { const el = $(id); if (el && el.parentElement !== dst) narrow ? dst.appendChild(el) : dst.insertBefore(el, $('regions')); }
 }
 placePanels(); addEventListener('resize', placePanels);
 $('gearBtn').onclick = () => { $('drawer').classList.toggle('open'); hud(); };
 $('helpBtn').onclick = () => openManual();
 for (const [id, f] of [['bA', 0], ['bB', 1]]) { const el = $(id); el.oninput = () => { if (!online) E.bots[f] = +el.value; $(id + 'v').textContent = el.value; }; el.oninput(); }
 $('swBtn').onclick = () => { if (online) return; me = 1 - me; meP().f = me; select(-1); facUI(); event(`You now play for ${FN[me]}`, me); };
-$('rsBtn').onclick = () => { if (!online) { seasonNo = localArchive().length + 1; E.reset(); } };
+$('rsBtn').onclick = () => { if (!online) { seasonNo = localArchive().length + 1; E.nextScenario = E.scenarioFor(seasonNo); E.nextScars = Array.from(S.rad).map((v, i) => v ? i : -1).filter(i => i >= 0); E.reset(); facUI(); } };
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.code === 'Space' && !online) { e.preventDefault(); setSpeed(speed ? 0 : 1); }
@@ -1819,6 +1839,16 @@ $('docGrid').innerHTML = Object.entries(DOCTRINES).map(([k, d]) => `<button type
 $('docGrid').onclick = ev => { const b = ev.target.closest('[data-doc]'); if (b) act({ type: 'doctrine', kind: b.dataset.doc }, { ok: `Doctrine: ${DOCTRINES[b.dataset.doc].name}` }); };
 $('docHide').onclick = () => { docHidden = true; $('docCard').classList.remove('on'); };
 function updateDocCard() { const show = !S.ended && amChief() && S.doctrine && !S.doctrine[me] && simT < K.SEASON / 7 && !docHidden; $('docCard').classList.toggle('on', !!show); }
+// named operation of your faction: targets, progress and the deadline
+const gameTimeAt = t => { const gm = t * GMIN, d = Math.min(7, Math.floor(gm / 1440) + 1); return `day ${d}, ${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:00`; };
+function updateOpPanel() {
+  const op = S.ops && S.ops[me], el = $('opPanel');
+  if (!op || S.ended) { if (el.innerHTML) el.innerHTML = ''; return; }
+  const got = op.targets.filter(i => owner[i] === me).length, left = Math.max(0, (op.until - simT) * GMIN);
+  const h = `<div class="cap">OPERATION · ${REGIONS[op.region]}</div><div class="on">${op.name.replace('Operation ', '')}</div>${op.targets.map(i => `<div class="tg ${owner[i] === me ? 'ok' : ''}" data-c="${i}"><span>${owner[i] === me ? '✓' : '○'} ${cname(i)}</span><span>${owner[i] === me ? 'taken' : hiddenCity(i) ? '?' : Math.floor(troops[i])}</span></div>`).join('')}<div class="ft">Take ${op.need} of ${op.targets.length} · ${got}/${op.need} · ${Math.floor(left / 60)}h ${String(Math.floor(left % 60)).padStart(2, '0')}m left · +${K.OP_PTS} points</div>`;
+  if (el._h !== h) { el._h = h; el.innerHTML = h; }
+}
+$('opPanel').onclick = ev => { const t = ev.target.closest('[data-c]'); if (t) flyTo(+t.dataset.c); };
 // a fallen capital: countdown banner for both sides (yours = defeat clock, theirs = victory clock)
 function updateCapBar() {
   const bar = $('capBar'), hold = (S.capHold || []).map((h, f) => h && { ...h, f }).filter(Boolean).sort((a, b) => a.until - b.until)[0];
@@ -1835,11 +1865,12 @@ function updateCapBar() {
 $('capExile').onclick = ev => { ev.stopPropagation(); act({ type: 'exile', city: selected >= 0 && owner[selected] === me && cities[selected].tier >= 2 ? selected : -1 }, { ok: 'The government moved: the countdown runs at half speed' }); };
 $('capBar').onclick = () => { if ($('capBar')._city >= 0) flyTo($('capBar')._city); };
 function hud() {
-  updateCapBar(); updateDocCard();
+  updateCapBar(); updateDocCard(); updateOpPanel();
   const [d, hh] = gameTime();
   const gv = E.ge && S.gev && E.ge(S.gev.k) ? GEVENTS[S.gev.k] : null;
   const dc = S.doctrine && S.doctrine[me] ? DOCTRINES[S.doctrine[me]] : null;
-  const clk = `<b>Day ${d} of 7</b> · ${hh} UTC${dc ? ` · <span class="docChip" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? ` · <span class="gevChip" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => ` · <span class="docChip" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
+  const sc = S.scenario && S.scenario !== 'classic' ? SCENARIOS[S.scenario] : null;
+  const clk = `<b>Day ${d} of 7</b> · ${hh} UTC${sc ? ` · <span class="docChip" title="${sc.text}">${sc.name}</span>` : ''}${dc ? ` · <span class="docChip" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? ` · <span class="gevChip" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => ` · <span class="docChip" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
   if ($('clock')._h !== clk) { $('clock')._h = clk; $('clock').innerHTML = clk; }
   $('eTxt').textContent = `${Math.floor(energyNow())}/${cpMax()}`; renderPips();
   const s = E.scores(), tot = NET.cities.reduce((a, c) => a + K.VALUE[c[3]], 0) + K.REGION_BONUS * REGIONS.length;
@@ -1878,6 +1909,8 @@ function showEnd(pts, cit, history, winner, capital) {
     <div class="team">Your part: ${st.sent || 0} convoys, ${st.caps || 0} captures, ${st.clashes || 0} clashes, ${st.forts || 0} fortifications, ${st.sabs || 0} sabotages, ${st.drops || 0} airdrops.</div>
     <div class="chart"><div class="cap">Course of the war</div>${warChart(history)}</div>
     <div class="chart heroes" style="border-top:1px solid var(--edge)">${heroesHtml(8)}</div>
+    ${campaign ? `<div class="team" style="margin-top:10px">🏆 <b>Great War ${campaign.n}</b> · season ${campaign.k} of ${campaign.len} · <span style="color:var(--a)">${FN[0]} ${campaign.wins[0] + (w === 0 && !winterEnd ? 1 : 0)}</span> – <span style="color:var(--b)">${campaign.wins[1] + (w === 1 && !winterEnd ? 1 : 0)} ${FN[1]}</span>${campaign.k === campaign.len ? ' · the campaign is decided' : ''}</div>` : ''}
+    <div class="team" style="margin-top:6px">Next season: <b>${SCENARIOS[online && campaign ? campaign.next : E.scenarioFor(seasonNo + 1)].name}</b>. ${SCENARIOS[online && campaign ? campaign.next : E.scenarioFor(seasonNo + 1)].text}${S.rad && S.rad.some(Boolean) && (!campaign || campaign.k < campaign.len) ? ' Bombed cities stay fallout through its first day.' : ''}</div>
     <div class="rwEnd" id="endRw">This war ended after ${Math.min(7, Math.ceil(simT / (K.SEASON / 7)))} game ${Math.min(7, Math.ceil(simT / (K.SEASON / 7))) === 1 ? 'day' : 'days'}. Russia's war on Ukraine is on day <b>${(Math.floor((Date.now() - Date.UTC(2022, 1, 24)) / 864e5) + 1).toLocaleString('en-US')}</b> and it is still going. <b>Are you sure you are ready for a real war? →</b></div>
     <div class="btnrow"><button class="btn2" id="endShare">SHARE CARD</button><button class="btn2" id="endArchive">WAR ARCHIVE</button><button class="btn2" id="endReplay">▶ REPLAY SEASON</button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a></div>
     <div class="foot"><span class="team" id="endNext">${online ? 'The next season starts automatically in a few seconds.' : ''}</span>${online ? '' : '<button class="play" onclick="document.getElementById(\'rsBtn\').click()">NEW SEASON</button>'}</div>`;
@@ -2025,28 +2058,39 @@ function miniMap(g, x, y, w, h, own, highlight = [], far = null) {
   for (const i of highlight) { const [cx, cy] = px(cities[i]); g.beginPath(); g.arc(cx, cy, 3 + w / 200, 0, 7); g.stroke(); }
   if (far) { const [ax, ay] = px(cities[CAPS[me]]), [bx, by] = px(cities[far.city]); g.setLineDash([6, 5]); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.stroke(); g.setLineDash([]); }
 }
-function drawShare(pts) {
-  const g = shareCv.getContext('2d'), st = endStats || myStats(), W = 1200, H = 630, w = pts[0] === pts[1] ? -1 : pts[0] > pts[1] ? 0 : 1;
-  g.fillStyle = '#05080d'; g.fillRect(0, 0, W, H);
-  const grd = g.createRadialGradient(900, 320, 50, 900, 320, 600); grd.addColorStop(0, 'rgba(74,163,255,.10)'); grd.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = grd; g.fillRect(0, 0, W, H);
-  miniMap(g, 600, 120, 560, 280, endOwner || owner, st.captured || [], st.far);
-  g.fillStyle = '#7d8a9a'; g.font = '700 18px Unbounded, sans-serif'; g.fillText(`SUPPLY LINES · SEASON ${endSeason}`, 50, 70);
-  g.fillStyle = w < 0 ? '#e9eef5' : FCSS[w]; g.font = '800 56px Unbounded, sans-serif'; g.fillText(w < 0 ? 'DRAW' : FN[w].toUpperCase(), 50, 150); if (w >= 0) g.fillText('WINS', 50, 215);
-  g.font = '800 34px Unbounded, sans-serif'; g.fillStyle = FCSS[0]; g.fillText(String(pts[0]), 50, 280); const a = g.measureText(String(pts[0])).width;
-  g.fillStyle = '#7d8a9a'; g.fillText(' – ', 50 + a, 280); const b = g.measureText(' – ').width; g.fillStyle = FCSS[1]; g.fillText(String(pts[1]), 50 + a + b, 280);
-  g.fillStyle = '#e9eef5'; g.font = '700 22px Manrope, sans-serif'; g.fillText(`${online ? st.name : 'You'} · ${(st.rank || {}).name || 'Private'} · ${FN[me]}`, 50, 345);
-  g.fillStyle = '#b5c1cf'; g.font = '600 20px Manrope, sans-serif';
-  const done = (st.missions || []).filter(m => m.done).length;
-  g.fillText(`${st.caps || 0} captures · ${st.sent || 0} convoys · ${done}/3 missions`, 50, 385);
-  if (st.far) g.fillText(`Farthest capture: ${cities[st.far.city].name}, ${st.far.km.toLocaleString('en')} km from ${cities[CAPS[me]].name}`, 50, 420);
-  g.fillStyle = '#7d8a9a'; g.font = '600 16px Manrope, sans-serif'; g.fillText('White rings: cities you took yourself', 600, 425);
-  g.fillStyle = '#e9eef5'; g.font = '700 20px Unbounded, sans-serif'; g.fillText('JOIN THE WAR: ' + location.host.toUpperCase(), 50, 570);
-  g.fillStyle = '#4aa3ff'; g.fillRect(50, 590, 180, 6); g.fillStyle = '#ffad33'; g.fillRect(230, 590, 180, 6);
+// end-of-season poster in the spirit of 1940s propaganda: sunburst, a big slogan, the season in one line
+const SLOGANS = { win: ['HOLDS THE LINE', 'STANDS VICTORIOUS', 'CARRIES THE DAY', 'OWNS THE MAP'], draw: ['THE WAR GOES ON'], winter: ['NOBODY WON'] };
+function posterArt(w, col) { const k = S.scenario === 'naval' || S.scenario === 'pacific' ? 'navy' : S.scenario === 'frost' ? 'blitz' : w === 1 ? 'air' : 'blitz';
+  return new Promise(res => { const img = new Image(); img.onload = () => res(img); img.onerror = () => res(null);
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(DOC_ART[k].replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" style="color:${col}" width="800" height="460" `)); }); }
+async function drawShare(pts) {
+  const g = shareCv.getContext('2d'), st = endStats || myStats(), W = 1200, H = 630, w = S.winter ? -2 : pts[0] === pts[1] ? -1 : pts[0] > pts[1] ? 0 : 1;
+  const col = w >= 0 ? FCSS[w] : w === -2 ? '#d7e66a' : '#e9eef5', art = await posterArt(w, col);
+  g.fillStyle = '#0b1118'; g.fillRect(0, 0, W, H);
+  // sunburst from the lower right
+  g.save(); g.translate(960, 640); for (let k = 0; k < 28; k++) { g.rotate(Math.PI * 2 / 28); g.fillStyle = k % 2 ? col : '#0b1118'; g.globalAlpha = k % 2 ? 0.24 : 1; g.beginPath(); g.moveTo(0, 0); g.lineTo(1400, -60); g.lineTo(1400, 60); g.closePath(); g.fill(); } g.restore(); g.globalAlpha = 1;
+  const vg = g.createRadialGradient(960, 640, 120, 960, 640, 900); vg.addColorStop(0, 'rgba(11,17,24,0)'); vg.addColorStop(1, 'rgba(11,17,24,.7)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  if (art) { g.globalAlpha = 0.8; g.drawImage(art, 500, 120, 700, 402); g.globalAlpha = 1; }
+  // frame
+  g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(24, 24, W - 48, H - 48); g.lineWidth = 1.5; g.strokeRect(36, 36, W - 72, H - 72);
+  const sc = SCENARIOS[S.scenario] || SCENARIOS.classic, camp = campaign ? ` · GREAT WAR ${campaign.n}` : '';
+  g.fillStyle = '#e9eef5'; g.font = '800 20px Unbounded, sans-serif'; g.fillText(`SEASON ${endSeason} · ${sc.name.toUpperCase()}${camp}`, 70, 92);
+  const slogan = (w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)];
+  const lines = w >= 0 ? [FN[w].toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
+  let y = 180; lines.forEach((l, k) => { g.font = `800 ${k === 0 && w >= 0 ? 78 : 64}px Unbounded, sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
+  // stats
+  const box = (x, label, val, c) => { g.fillStyle = 'rgba(11,17,24,.82)'; g.fillRect(x, 470, 200, 84); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(x, 470, 200, 84);
+    g.fillStyle = '#9aa7b6'; g.font = '700 13px Unbounded, sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '800 32px Unbounded, sans-serif'; g.fillText(val, x + 14, 538); };
+  box(66, 'SCORE', `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : 'YOU'}`, `${st.caps || 0} TAKEN`, FCSS[me]);
+  if (campaign) box(498, 'CAMPAIGN', `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
+  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '800 18px Unbounded, sans-serif'; g.fillText('JOIN THE WAR · ' + location.host.toUpperCase(), 66, H - 48);
+  g.textAlign = 'right'; g.fillText('SUPPLY LINES', W - 66, H - 48); g.textAlign = 'left';
 }
+let campaign = null;
 let lastPts = [0, 0], endStats = null, endSeason = 1, endOwner = null;
 const shareText = () => { const st = endStats || myStats(), w = lastPts[0] === lastPts[1] ? -1 : lastPts[0] > lastPts[1] ? 0 : 1;
   return `Supply Lines, season ${endSeason}: ${w < 0 ? 'a draw' : FN[w] + ' won'} ${lastPts[0]}–${lastPts[1]}. I fought for ${FN[me]}: ${st.caps || 0} captures${st.far ? ', farthest ' + cities[st.far.city].name : ''}. Join: ${location.origin}`; };
-function openShare() { drawShare(lastPts); $('share').classList.remove('hidden'); }
+async function openShare() { await drawShare(lastPts); $('share').classList.remove('hidden'); }
 $('shClose').onclick = () => $('share').classList.add('hidden');
 $('shDl').onclick = () => shareCv.toBlob(b => { const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `supply-lines-season-${endSeason}.png`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); });
 $('shCopy').onclick = async () => { try { await navigator.clipboard.writeText(shareText()); event('Copied to clipboard'); } catch (e) { event('Could not copy: your browser blocked the clipboard', 'warn'); } };
@@ -2386,6 +2430,9 @@ function frame(t) {
       Sz[n] = base * (1 - k / tn * 0.75) * (mine ? 1.35 : 1) * (L.pulse ? 1 + 0.3 * Math.sin(now * 8 + cv.id) : 1) * (k ? 1 : L.head || 1) * (L.spark && k && Math.random() < 0.15 ? 1.8 : 1); n++;
     }
   }
+  // neutral trade ships: small pale dots crawling along the sea lanes
+  for (const sh of S.ships || []) { if (n > MAXP - 2) break; const e = E.edges[sh.e]; if (!e) continue; const pts = edgePts(e), u = (sh.fwd ? sh.t : 1 - sh.t) * SEG, i0 = Math.min(SEG - 1, Math.floor(u)), a = pts[i0], b = pts[i0 + 1], w = u - i0;
+    P[n * 3] = a.x + (b.x - a.x) * w; P[n * 3 + 1] = a.y + (b.y - a.y) * w; P[n * 3 + 2] = a.z + (b.z - a.z) * w; Cc[n * 3] = 0.85; Cc[n * 3 + 1] = 0.88; Cc[n * 3 + 2] = 0.92; Sz[n] = 0.018; n++; }
   for (const f of fx) { if (n > MAXP - 1) break; f.t += dt; if (f.vel) f.p.addScaledVector(f.vel, dt); const col = FCOL[f.f], s = Math.max(0, 1 - f.t / 0.6);
     P[n * 3] = f.p.x; P[n * 3 + 1] = f.p.y; P[n * 3 + 2] = f.p.z; Cc[n * 3] = s + col.r * (1 - s); Cc[n * 3 + 1] = s + col.g * (1 - s); Cc[n * 3 + 2] = s + col.b * (1 - s); Sz[n] = f.small ? 0.028 * (0.4 + s) : 0.09 * (1 - s * 0.5); n++; }
   for (let i = fx.length - 1; i >= 0; i--) if (fx[i].t > 0.6) fx.splice(i, 1);
