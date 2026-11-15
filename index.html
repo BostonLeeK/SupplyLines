@@ -383,7 +383,7 @@ input[type=range]{accent-color:var(--ink)}
 .lbl.fort .n{box-shadow:0 0 0 2px #e9eef5,0 0 10px rgba(255,255,255,.5)}
 .lbl.cmd .n::before{content:"◆ ";font-size:8px}
 .lbl.spied .n{box-shadow:0 0 0 2px #c58bff}
-.lbl.dark .n{filter:grayscale(.85) brightness(.55)} .lbl.dark::after{content:'⚡';font-size:11px;margin-left:2px;filter:drop-shadow(0 0 3px #000)}
+.lbl.dark .n{filter:grayscale(.6) brightness(.8)} .lbl.dark::after{content:'⚡';font-size:11px;margin-left:2px;filter:drop-shadow(0 0 3px #000)}
 .lbl.spied::after{content:'🕵';font-size:11px;margin-left:2px;filter:drop-shadow(0 0 3px #000)}
 .lbl.fog .n{background:#0d141c;color:#5d6b7c;border-style:dashed}
 .lbl.f0.fog .n{border-color:var(--a)} .lbl.f1.fog .n{border-color:var(--b)}
@@ -737,7 +737,7 @@ const qp = new URLSearchParams(location.search);
 const E = createEngine(NET, { capA: qp.get('a') || undefined, capB: qp.get('b') || undefined });
 const S = E.S, N = E.N, adj = E.adj, CAPS = E.CAPS;
 const FCSS = ['#4aa3ff', '#ffad33'];
-const FCOL = [new THREE.Color('#4aa3ff'), new THREE.Color('#ffad33')], NCOL = new THREE.Color('#566578');
+const FCOL = [new THREE.Color('#4aa3ff'), new THREE.Color('#ffad33'), new THREE.Color('#bfe3ff')], NCOL = new THREE.Color('#566578');
 const KIND = ['', 'City', 'Large city', 'Megahub'];
 const GMIN = K.GMIN, SEG = 40;
 const hours = simSec => Math.max(1, Math.round(simSec * GMIN / 60));
@@ -869,7 +869,8 @@ const terrMat = new THREE.ShaderMaterial({
 scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.0012, 128, 96), terrMat));
 const cityCode = new Int8Array(N), cityR = new Float32Array(N);
 function paintOverlay() {
-  for (const c of cities) { const rad = S.rad && S.rad[c.i], o = owner[c.i]; cityCode[c.i] = rad ? 3 : o >= 0 ? o + 1 : 0; cityR[c.i] = rad ? K.NUKE_BLAST * 0.8 : RAD_KM[c.tier]; }
+  const darkSet = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r));
+  for (const c of cities) { const rad = S.rad && S.rad[c.i], o = owner[c.i]; cityCode[c.i] = rad ? 3 : o >= 0 ? o + 1 : 0; cityR[c.i] = rad ? K.NUKE_BLAST * 0.8 : RAD_KM[c.tier] * (o >= 0 && darkSet.size && darkSet.has(o + ':' + c.region) ? 0.28 : 1); }
   const fall = (d, R) => { if (d >= R) return 0; const x = Math.max(0, (d - R * 0.3) / (R * 0.7)); return 1 - x * x * (3 - 2 * x); };
   for (let p = 0; p < WW * WH; p++) {
     const j = p * 4; wData[j] = wData[j + 1] = wData[j + 2] = 0;
@@ -1067,9 +1068,9 @@ const nightCv = document.createElement('canvas'); nightCv.width = 2048; nightCv.
 }
 const nightTex = new THREE.CanvasTexture(nightCv); nightTex.colorSpace = THREE.SRGBColorSpace;
 const nightMat = new THREE.ShaderMaterial({
-  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uTex: { value: nightTex }, uSun: { value: new THREE.Vector3(1, 0, 0) } },
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uTex: { value: nightTex }, uSun: { value: new THREE.Vector3(1, 0, 0) }, uDark: { value: Array.from({ length: 24 }, () => new THREE.Vector4(0, 0, 0, 2)) }, uDarkN: { value: 0 } },
   vertexShader: `varying vec2 vUv; varying vec3 vN; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `uniform sampler2D uTex; uniform vec3 uSun; varying vec2 vUv; varying vec3 vN; void main(){ float night=smoothstep(0.08,-0.22,dot(normalize(vN),uSun)); vec4 c=texture2D(uTex,vUv); gl_FragColor=vec4(c.rgb*c.a*night*0.85,1.); }`,
+  fragmentShader: `uniform sampler2D uTex; uniform vec3 uSun; uniform vec4 uDark[24]; uniform int uDarkN; varying vec2 vUv; varying vec3 vN; void main(){ vec3 n=normalize(vN); float night=smoothstep(0.08,-0.22,dot(n,uSun)); float lit=1.; for(int i=0;i<24;i++){ if(i>=uDarkN) break; lit*=1.-smoothstep(uDark[i].w-0.0006,uDark[i].w,dot(n,uDark[i].xyz)); } lit=max(lit,0.04); vec4 c=texture2D(uTex,vUv); gl_FragColor=vec4(c.rgb*c.a*night*0.85*lit,1.); }`,
 });
 scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.0015, 128, 96), nightMat));
 nlPoints.visible = false;
@@ -2725,14 +2726,13 @@ function placeWar3D(t) {
     g.shell.material.opacity = (0.025 + 0.015 * sh) * fade; g.grid.material.opacity = (0.1 + 0.08 * sh) * fade;
   }
   for (const [k, g] of domeObjs) if (!liveD.has(k)) { scene.remove(g); g.shell.material.dispose(); g.grid.material.dispose(); domeObjs.delete(k); }
-  // blackouts: dark patches that flicker now and then
-  const dark = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r)), liveK = new Set();
-  for (const c of cities) {
-    if (!(owner[c.i] >= 0 && dark.has(owner[c.i] + ':' + c.region))) continue; liveK.add(c.i);
-    let m = darkObjs.get(c.i); if (!m) { m = makeDark(c.i); darkObjs.set(c.i, m); }
-    const flick = Math.sin(sec * 9 + m.phase) > 0.97 ? 0.25 : 0.55; m.material.opacity = flick;
-  }
-  for (const [k, m] of darkObjs) if (!liveK.has(k)) { scene.remove(m); m.material.dispose(); darkObjs.delete(k); }
+  // blackouts: the region's lights go out (night shader + territory glow), and a transformer sparks now and then
+  const darkC = []; const dk = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r));
+  if (dk.size) for (const c of cities) if (owner[c.i] >= 0 && dk.has(owner[c.i] + ':' + c.region)) darkC.push(c);
+  const sig = darkC.map(c => c.i).join(','); if (sig !== placeWar3D.sig) { placeWar3D.sig = sig; paintOverlay(); }
+  const U = nightMat.uniforms; U.uDarkN.value = Math.min(24, darkC.length);
+  darkC.slice(0, 24).forEach((c, k) => { const n = c.v.clone().normalize(); U.uDark.value[k].set(n.x, n.y, n.z, Math.cos((c.tier >= 2 ? 420 : 300) / 6371)); });
+  if (darkC.length && Math.random() < 0.04) { const c = darkC[(Math.random() * darkC.length) | 0]; if (c.vis) for (let k = 0; k < 5; k++) fx.push({ p: c.v.clone().multiplyScalar(1.006), vel: new THREE.Vector3((Math.random() - 0.5) * 0.04, (Math.random() - 0.5) * 0.04, (Math.random() - 0.5) * 0.04), t: 0.2 + Math.random() * 0.2, f: 2, small: true }); }
 }
 function placeWarRings(t) {
   const live = new Set();

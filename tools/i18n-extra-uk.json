@@ -283,5 +283,13 @@
  "drones": "дрони",
  "and": "й",
  "Hover a button to see what it does": "Наведи на кнопку, щоб дізнатися, що вона робить",
- "New abilities: sabotage, airdrop, blockade and drones. Hover a button to see what it does": "Нові здібності: диверсія, десант, блокада й дрони. Наведи на кнопку, щоб дізнатися, що вона робить"
+ "New abilities: sabotage, airdrop, blockade and drones. Hover a button to see what it does": "Нові здібності: диверсія, десант, блокада й дрони. Наведи на кнопку, щоб дізнатися, що вона робить",
+ "Oil prices explode. Oil fields count double; a faction without oil moves convoys at ×0.7.": "Ціни на нафту злетіли. Нафтові родовища важать удвічі більше; фракція без нафти возить конвої на ×0,7.",
+ "Harvests fail worldwide. A faction without grain fields produces troops at ×0.75.": "Неврожай у всьому світі. Фракція без зернових полів виробляє війська на ×0,75.",
+ "A geomagnetic storm grounds every aircraft: air routes and airdrops are closed.": "Геомагнітна буря приземлила всю авіацію: повітряні маршрути й десанти закриті.",
+ "The free nations meet. Envoys cost 1 CP and win 50% more favour.": "Вільні народи збираються на саміт. Посли коштують 1 ОД і дають на 50% більше прихильності.",
+ "Storms form three times as often at sea, up to five at once.": "Шторми на морі виникають утричі частіше, до п'яти одночасно.",
+ "Command points regenerate twice as fast for everyone.": "Очки дій відновлюються вдвічі швидше для всіх.",
+ "Nuclear programs are frozen and no launch can be prepared today.": "Ядерні програми заморожено, сьогодні жоден пуск підготувати не можна.",
+ "The faction that is behind finds new resolve: +25% troop production.": "Фракція, що відстає, знаходить нові сили: +25% до виробництва військ."
 }
