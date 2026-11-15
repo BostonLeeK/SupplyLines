@@ -4,7 +4,7 @@
 //   const T = await import('http://127.0.0.1:5199/trailer.js'); await T.run({ record: true, upload: 'http://127.0.0.1:5199/save' });
 // tools/trailer-server.mjs serves this file and saves the upload to media/.
 const g = window.__g, E = g.E, V = g.camera.position.constructor;
-const W = 1920, H = 1080, FONT = '"IBM Plex Sans Condensed", "Arial Narrow", sans-serif';
+const W = 1920, H = 1080, FONT = '"IBM Plex Sans Condensed", "Roboto Condensed", "Arial Narrow", sans-serif';
 const city = n => g.cities.find(c => c.name === n);
 const unit = v => v.clone().normalize();
 const ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
@@ -75,7 +75,7 @@ function drawTitles(T) {
     // a soft dark band behind the words, so they read over any part of the map
     const bandH = size * (lines.length * 1.08 + (tt.sub ? 0.9 : 0)) + size * 1.1, bandY = y + (tt.sub ? size * 0.3 : 0);
     if (!tt.bare) { ctx.save(); ctx.globalAlpha = a * 0.78; const gb = ctx.createLinearGradient(0, bandY - bandH / 2, 0, bandY + bandH / 2);
-      gb.addColorStop(0, 'rgba(3,6,10,0)'); gb.addColorStop(0.3, 'rgba(3,6,10,.82)'); gb.addColorStop(0.7, 'rgba(3,6,10,.82)'); gb.addColorStop(1, 'rgba(3,6,10,0)');
+      gb.addColorStop(0, 'rgba(0,0,0,0)'); gb.addColorStop(0.3, 'rgba(0,0,0,.8)'); gb.addColorStop(0.7, 'rgba(0,0,0,.8)'); gb.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = gb; ctx.fillRect(0, bandY - bandH / 2, W, bandH); ctx.restore(); }
     ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
     ctx.font = `700 ${size}px ${FONT}`;
@@ -167,7 +167,7 @@ export async function run(opt = {}) {
   if (ac) { if (ac.state !== 'running') await ac.resume(); patchAudio(); recDest = ac.createMediaStreamDestination(); window.__slRec = recDest; }
   try { localStorage.setItem('sl-music', 'off'); } catch (e) {}
   LANG = opt.lang || 'en';
-  await Promise.all(['700 96px', '600 22px', '500 36px'].map(f => document.fonts.load(f + ' "IBM Plex Sans Condensed"', 'АБВГҐДЄЇабвгґдєї ABC')));
+  await Promise.all(['700 96px', '600 22px', '500 36px'].flatMap(f => [document.fonts.load(f + ' "IBM Plex Sans Condensed"', 'ABC 123'), document.fonts.load(f + ' "Roboto Condensed"', 'АБВГҐДЄЇабвгґдєї')]));
   setupCanvas();
   const s = S(); fillCp();
   // warm the war up to the middle of day 3 so the fronts are alive
@@ -193,10 +193,10 @@ export async function run(opt = {}) {
   title(61.0, 65.6, 'TAKE THEIR CAPITAL.\nHOLD IT FOR 12 HOURS.', { y: 0.76, size: 70, spacing: 3 });
   title(67.5, 72.4, 'OR BURN IT ALL.', { y: 0.5, size: 110, spacing: 8, color: '#ff6b5b' });
   title(78.6, 82.0, 'NUCLEAR WINTER.', { y: 0.45, size: 110, spacing: 8, sub: 'Two strikes in one season. Everybody loses.' });
-  title(84.0, 91.0, 'This is a game.', { y: 0.36, size: 54 });
-  title(85.4, 91.0, 'In Ukraine, it is not.', { y: 0.45, size: 54, color: '#ffc23d' });
-  title(86.8, 91.0, 'ARE YOU REALLY READY\nFOR A REAL WAR?', { y: 0.62, size: 92, spacing: 3 });
-  title(88.6, 91.0, 'SUPPLY LINES  ·  GLOBALWAR.XYZ  ·  FREE, IN YOUR BROWSER', { y: 0.86, size: 30, spacing: 4, color: '#9aa7b6' });
+  title(84.0, 91.0, 'This is a game.', { y: 0.36, size: 54, bare: true });
+  title(85.4, 91.0, 'In Ukraine, it is not.', { y: 0.45, size: 54, color: '#ffc23d', bare: true });
+  title(86.8, 91.0, 'ARE YOU REALLY READY\nFOR A REAL WAR?', { y: 0.62, size: 92, spacing: 3, bare: true });
+  title(88.6, 91.0, 'SUPPLY LINES  ·  GLOBALWAR.XYZ  ·  FREE, IN YOUR BROWSER', { y: 0.86, size: 30, spacing: 4, color: '#9aa7b6', bare: true });
 
   // recorder
   let rec, chunks = [];

@@ -38,14 +38,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Roboto+Condensed:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#05080d; --ink:#e9eef5; --dim:#7d8a9a; --faint:#3a4656;
   --plate:#0b1118; --plate2:#111a24; --edge:#1f2a37;
   --a:#4aa3ff; --a-ink:#06192e; --b:#ffad33; --b-ink:#2b1700;
   --good:#5be08a; --bad:#ff6b5b; --cp:#ffc23d;
-  --disp:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+  --disp:"IBM Plex Sans Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 .modal .sheet>.foot:first-child{position:sticky;top:0;z-index:3;background:var(--bg);margin-top:0;padding:6px 0 10px;box-shadow:0 10px 14px -10px var(--bg)}
@@ -2331,16 +2331,16 @@ async function drawShare(pts) {
   // frame
   g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(24, 24, W - 48, H - 48); g.lineWidth = 1.5; g.strokeRect(36, 36, W - 72, H - 72);
   const sc = SCENARIOS[S.scenario] || SCENARIOS.classic, camp = campaign ? ` · GREAT WAR ${campaign.n}` : '';
-  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", sans-serif'; g.fillText(T(`SEASON ${endSeason}`) + ` · ${T(sc.name).toUpperCase()}` + (campaign ? ` · ${T('GREAT WAR')} ${campaign.n}` : ''), 70, 92);
+  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(T(`SEASON ${endSeason}`) + ` · ${T(sc.name).toUpperCase()}` + (campaign ? ` · ${T('GREAT WAR')} ${campaign.n}` : ''), 70, 92);
   const slogan = T((w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)]);
   const lines = w >= 0 ? [T(FN[w]).toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
-  let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "IBM Plex Sans Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
+  let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
   // stats
   const box = (x, label, val, c) => { g.fillStyle = 'rgba(11,17,24,.82)'; g.fillRect(x, 470, 200, 84); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(x, 470, 200, 84);
-    g.fillStyle = '#9aa7b6'; g.font = '700 13px "IBM Plex Sans Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "IBM Plex Sans Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
+    g.fillStyle = '#9aa7b6'; g.font = '700 13px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
   box(66, T('SCORE'), `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : T('YOU')}`, `${st.caps || 0} ${T('TAKEN')}`, FCSS[me]);
   if (campaign) box(498, T('CAMPAIGN'), `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
-  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", sans-serif'; g.fillText(T('JOIN THE WAR') + ' · ' + location.host.toUpperCase(), 66, H - 48);
+  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(T('JOIN THE WAR') + ' · ' + location.host.toUpperCase(), 66, H - 48);
   g.textAlign = 'right'; g.fillText('SUPPLY LINES', W - 66, H - 48); g.textAlign = 'left';
 }
 let campaign = null;
