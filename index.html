@@ -192,15 +192,36 @@ body.online #squad{display:block}
 .lockBtn{float:right;background:none;border:1px solid var(--edge);color:var(--dim);font:700 9px/1 var(--disp);letter-spacing:.08em;padding:3px 6px;border-radius:4px;cursor:pointer;margin-top:-2px}
 .lockBtn:hover{color:var(--ink);border-color:var(--dim)}
 #locker .sheet{max-width:780px}
-.ladder{display:flex;gap:4px;margin:14px 0 6px;flex-wrap:wrap}
-.ladder div{flex:1 1 80px;text-align:center;padding:8px 4px;border-radius:6px;border:1px solid var(--edge);font:700 9.5px/1.3 var(--disp);letter-spacing:.04em;color:var(--mut)}
-.ladder div.got{color:var(--ink);background:rgba(255,255,255,.04)} .ladder div.cur{border-color:var(--cp);color:var(--cp)}
-.ladder svg{display:block;margin:0 auto 6px;height:16px} .ladder small{display:block;font:600 9.5px var(--body);color:var(--mut);margin-top:2px}
-.trails{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:12px}
-.tr{position:relative;border:1px solid var(--edge);border-radius:7px;padding:10px;cursor:pointer;background:rgba(255,255,255,.03);text-align:left;color:var(--ink);font:inherit}
-.tr:hover{border-color:var(--dim)} .tr.on{border-color:var(--cp);box-shadow:0 0 0 1px var(--cp) inset} .tr.lock{cursor:not-allowed;opacity:.45}
-.tr canvas{width:100%;height:38px;display:block;border-radius:4px;background:#070b11;margin-bottom:8px}
-.tr b{font:700 11px/1.2 var(--disp);letter-spacing:.04em} .tr p{margin:3px 0 0;font-size:11.5px;color:var(--dim);line-height:1.35} .tr em{position:absolute;top:8px;right:8px;font-style:normal;font-size:9.5px;font-weight:700;color:var(--cp)}
+.lkHead{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center;margin-top:14px}
+.lkHead .ins{height:30px!important;grid-row:span 2}
+.lkHead .rk{font:800 22px/1 var(--disp);letter-spacing:.02em}
+.lkHead .rk small{font:600 13px var(--body);color:var(--dim);letter-spacing:0;margin-left:8px}
+.lkHead .bar{height:6px;border-radius:3px;background:#18222e;overflow:hidden} .lkHead .bar i{display:block;height:100%;background:linear-gradient(90deg,#c9d4e2,#fff)}
+.lkHead .how{grid-column:1/-1;font-size:12px;color:var(--mut);margin-top:8px}
+.track{position:relative;display:grid;grid-template-columns:repeat(8,1fr);margin:22px 0 4px}
+.track::before{content:'';position:absolute;left:6.25%;right:6.25%;top:13px;height:2px;background:#1c2733}
+.track .fill{position:absolute;left:6.25%;top:13px;height:2px;background:var(--ink)}
+.track .st{position:relative;text-align:center;font:700 9.5px/1.3 var(--disp);letter-spacing:.03em;color:var(--mut)}
+.track .st i{display:flex;align-items:center;justify-content:center;width:28px;height:28px;margin:0 auto 7px;border-radius:50%;background:var(--bg);border:2px solid #1c2733}
+.track .st i svg{height:12px!important;margin:0}
+.track .st.got{color:var(--dim)} .track .st.got i{border-color:var(--ink);background:#111a24}
+.track .st.cur{color:var(--ink)} .track .st.cur i{border-color:var(--cp);box-shadow:0 0 0 4px rgba(255,194,61,.15)}
+.track .st small{display:block;font:600 9.5px var(--body);color:var(--mut);margin-top:2px}
+.lkCap{display:flex;align-items:baseline;justify-content:space-between;margin-top:20px;font:700 11px/1 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.lkCap small{font:600 11px var(--body);letter-spacing:0;text-transform:none;color:var(--mut)}
+.trails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.tr{position:relative;display:flex;flex-direction:column;border:1px solid var(--edge);border-radius:8px;padding:0;overflow:hidden;cursor:pointer;background:#0a1017;text-align:left;color:var(--ink);font:inherit;transition:border-color .15s,transform .15s}
+.tr:hover{border-color:#3a4a5c} .tr.on{border-color:var(--cp)}
+.tr canvas{width:100%;height:64px;display:block;background:radial-gradient(120% 90% at 50% 120%,#0f1a26,#070b11)}
+.tr .tx{padding:9px 11px 11px}
+.tr b{display:flex;align-items:center;gap:6px;font:700 11.5px/1.2 var(--disp);letter-spacing:.03em}
+.tr p{margin:4px 0 0;font-size:11.5px;color:var(--dim);line-height:1.35}
+.tr .tag{position:absolute;top:7px;right:7px;font:700 9px/1 var(--disp);letter-spacing:.08em;padding:4px 6px;border-radius:4px;background:rgba(5,8,13,.75)}
+.tr.on .tag{color:#05080d;background:var(--cp)}
+.tr.lock{cursor:default} .tr.lock b{color:var(--dim)} .tr.lock .tag{color:var(--mut)}
+.tr .lk{width:11px;height:11px;flex:none;color:var(--mut)}
+.tr .need{margin-top:6px;height:3px;border-radius:2px;background:#18222e;overflow:hidden} .tr .need i{display:block;height:100%;background:var(--mut)}
+@media (max-width:760px){ .trails{grid-template-columns:1fr 1fr} .track .st{font-size:0} .track .st small{font-size:9px} .track .st i{width:24px;height:24px} .track::before,.track .fill{top:11px} }
 #rankLine{font-size:10px;color:var(--dim);margin-top:6px;border-top:1px solid var(--edge);padding-top:6px}
 #rankLine b{color:var(--ink);font-family:var(--disp);font-size:10px;letter-spacing:.06em}
 #rankLine .xp{height:3px;background:#18222e;border-radius:2px;margin-top:4px;overflow:hidden} #rankLine .xp i{display:block;height:100%;background:var(--ink)}
@@ -564,10 +585,10 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div class="modal hidden" id="archive"><div class="sheet"><div class="foot" style="margin-top:0"><h1 style="font-size:32px">WAR ARCHIVE</h1><button class="btn2" id="arClose">CLOSE</button></div><div id="arList" class="lead" style="max-width:none"></div></div></div>
 <div class="modal hidden" id="locker"><div class="sheet">
   <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">LOCKER</h1><button class="btn2" id="lockClose">CLOSE</button></div>
-  <div class="lead" style="max-width:none;margin-top:8px">Your rank stays with you across seasons. Every rank unlocks a new convoy trail that every player sees on the map.</div>
-  <div class="ladder" id="ladder"></div>
-  <div class="gAuth" id="gAuthLocker" style="margin-top:12px"></div>
-  <div class="cap" style="margin-top:12px">Convoy trail</div>
+  <div class="lkHead" id="lkHead"></div>
+  <div class="track" id="ladder"></div>
+  <div class="gAuth" id="gAuthLocker" style="margin-top:14px"></div>
+  <div class="lkCap"><span>Convoy trail</span><small>Everyone sees your trail on the map</small></div>
   <div class="trails" id="trails"></div>
 </div></div>
 <div class="modal hidden" id="manual"><div class="sheet manSheet">
@@ -1676,26 +1697,50 @@ function trailColor(kind, base, k, n, t, out) {
   return out.copy(base);
 }
 function trailOf(cv) { const who = cv.who; if (!who) return 'std'; if (who === myId) return myStats().trail || 'std'; return (S.cos || {})[who] || 'std'; }
-function drawTrailPreview(cv, kind, f) {
-  const x = cv.getContext('2d'), w = cv.width = cv.clientWidth * devicePixelRatio, h = cv.height = cv.clientHeight * devicePixelRatio, L = TRAIL_LOOK[kind], col = new THREE.Color(), t = performance.now() / 1000;
-  x.clearRect(0, 0, w, h); x.globalCompositeOperation = 'lighter';
-  const headX = (t * 0.35 % 1) * (w + 160) - 40;
-  for (let k = L.n - 1; k >= 0; k--) {
-    trailColor(kind, FCOL[f], k, L.n, t, col);
-    const br = 1 - k / L.n * 0.8, px = headX - k * 13 * (L.len || 1) * devicePixelRatio, sz = (11 - k * 0.7) * (L.pulse ? 1 + 0.35 * Math.sin(t * 8) : 1) * (k ? 1 : L.head || 1) * devicePixelRatio;
-    const g = x.createRadialGradient(px, h / 2, 0, px, h / 2, Math.max(1, sz));
-    g.addColorStop(0, `rgba(${col.r * 255 | 0},${col.g * 255 | 0},${col.b * 255 | 0},${br})`); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.beginPath(); x.arc(px, h / 2, Math.max(1, sz), 0, 7); x.fill();
-    if (L.spark && Math.random() < 0.3) { x.fillStyle = 'rgba(255,240,200,.9)'; x.fillRect(px + (Math.random() - 0.5) * 12, h / 2 + (Math.random() - 0.5) * 16, 2, 2); }
+// draws one trail the way the globe draws convoys: soft glow plus a hot core, on a faint curved route
+function sizeCanvas(cv) { const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d); if (w && (cv.width !== w || cv.height !== h)) { cv.width = w; cv.height = h; } return d; }
+function drawTrailPreview(cv, kind, f, locked) {
+  const x = cv.getContext('2d'), w = cv.width, h = cv.height; if (!w) return;
+  const d = cv._d || 1, L = TRAIL_LOOK[kind] || TRAIL_LOOK.std, col = new THREE.Color(), t = performance.now() / 1000;
+  const P = u => { const a = 1 - u; return [a * a * (-0.05 * w) + 2 * a * u * (0.5 * w) + u * u * (1.05 * w), a * a * (0.78 * h) + 2 * a * u * (0.05 * h) + u * u * (0.78 * h)]; };
+  x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, w, h);
+  x.strokeStyle = 'rgba(160,185,215,.16)'; x.lineWidth = d; x.setLineDash([5 * d, 4 * d]); x.beginPath();
+  for (let k = 0; k <= 30; k++) { const [px, py] = P(k / 30); k ? x.lineTo(px, py) : x.moveTo(px, py); } x.stroke(); x.setLineDash([]);
+  x.globalCompositeOperation = 'lighter';
+  const head = (t * 0.22) % 1.25, step = 0.035 * (L.len || 1), n = L.n;
+  for (let k = n - 1; k >= 0; k--) {
+    const u = head - k * step; if (u < 0 || u > 1) continue;
+    trailColor(kind, FCOL[f], k, n, t, col);
+    const fade = Math.min(1, u * 8, (1 - u) * 8), br = (1 - k / n * 0.85) * fade * (locked ? 0.5 : 1);
+    const r = (k ? 5.5 - k * 0.35 : 6.5 * (L.head || 1)) * d * (L.pulse ? 1 + 0.3 * Math.sin(t * 8) : 1), [px, py] = P(u);
+    const g = x.createRadialGradient(px, py, 0, px, py, r * 2.4);
+    g.addColorStop(0, `rgba(${col.r * 255 | 0},${col.g * 255 | 0},${col.b * 255 | 0},${0.9 * br})`); g.addColorStop(0.35, `rgba(${col.r * 255 | 0},${col.g * 255 | 0},${col.b * 255 | 0},${0.35 * br})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(px, py, r * 2.4, 0, 7); x.fill();
+    x.fillStyle = `rgba(255,255,255,${(k ? 0.55 : 0.95) * br})`; x.beginPath(); x.arc(px, py, r * (k ? 0.32 : 0.42), 0, 7); x.fill();
+    if (L.spark && k && !locked && Math.random() < 0.25) { x.fillStyle = 'rgba(255,236,190,.9)'; x.beginPath(); x.arc(px + (Math.random() - 0.5) * 14 * d, py + (Math.random() - 0.5) * 14 * d, 1.1 * d, 0, 7); x.fill(); }
   }
 }
+const LOCK_SVG = '<svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
 let lockerAnim = 0;
 function openLocker() {
-  const st = myStats(), r = st.rank || { idx: 0 }, xp = st.xp || 0, cur = st.trail || 'std';
-  $('ladder').innerHTML = RANKS.map(([need, name], k) => `<div class="${k <= r.idx ? 'got' : ''}${k === r.idx ? ' cur' : ''}">${insignia(k, true) || '<svg viewBox="0 0 16 16"></svg>'}${name}<small>${need} XP</small></div>`).join('');
-  $('trails').innerHTML = Object.entries(TRAILS).map(([k, t]) => { const ok = r.idx >= t.rank; return `<button class="tr${k === cur ? ' on' : ''}${ok ? '' : ' lock'}" data-k="${k}"><canvas></canvas><b>${t.name}</b>${ok ? '' : `<em>${RANKS[t.rank][1]}</em>`}<p>${ok ? t.text : `Unlocks at ${RANKS[t.rank][1]} (${RANKS[t.rank][0]} XP, you have ${xp})`}</p></button>`; }).join('');
-  $('trails').querySelectorAll('.tr').forEach(b => b.onclick = () => { if (b.classList.contains('lock')) return toast(`Unlocks at ${RANKS[TRAILS[b.dataset.k].rank][1]}`, 'bad'); act({ type: 'cosmetic', trail: b.dataset.k }, { ok: TRAILS[b.dataset.k].name + ' trail equipped' }); if (!online) {} if (youInfo) youInfo.trail = b.dataset.k; $('trails').querySelectorAll('.tr').forEach(x => x.classList.toggle('on', x === b)); });
+  const st = myStats(), r = st.rank || { idx: 0 }, xp = st.xp || 0, cur = st.trail || 'std', idx = r.idx || 0;
+  const base = RANKS[idx][0], next = RANKS[idx + 1], pct = next ? (xp - base) / (next[0] - base) * 100 : 100;
+  $('lkHead').innerHTML = `${insignia(idx, true) || insignia(1, true).replace('fill="none"', 'fill="none" opacity=".25"')}<div class="rk">${RANKS[idx][1].toUpperCase()}<small>${xp} XP${next ? ` · ${next[0] - xp} to ${next[1]}` : ' · top rank'}</small></div><div class="bar"><i style="width:${Math.max(2, pct)}%"></i></div><div class="how">Earn XP: capture a city +5 · finish a mission +50 · win a season +30 · volunteer for the losing side +30. Your rank stays across seasons.</div>`;
+  $('ladder').innerHTML = `<div class="fill" style="width:${idx / (RANKS.length - 1) * 87.5}%"></div>` + RANKS.map(([need, name], k) => `<div class="st${k < idx ? ' got' : ''}${k === idx ? ' cur' : ''}"><i>${insignia(k) || ''}</i>${name}<small>${need}</small></div>`).join('');
+  $('trails').innerHTML = Object.entries(TRAILS).map(([k, t]) => {
+    const ok = idx >= t.rank, need = RANKS[t.rank][0], have = Math.min(1, xp / Math.max(1, need));
+    return `<button class="tr${k === cur ? ' on' : ''}${ok ? '' : ' lock'}" data-k="${k}"><canvas></canvas><span class="tag">${k === cur ? 'EQUIPPED' : ok ? 'EQUIP' : RANKS[t.rank][1].toUpperCase()}</span><div class="tx"><b>${ok ? '' : LOCK_SVG}${t.name}</b><p>${ok ? t.text : `${need - xp} XP to ${RANKS[t.rank][1]}`}</p>${ok ? '' : `<div class="need"><i style="width:${have * 100}%"></i></div>`}</div></button>`;
+  }).join('');
+  $('trails').querySelectorAll('.tr').forEach(b => b.onclick = () => {
+    if (b.classList.contains('lock')) return toast(`${TRAILS[b.dataset.k].name} unlocks at ${RANKS[TRAILS[b.dataset.k].rank][1]}`, 'bad');
+    act({ type: 'cosmetic', trail: b.dataset.k }, { ok: TRAILS[b.dataset.k].name + ' trail equipped' }); if (youInfo) youInfo.trail = b.dataset.k;
+    $('trails').querySelectorAll('.tr').forEach(x => { const on = x === b; x.classList.toggle('on', on); if (!x.classList.contains('lock')) x.querySelector('.tag').textContent = on ? 'EQUIPPED' : 'EQUIP'; });
+  });
   $('locker').classList.remove('hidden'); renderAuth();
-  cancelAnimationFrame(lockerAnim); const loop = () => { if ($('locker').classList.contains('hidden')) return; $('trails').querySelectorAll('.tr').forEach(b => drawTrailPreview(b.querySelector('canvas'), b.dataset.k, me)); lockerAnim = requestAnimationFrame(loop); }; loop();
+  cancelAnimationFrame(lockerAnim);
+  const cvs = [...$('trails').querySelectorAll('.tr')].map(b => ({ cv: b.querySelector('canvas'), k: b.dataset.k, lock: b.classList.contains('lock') }));
+  const loop = () => { if ($('locker').classList.contains('hidden')) return; for (const c of cvs) { c.cv._d = sizeCanvas(c.cv); drawTrailPreview(c.cv, c.k, me, c.lock); } lockerAnim = requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
 }
 $('lockClose').onclick = () => $('locker').classList.add('hidden');
 $('locker').onclick = e => { if (e.target.id === 'locker') $('locker').classList.add('hidden'); };
@@ -2044,7 +2089,8 @@ function missionsHud() {
   if ($('msList').innerHTML !== html) { $('msList').innerHTML = html; }
   const r = st.rank || { name: 'Private' }, xp = st.xp || 0, base = (r.idx >= 0 ? [0, 50, 150, 300, 500, 800, 1200, 1800][r.idx] : 0);
   $('msDrawer').innerHTML = false ? '<div class="cap" style="margin-bottom:6px">Season missions</div>' + html : '';
-  $('rankLine').innerHTML = `${insignia(r.idx || 0)} <b>${r.name.toUpperCase()}</b> <button class="lockBtn" id="lockBtn">LOCKER</button> · ${xp} XP${r.next ? ` · next: ${r.next} at ${r.nextXp}` : ''}<div class="xp"><i style="width:${r.nextXp ? (xp - base) / (r.nextXp - base) * 100 : 100}%"></i></div>`;
+  const rl = `${insignia(r.idx || 0)} <b>${r.name.toUpperCase()}</b> <button class="lockBtn" id="lockBtn">LOCKER</button> · ${xp} XP${r.next ? ` · next: ${r.next} at ${r.nextXp}` : ''}<div class="xp"><i style="width:${r.nextXp ? (xp - base) / (r.nextXp - base) * 100 : 100}%"></i></div>`;
+  if ($('rankLine')._h !== rl) { $('rankLine')._h = rl; $('rankLine').innerHTML = rl; }
 }
 
 // ================= share card =================
