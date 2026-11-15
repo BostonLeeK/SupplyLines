@@ -180,7 +180,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 #volunteer{margin-top:8px;padding-top:8px;border-top:1px solid var(--edge);font-size:11.5px;line-height:1.4;color:var(--dim)}
 #volunteer button{display:block;width:100%;margin-top:6px;background:none;border:1px solid var(--edge);border-radius:5px;padding:7px;font:700 9.5px/1.2 var(--disp);letter-spacing:.06em;cursor:pointer}
 #genList{display:none;margin-top:8px;max-height:180px;overflow:auto;border-top:1px solid var(--edge);padding-top:6px}
-#genList.open{display:block}
+#genList.open{display:block} #genList .gnote{font-size:11px;line-height:1.4;color:var(--dim);margin-bottom:6px} #genName .gme{margin-top:4px;font-size:11px;font-weight:500;line-height:1.35;color:var(--dim)}
 #genList .row{display:flex;align-items:center;gap:6px;padding:4px 0} #genList .row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #genList .row small{color:var(--mut)} #genList .row button{background:none;border:1px solid var(--edge);color:var(--dim);font:700 9px/1 var(--disp);padding:4px 6px;border-radius:4px;cursor:pointer}
 #genList .row button.on{color:var(--cp);border-color:var(--cp)}
@@ -264,7 +264,7 @@ body.replay .lbl .n{display:none}
 #replayBar .rpScore{margin-left:auto;font:800 13px/1 var(--disp);font-variant-numeric:tabular-nums}
 .rpBtn{width:34px;height:30px;display:flex;align-items:center;justify-content:center;background:#18222e;border:1px solid var(--edge);border-radius:6px;color:var(--ink);font:700 11px/1 var(--disp);cursor:pointer}
 .rpBtn:hover{border-color:var(--dim)} .rpBtn svg{width:14px;height:14px}
-#rpSpeed{width:40px}
+#rpSpeed{width:40px} #rpFollow{font-size:14px;opacity:.5} #rpFollow.on{opacity:1;border-color:var(--cp)}
 .rpChart{position:relative;height:64px;margin-top:10px;border-radius:6px;background:#070b11;cursor:pointer;overflow:hidden}
 .rpChart svg{position:absolute;inset:0;width:100%;height:100%}
 #rpHead{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 8px rgba(255,255,255,.5);pointer-events:none}
@@ -274,6 +274,7 @@ body.replay .lbl .n{display:none}
 #rpCap small{display:block;font:700 11px/1 var(--disp);letter-spacing:.14em;color:var(--dim);margin-bottom:8px}
 #rpCap span{font:800 26px/1.15 var(--disp);text-shadow:0 2px 18px rgba(0,0,0,.8)}
 body.replay #rpCap{display:block} #rpCap{display:none}
+body.replay #coach,body.replay #coachRing,body.replay #coachDrag{display:none!important}
 @media (max-width:700px){ #rpCap span{font-size:18px} .rpHint{display:none} #replayBar .rpDay{display:none} }
 .novHide{display:none!important}
 #bottom.tight .ab .lb{display:none}
@@ -587,7 +588,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 </div>
 
 <div id="feed"></div>
-<div id="leftcol"><div id="opPanel"></div><div id="gen"><div class="cap fold">General of your faction <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="fund" title="Every player can chip in CP. When the fund is full, the faction launches a drone swarm: kill zones over the three strongest enemy front cities and one long-range strike"><div class="fdHead"><span>🛸 Drone fundraiser</span><b id="fundN">0/15</b></div><div class="fdRow"><div class="fdBar"><i id="fundBar"></i></div><button id="fundBtn" class="mk">+1 CP</button></div></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
+<div id="leftcol"><div id="opPanel"></div><div id="gen"><div class="cap fold">Faction general <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="fund" title="Every player can chip in CP. When the fund is full, the faction launches a drone swarm: kill zones over the three strongest enemy front cities and one long-range strike"><div class="fdHead"><span>🛸 Drone fundraiser</span><b id="fundN">0/15</b></div><div class="fdRow"><div class="fdBar"><i id="fundBar"></i></div><button id="fundBtn" class="mk">+1 CP</button></div></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
 <div id="regions"><div class="cap fold" style="margin-bottom:8px">Regions <b id="rgCount"></b></div><div id="rgList"></div><div class="note">Hold every city in a region: +30% production there, +8 points and +1 max CP.</div></div></div>
 
 <div id="bottom">
@@ -655,9 +656,9 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div id="rpCap"><small id="rpCapDay"></small><span id="rpCapTxt"></span></div>
 <div id="replayBar">
   <div class="rpRow"><span class="t" id="rpTitle">REPLAY</span><span class="rpDay" id="rpDay"></span><span class="rpScore" id="rpScore"></span>
-    <button class="rpBtn" id="rpPlay" title="Play / pause (Space)"></button><button class="rpBtn" id="rpSpeed" title="Speed">1×</button><button class="btn2" id="rpExit">EXIT</button></div>
+    <button class="rpBtn" id="rpPlay" title="Play / pause (Space)"></button><button class="rpBtn" id="rpSpeed" title="Speed">1×</button><button class="rpBtn on" id="rpFollow" title="Camera follows the action. Drag the globe to look around yourself">📍</button><button class="btn2" id="rpExit">EXIT</button></div>
   <div class="rpChart" id="rpChart"><svg id="rpSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg><i id="rpHead"></i></div>
-  <div class="rpHint">Click the chart to jump · Space pause · ← → step · Esc exit</div>
+  <div class="rpHint">Click the chart to jump · Space pause · ← → step · drag the globe to look around · Esc exit</div>
 </div>
 <div id="coach"></div><div id="coachRing"></div><div id="coachDrag">👆</div>
 <div id="nukePanel"></div>
@@ -1505,20 +1506,22 @@ function targetOutcome(i) {
   const n = mode === 'airdrop' ? Math.floor(Math.min(E.dropCap(me), troops[selected] - 1) * (E.aaCover(i, me) >= 0 ? 1 - K.AA_LOSS : 1)) : E.sendAmount(selected, i, selRoute, pct) * CONVOY[convoyKind].power * (E.siegeAt(i, me) ? K.FLEET_SIEGE : 1);
   return n > E.defOf(i) ? 'win' : 'lose';
 }
-let targetCount = 0;
+let targetCount = 0, shownPrev = new Set();
 function paintCities() {
   paintCitadels();
   targetCount = 0; const myOp = S.ops && S.ops[me], opT = new Set(myOp ? myOp.targets : []);
   const dist = camera.position.length(), vis = cities.filter(c => c.vis);
-  const prio = c => (c.i === selected || c.i === hoverCity ? 100 : 0) + (c.cap >= 0 ? 50 : 0) + c.tier * 10 + (owner[c.i] === me ? 3 : 0);
+  const prio = c => (c.i === selected || c.i === hoverCity ? 100 : 0) + (c.cap >= 0 ? 50 : 0) + c.tier * 10 + (owner[c.i] === me ? 3 : 0) + (shownPrev.has(c.i) ? 5 : 0);
   vis.sort((a, b) => prio(b) - prio(a));
   const boxes = [], showName = new Set();
   for (const c of vis) {
     if (!(c.tier >= 2 || c.cap >= 0 || dist < 2.1 || c.i === hoverCity || c.i === selected)) continue;
-    const w = 34 + c.name.length * 7, box = [c.sx + 6, c.sy - 9, c.sx + 6 + w, c.sy + 9];
-    if (boxes.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) continue;
+    // a name already on screen keeps its place; a new one needs a little extra room, so names do not blink as the camera drifts
+    const w = 34 + c.name.length * 7, box = [c.sx + 6, c.sy - 9, c.sx + 6 + w, c.sy + 9], m = shownPrev.has(c.i) ? 0 : 6;
+    if (boxes.some(b => box[0] - m < b[2] && box[2] + m > b[0] && box[1] - m < b[3] && box[3] + m > b[1])) continue;
     boxes.push(box); showName.add(c.i);
   }
+  shownPrev = showName;
   for (const c of cities) {
     const o = owner[c.i], target = isTarget(c.i), outcome = target ? targetOutcome(c.i) : '';
     if (target) targetCount++;
@@ -1666,7 +1669,7 @@ function updateHint() {
   else if (mode === 'envoy') h = 'Pick a free nation\'s city on your border (former Russia). At 100 favour all its free cities join you. Taking them by force is a betrayal <span class="k">Esc</span>';
   else if (mode === 'sail') h = 'Click a sea port (⚓) to sail your fleet there. In an enemy port it blockades and supports attacks <span class="k">Esc</span>';
   else if (mode === 'nuke') h = '☢ Pick the target. Green: weak air defence. The red circle shows the blast <span class="k">Esc</span>';
-  else if (mode === 'airdrop') h = `Pick any enemy or neutral city within 3,500 km of ${cities[selected].name} <span class="k">Esc</span>`;
+  else if (mode === 'airdrop') h = `Pick any enemy or neutral city within 3,500 km of ${selected >= 0 ? cities[selected].name : 'your megahub'} <span class="k">Esc</span>`;
   else if (selected >= 0) h = energyNow() < 1 ? 'Out of CP: the next point arrives soon' : targetCount ? `Now click a glowing city: ${targetCount} in reach. <span style="color:var(--good)">Green</span> = you would take it, <span style="color:var(--bad)">red</span> = not enough. Drag to your own cities to move troops <span class="k">Esc</span>` : `No enemy or neutral city in reach from ${cities[selected].name}. Pick a city closer to the front <span class="k">Esc</span>`;
   else h = `Select one of your cities <span style="color:${FCSS[me]}">●</span> to send a convoy${noviceGoal()}`;
   if ($('hint')._h !== h) { $('hint')._h = h; $('hint').innerHTML = h; }
@@ -2026,7 +2029,7 @@ $('musicBtn').onclick = () => { musicOn = !musicOn; try { localStorage.setItem('
 
 function facUI() {
   $('sideA').classList.toggle('me', me === 0); $('sideB').classList.toggle('me', me === 1);
-  $('assign').innerHTML = `You are on <b style="color:${FCSS[me]}">${FN[me].toUpperCase()}</b>: new players join the faction with fewer people online. Your capital is ${cities[CAPS[me]].name}.`;
+  $('assign').innerHTML = `<span>Your faction:</span> <b style="color:${FCSS[me]}">${FN[me].toUpperCase()}</b><span> · </span><span>Your capital:</span> <b>${cities[CAPS[me]].name}</b><br><small>New players join the side with fewer people online.</small>`;
 }
 // doctrine: the general picks on day 1; the chip next to the clock shows what your faction follows
 let docHidden = false;
@@ -2136,7 +2139,7 @@ function showEnd(pts, cit, history, winner, capital) {
     <div class="chart heroes" style="border-top:1px solid var(--edge)">${heroesHtml(8)}</div>
     ${campaign ? `<div class="team" style="margin-top:10px">🏆 <b>Great War ${campaign.n}</b> · season ${campaign.k} of ${campaign.len} · <span style="color:var(--a)">${FN[0]} ${campaign.wins[0] + (w === 0 && !winterEnd ? 1 : 0)}</span> – <span style="color:var(--b)">${campaign.wins[1] + (w === 1 && !winterEnd ? 1 : 0)} ${FN[1]}</span>${campaign.k === campaign.len ? ' · the campaign is decided' : ''}</div>` : ''}
     <div class="team" style="margin-top:6px">Next season: <b>${SCENARIOS[online && campaign ? campaign.next : E.scenarioFor(seasonNo + 1)].name}</b>. ${SCENARIOS[online && campaign ? campaign.next : E.scenarioFor(seasonNo + 1)].text}${S.rad && S.rad.some(Boolean) && (!campaign || campaign.k < campaign.len) ? ' Bombed cities stay fallout through its first day.' : ''}</div>
-    <div class="rwEnd" id="endRw">This war ended after ${Math.min(7, Math.ceil(simT / (K.SEASON / 7)))} game ${Math.min(7, Math.ceil(simT / (K.SEASON / 7))) === 1 ? 'day' : 'days'}. Russia's war on Ukraine is on day <b>${(Math.floor((Date.now() - Date.UTC(2022, 1, 24)) / 864e5) + 1).toLocaleString('en-US')}</b> and it is still going. <b>Are you sure you are ready for a real war? →</b></div>
+    <div class="rwEnd" id="endRw">This war ended after ${Math.min(7, Math.ceil(simT / (K.SEASON / 7)))} game ${Math.min(7, Math.ceil(simT / (K.SEASON / 7))) === 1 ? 'day' : 'days'}. Russia's war on Ukraine is on day <b>${(Math.floor((Date.now() - Date.UTC(2022, 1, 24)) / 864e5) + 1).toLocaleString(document.documentElement.lang === 'uk' ? 'uk-UA' : 'en-US')}</b> and it is still going. <b>Are you sure you are ready for a real war? →</b></div>
     <div class="btnrow"><button class="btn2" id="endShare">SHARE CARD</button><button class="btn2" id="endArchive">WAR ARCHIVE</button><button class="btn2" id="endReplay">▶ REPLAY SEASON</button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a></div>
     <div class="foot"><span class="team" id="endNext">${online ? 'The next season starts automatically in a few seconds.' : ''}</span>${online ? '' : '<button class="play" onclick="document.getElementById(\'rsBtn\').click()">NEW SEASON</button>'}</div>`;
   $('endRw').onclick = openRealWar; $('endShare').onclick = openShare; $('endArchive').onclick = openArchive;
@@ -2207,12 +2210,14 @@ function genHud() {
   volunteerHud(); genBadgeHud(amChief());
   const c = chiefInfo(me), mine = amChief(), st = myStats();
   $('gen').classList.toggle('me', mine);
-  const h = c ? `${insignia(c.rank) || '★'} ${c.name}${mine ? ' (you)' : ''} <small>· ${c.rank} · ${c.votes} ${c.votes === 1 ? 'vote' : 'votes'}</small>` : '<small>No general: nobody from your faction is online</small>';
-  if ($('genName')._h !== h) { $('genName')._h = h; $('genName').innerHTML = h; }
+  const h = c ? `${insignia(c.rank) || '★'} ${c.name}${mine && c.name !== 'You' ? ' (you)' : ''} <small>· ${c.rank} · ${c.votes} ${c.votes === 1 ? 'vote' : 'votes'}</small>` : '<small>No general: nobody from your faction is online</small>';
+  const hn = h + (mine && !$('genList').classList.contains('open') ? '<div class="gme">You are the general: put marks on the map for your faction.</div>' : '');
+  if ($('genName')._h !== hn) { $('genName')._h = hn; $('genName').innerHTML = hn; }
   $('mkAtk').classList.toggle('on', mode === 'markA'); $('mkDef').classList.toggle('on', mode === 'markD');
   if ($('genList').classList.contains('open')) {
-    const html = rosterList().map(r => `<div class="row"><span>${insignia(r.rank)} ${r.name}${r.pub === (st.pub || '') ? ' (you)' : ''} <small>${r.rank}</small></span><small>${r.votes}</small><button data-pub="${r.pub}" class="${st.vote === r.pub ? 'on' : ''}">${st.vote === r.pub ? 'VOTED' : 'VOTE'}</button></div>`).join('') || '<small>Nobody online</small>';
-    if ($('genList')._h !== html) { $('genList')._h = html; $('genList').innerHTML = html; $('genList').querySelectorAll('button').forEach(b => b.onclick = () => act({ type: 'vote', pub: b.dataset.pub }, { ok: 'Vote cast' })); }
+    const html = rosterList().map(r => `<div class="row"><span>${insignia(r.rank)} ${r.name}${r.pub === (st.pub || '') && r.name !== 'You' ? ' (you)' : ''} <small>${r.rank}</small></span><small>${r.votes}</small><button data-pub="${r.pub}" class="${st.vote === r.pub ? 'on' : ''}">${st.vote === r.pub ? '✓ YOUR VOTE' : 'VOTE'}</button></div>`).join('') || '<small>Nobody online</small>';
+    const ros = rosterList(); const note = `<div class="gnote">${ros.length <= 1 ? 'You are the only player of your faction online, so you are the general. When others join, they can vote.' : 'Online players of your faction elect a general. The general places attack and hold marks for everyone. Vote for anyone below, yourself included.'}</div>`;
+    if ($('genList')._h !== html) { $('genList')._h = html; $('genList').innerHTML = note + html; $('genList').querySelectorAll('button').forEach(b => b.onclick = () => act({ type: 'vote', pub: b.dataset.pub }, { ok: 'Vote cast' })); }
   }
 }
 $('genVote').onclick = () => { $('genList').classList.toggle('open'); $('genVote').classList.toggle('on'); $('genList')._h = ''; genHud(); };
@@ -2311,6 +2316,7 @@ const SLOGANS = { win: ['HOLDS THE LINE', 'STANDS VICTORIOUS', 'CARRIES THE DAY'
 function posterArt(w, col) { const k = S.scenario === 'naval' || S.scenario === 'pacific' ? 'navy' : S.scenario === 'frost' ? 'blitz' : w === 1 ? 'air' : 'blitz';
   return new Promise(res => { const img = new Image(); img.onload = () => res(img); img.onerror = () => res(null);
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(DOC_ART[k].replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" style="color:${col}" width="800" height="460" `)); }); }
+const T = t => (window.slLang ? slLang.tr(t) : t);
 async function drawShare(pts) {
   const g = shareCv.getContext('2d'), st = endStats || myStats(), W = 1200, H = 630, w = S.winter ? -2 : pts[0] === pts[1] ? -1 : pts[0] > pts[1] ? 0 : 1;
   const col = w >= 0 ? FCSS[w] : w === -2 ? '#d7e66a' : '#e9eef5', art = await posterArt(w, col);
@@ -2322,16 +2328,16 @@ async function drawShare(pts) {
   // frame
   g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(24, 24, W - 48, H - 48); g.lineWidth = 1.5; g.strokeRect(36, 36, W - 72, H - 72);
   const sc = SCENARIOS[S.scenario] || SCENARIOS.classic, camp = campaign ? ` · GREAT WAR ${campaign.n}` : '';
-  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", sans-serif'; g.fillText(`SEASON ${endSeason} · ${sc.name.toUpperCase()}${camp}`, 70, 92);
-  const slogan = (w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)];
-  const lines = w >= 0 ? [FN[w].toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
+  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", sans-serif'; g.fillText(T(`SEASON ${endSeason}`) + ` · ${T(sc.name).toUpperCase()}` + (campaign ? ` · ${T('GREAT WAR')} ${campaign.n}` : ''), 70, 92);
+  const slogan = T((w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)]);
+  const lines = w >= 0 ? [T(FN[w]).toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
   let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "IBM Plex Sans Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
   // stats
   const box = (x, label, val, c) => { g.fillStyle = 'rgba(11,17,24,.82)'; g.fillRect(x, 470, 200, 84); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(x, 470, 200, 84);
     g.fillStyle = '#9aa7b6'; g.font = '700 13px "IBM Plex Sans Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "IBM Plex Sans Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
-  box(66, 'SCORE', `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : 'YOU'}`, `${st.caps || 0} TAKEN`, FCSS[me]);
-  if (campaign) box(498, 'CAMPAIGN', `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
-  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", sans-serif'; g.fillText('JOIN THE WAR · ' + location.host.toUpperCase(), 66, H - 48);
+  box(66, T('SCORE'), `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : T('YOU')}`, `${st.caps || 0} ${T('TAKEN')}`, FCSS[me]);
+  if (campaign) box(498, T('CAMPAIGN'), `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
+  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", sans-serif'; g.fillText(T('JOIN THE WAR') + ' · ' + location.host.toUpperCase(), 66, H - 48);
   g.textAlign = 'right'; g.fillText('SUPPLY LINES', W - 66, H - 48); g.textAlign = 'left';
 }
 let campaign = null;
@@ -2360,7 +2366,7 @@ async function loadRealWar() {
   const box = $('rwLive'); let j = null;
   try { j = await (await fetch('realwar.json', { cache: 'no-store' })).json(); } catch (e) {}
   const a = j && j.alerts, st = j && j.staff;
-  if (st) $('rwDays').textContent = st.day.toLocaleString('en-US');
+  if (st) $('rwDays').textContent = st.day.toLocaleString(document.documentElement.lang === 'uk' ? 'uk-UA' : 'en-US');
   if (a) {
     const n = a.on.length; box.classList.toggle('alarm', n > 0); box.classList.toggle('calm', n === 0);
     $('rwAlert').innerHTML = n ? `Right now there is an air-raid alert in <span style="color:#ff6b5b">${n} of ${a.total}</span> regions of Ukraine${a.kyiv ? ', including Kyiv' : ''}.` : 'Right now there is no air-raid alert in Ukraine. For now.';
@@ -2376,7 +2382,7 @@ function openRealWar() {
   loadRealWar();
   $('rwNote').classList.remove('on'); $('realBtn').classList.remove('fresh'); try { localStorage.setItem('sl-rw-seen', '1'); } catch (e) {}
   const days = Math.floor((Date.now() - Date.UTC(2022, 1, 24)) / 864e5) + 1; // day 1 = 24 February 2022, as the General Staff counts
-  $('rwDays').textContent = days.toLocaleString('en-US'); $('rwKyivDays').textContent = Math.round(2822 / 24);
+  $('rwDays').textContent = days.toLocaleString(document.documentElement.lang === 'uk' ? 'uk-UA' : 'en-US'); $('rwKyivDays').textContent = Math.round(2822 / 24);
   $('realwar').classList.remove('hidden');
 }
 $('realBtn').onclick = openRealWar; if (qp.get('realwar')) setTimeout(openRealWar, 600); $('rwNoteGo').onclick = openRealWar; $('rwNoteX').onclick = () => $('rwNote').classList.remove('on');
@@ -2602,10 +2608,14 @@ function startReplay(frames, title) {
   $('end').classList.add('hidden'); $('archive').classList.add('hidden'); $('share').classList.add('hidden');
   document.body.classList.add('replay'); select(-1); tip.style.display = 'none';
   const R = buildReplay(frames);
-  replay = { ...R, k: 0, shown: -1, playing: true, speed: 1, rate: (R.F - 1) / Math.max(40, Math.min(120, (R.F - 1) / 1.6)) };   // calm pace: at most ~1.6 snapshots a second at 1×
+  replay = { ...R, k: 0, shown: -1, playing: true, follow: true, speed: 1, rate: (R.F - 1) / Math.max(40, Math.min(120, (R.F - 1) / 1.6)) };   // calm pace: at most ~1.6 snapshots a second at 1×
+  rpFollowUi();
   $('rpTitle').textContent = title || 'SEASON REPLAY'; drawReplayChart(); setFrame(0); replayUi();
   if (R.story.length) setTimeout(() => replay && showCaption({ k: 0, f: R.story[0].f, text: `${R.story.length} key moments: watch the war unfold` }), 400);
 }
+function rpFollowUi() { const R = replay; if (!R) return; $('rpFollow').classList.toggle('on', R.follow); $('rpFollow').title = R.follow ? 'Camera follows the action. Drag the globe to look around yourself' : 'You steer the camera. Click to follow the action again'; }
+$('rpFollow').onclick = () => { if (!replay) return; replay.follow = !replay.follow; rpFollowUi(); };
+for (const ev of ['pointerdown', 'wheel', 'touchstart']) renderer.domElement.addEventListener(ev, () => { if (replay && replay.follow) { replay.follow = false; rpFollowUi(); } }, { passive: true });
 function stopReplay() { replay = null; document.body.classList.remove('replay'); $('rpCap').classList.remove('on'); paintOverlay(); paintRoutes(); }
 function seekReplay(k) { const R = replay; if (!R) return; R.k = Math.max(0, Math.min(R.F - 1, k)); setFrame(Math.floor(R.k), false); replayUi(); }
 $('rpExit').onclick = stopReplay;
@@ -2626,7 +2636,8 @@ const rpTarget = new THREE.Vector3();
 function stepReplay(dt) {
   const R = replay;
   if (R.playing) { R.k = Math.min(R.F - 1, R.k + dt * R.rate * R.speed); const fk = Math.floor(R.k); if (fk !== R.shown) setFrame(fk, true); if (R.k >= R.F - 1) R.playing = false; replayUi(); }
-  // the camera drifts toward where the fighting is, instead of spinning
+  // the camera drifts toward where the fighting is, until the player grabs the globe
+  if (!R.follow) return;
   const f = R.focus[R.shown], dist = Math.max(2.4, Math.min(3.2, camera.position.length()));
   if (f) { rpTarget.copy(f).multiplyScalar(dist).add(new THREE.Vector3(0, 0.35, 0)).setLength(dist); camera.position.lerp(rpTarget, 1 - Math.exp(-dt * 0.5)).setLength(dist); }
   else camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), dt * 0.04);
@@ -2966,7 +2977,7 @@ function frame(t) {
     if (youInfo) youInfo.cp = Math.min(youInfo.cpMax, youInfo.cp + dt * serverSpeed / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
   } else if (running && speed > 0) { const sub = speed > 3 ? 5 : speed; for (let k = 0; k < sub; k++) E.step(dt * speed / sub); }
   sync();
-  if (replay) { stepReplay(dt); owner = rpOwner; convoys = []; }
+  if (replay) { owner = rpOwner; convoys = []; stepReplay(dt); }
   updateTension(dt);
   if (flyTarget) { camera.position.lerp(flyTarget, Math.min(1, dt * 3)); if (camera.position.distanceTo(flyTarget) < 0.01) flyTarget = null; }
   if (focusT >= 0) { focusT += dt; camera.position.lerp(cities[CAPS[me]].v.clone().multiplyScalar(2.3), Math.min(1, dt * 2.5)); if (focusT > 1.6) focusT = -1; }

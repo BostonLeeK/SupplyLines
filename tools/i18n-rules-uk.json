@@ -1,11 +1,91 @@
 [
  [
+  "^SEASON (\\d+) REPLAY$",
+  "ПОВТОР СЕЗОНУ $1"
+ ],
+ [
+  "^💥 Saboteurs blew up (\\d+) railways? into$",
+  "💥 Диверсанти підірвали залізниці ($1) до міста"
+ ],
+ [
+  "^DAY (\\d+) · (\\d\\d:\\d\\d)$",
+  "ДЕНЬ $1 · $2"
+ ],
+ [
+  "^(Atlantica|Pacifica) sabotaged$",
+  "{1} провела диверсію в місті"
+ ],
+ [
+  "^D(\\d)$",
+  "Д$1"
+ ],
+ [
+  "^This war ended after (\\d+) game days?\\. Russia's war on Ukraine is on day$",
+  "Ця війна тривала ігрових днів: $1. А війна росії проти України триває вже стільки днів:"
+ ],
+ [
+  "^Your part: (\\d+) convoys, (\\d+) captures, (\\d+) clashes, (\\d+) fortifications, (\\d+) sabotages, (\\d+) airdrops\\.$",
+  "Твій внесок: конвоїв — $1, захоплень — $2, сутичок — $3, укріплень — $4, диверсій — $5, десантів — $6."
+ ],
+ [
+  "^(\\d+) cities$",
+  "міст: $1"
+ ],
+ [
+  "^Your air defence at (.+) shot down (\\d+) paratroopers?$",
+  "Твоя ППО біля міста {1} збила десантників: $2"
+ ],
+ [
+  "^(Atlantica|Pacifica) airdropped into$",
+  "{1} висадила десант у місто"
+ ],
+ [
+  "^SEASON (\\d+)$",
+  "СЕЗОН $1"
+ ],
+ [
+  "^☢ (\\d+) nuclear strikes? this season$",
+  "☢ Ядерних ударів цього сезону: $1"
+ ],
+ [
+  "^(\\d+) h en route · (\\d+) CP$",
+  "$1 год у дорозі · $2 ОД"
+ ],
+ [
+  "^(\\d+) h en route · by air, max (\\d+) · (\\d+) CP$",
+  "$1 год у дорозі · повітрям, до $2 · $3 ОД"
+ ],
+ [
+  "^Airdrop sends (\\d+) troops?$",
+  "Десант везе $1 бійців"
+ ],
+ [
+  "^Short by (\\d+)$",
+  "Бракує $1"
+ ],
+ [
+  "^Airdrop · ([\\d,]+) km · (\\d+) CP$",
+  "Десант · $1 км · $2 ОД"
+ ],
+ [
+  "^Interception chance (\\d+)%$",
+  "Шанс перехоплення $1%"
+ ],
+ [
+  "^Your faction loses (\\d+) points\\.$",
+  "Твоя фракція втратить $1 очок."
+ ],
+ [
+  "^Day (\\d) of 7 · (\\d\\d:\\d\\d)$",
+  "День $1 з 7 · $2"
+ ],
+ [
   "^💰 Corruption scandal: no production for (\\d+) h$",
   "💰 Корупційний скандал: виробництва немає ще $1 год"
  ],
  [
   "^Operation (.+?) failed: the deadline passed$",
-  "Операція «$1» провалена: строк минув"
+  "Операція «{1}» провалена: строк минув"
  ],
  [
   "^Selected (.+): ([\\d,]+) troops?$",
@@ -141,7 +221,7 @@
  ],
  [
   "^Operation (.+)$",
-  "Операція «$1»"
+  "Операція «{1}»"
  ],
  [
   "^: take (\\d+) of$",
@@ -178,5 +258,73 @@
  [
   "^🤝 (.+) joined (Atlantica|Pacifica): (\\d+) cit(?:y|ies)$",
   "🤝 Народ «{1}» приєднується до фракції {2}: міст — $3"
+ ],
+ [
+  "^Railway (.+)–(.+) built$",
+  "Залізницю {1}–{2} збудовано"
+ ],
+ [
+  "^✓ Railway (.+)–(.+) built$",
+  "✓ Залізницю {1}–{2} збудовано"
+ ],
+ [
+  "^Enemy fleet: (\\d+) ships' strength$",
+  "Ворожий флот: сила $1"
+ ],
+ [
+  "^\\+(\\d+) CP to the warhead$",
+  "+$1 ОД у боєголовку"
+ ],
+ [
+  "^✓ \\+(\\d+) CP to the warhead$",
+  "✓ +$1 ОД у боєголовку"
+ ],
+ [
+  "^(\\d+) key moments: watch the war unfold$",
+  "Ключових моментів: $1. Дивись, як розгорталася війна"
+ ],
+ [
+  "^(Atlantica|Pacifica) (\\d+)$",
+  "{1} $2"
+ ],
+ [
+  "^at once \\(you hold (\\d+)\\)\\. Progress decays meanwhile\\.$",
+  "одночасно (зараз у тебе $1). Тим часом прогрес згасає."
+ ],
+ [
+  "^(\\d+) megahubs$",
+  "$1 мегахаби"
+ ],
+ [
+  "^(\\d+\\.\\d+) CP$",
+  "$1 ОД"
+ ],
+ [
+  "^\\. A launch costs your faction (\\d+) points and enrages the enemy \\(\\+30% production for a day\\)\\. Megahubs within 2,000 km of the target can shoot it down\\.$",
+  ". Пуск коштує твоїй фракції $1 очок і розлючує ворога (+30% виробництва на добу). Мегахаби в радіусі 2000 км від цілі можуть збити ракету."
+ ],
+ [
+  "^☢ NUCLEAR LAUNCH DETECTED: (Atlantica|Pacifica) → (.+)$",
+  "☢ ВИЯВЛЕНО ЯДЕРНИЙ ПУСК: {1} → {2}"
+ ],
+ [
+  "^Impact in ~(\\d+) h · interception chance (\\d+)%$",
+  "Удар приблизно через $1 год · шанс перехоплення $2%"
+ ],
+ [
+  "^Impact in ~(\\d+) h · enemy interception chance (\\d+)%$",
+  "Удар приблизно через $1 год · шанс ворожого перехоплення $2%"
+ ],
+ [
+  "^BOOST AIR DEFENCE \\((\\d+) CP\\)$",
+  "ПОСИЛИТИ ППО ($1 ОД)"
+ ],
+ [
+  "^☢ Missile in flight → (.+)$",
+  "☢ Ракета в польоті → {1}"
+ ],
+ [
+  "^(.+) \\(you\\)$",
+  "{1} (ти)"
  ]
 ]
