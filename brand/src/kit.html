@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Supply Lines brand kit source</title>
+<!-- Every brand asset is drawn here as a fixed-size board: kit.html?a=<asset>&l=<en|uk>.
+     tools/make-brand.mjs opens each board in headless Chrome and saves it as PNG. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Manrope:wght@500;700;800&display=block" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080d; --navy:#0b1420; --ink:#e9eef5; --mute:#9aa7b6; --dim:#5d6b7c;
+  --blue:#4aa3ff; --amber:#ffad33; --gold:#ffc23d; --red:#ff6b5b;
+  --disp:"IBM Plex Sans Condensed","Arial Narrow",sans-serif; --body:Manrope,system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent}
+body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased}
+#art{position:relative;overflow:hidden;background:var(--bg)}
+#art.clear{background:transparent;overflow:visible;display:inline-block}
+.abs{position:absolute}
+.bg{position:absolute;display:block;max-width:none}
+.shade{position:absolute;inset:0}
+.h{font-family:var(--disp);font-weight:700;text-transform:uppercase;line-height:.92;letter-spacing:.015em;white-space:nowrap;
+   text-shadow:0 2px 24px rgba(0,0,0,.55)}
+.h .b{color:var(--blue)} .h .a{color:var(--amber)} .h .g{color:var(--gold)} .h .r{color:var(--red)} .h .m{color:var(--mute)}
+.sub{font-family:var(--disp);font-weight:500;color:var(--ink);opacity:.92;line-height:1.2;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.cap{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.24em;color:var(--mute);white-space:nowrap}
+.url{font-family:var(--disp);font-weight:700;color:var(--amber);letter-spacing:.02em;white-space:nowrap}
+.chip{display:inline-block;font-family:var(--disp);font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  background:var(--amber);color:var(--bg);line-height:1;white-space:nowrap}
+.chip.red{background:var(--red)} .chip.blue{background:var(--blue)} .chip.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px rgba(233,238,245,.5)}
+.fx{display:flex;align-items:center}
+.vs{font-family:var(--disp);font-weight:700;text-transform:uppercase;white-space:nowrap}
+
+/* wordmark: SUPPLY LINES over a dashed supply line running from a blue to an amber city */
+.wm{display:inline-flex;flex-direction:column;align-items:stretch;--s:64px}
+.wm-t{font-family:var(--disp);font-weight:700;font-size:var(--s);line-height:.8;letter-spacing:.035em;color:var(--ink);white-space:nowrap;padding-top:.04em}
+.wm.dark .wm-t{color:var(--navy)}
+.wm-r{display:flex;align-items:center;height:calc(var(--s)*.16);margin-top:calc(var(--s)*.15);gap:calc(var(--s)*.06)}
+.wm-r i{flex:none;width:calc(var(--s)*.15);height:calc(var(--s)*.15);border-radius:50%}
+.wm-r i.b{background:var(--blue)} .wm-r i.a{background:var(--amber)}
+.wm-r span{flex:1;height:calc(var(--s)*.05);background:linear-gradient(90deg,var(--blue),var(--amber));
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 calc(var(--s)*.16),transparent calc(var(--s)*.16) calc(var(--s)*.25))}
+.wm-c{font-family:var(--disp);font-weight:600;text-transform:uppercase;letter-spacing:.3em;color:var(--mute);white-space:nowrap;
+  font-size:calc(var(--s)*.2);margin-top:calc(var(--s)*.2)}
+.wm.dark .wm-c{color:#3c4a5b}
+.lock{display:inline-flex;align-items:center}
+.lock.st{flex-direction:column}
+.glow{filter:drop-shadow(0 0 30px rgba(74,163,255,.25))}
+</style>
+</head>
+<body>
+<div id="art"></div>
+<script>
+const Q = new URLSearchParams(location.search);
+const LANG = Q.get('l') || 'en';
+const BG = n => `bg/${n}.jpg`;
+
+const TX = {
+  en: {
+    cap: 'Browser war of logistics', url: 'globalwar.xyz', play: 'Play free', playAt: 'Play free at',
+    free: 'Free · No sign-up · In your browser', two: 'Two factions.', one: 'One planet.',
+    atl: 'Atlantica', pac: 'Pacifica', vs: 'vs', trailer: 'Official trailer', every: 'Every war runs on', sl: 'supply lines',
+    nuke1: 'Nuclear', nuke2: 'winter', nukeSub: 'Two strikes in one season. Everybody loses.',
+    drones: 'Drones. EW.', blackouts: 'Blackouts.', dronesSub: 'Drone kill zones, jamming domes, long-range strikes',
+    convoys: 'Send the convoys.', front: 'Break the front.',
+    game: 'This is a game.', notGame: 'In Ukraine, it is not.', ready: 'Are you really ready for a real war?',
+    season: 'Seven days. One season.', capital: 'Take their capital. Hold it for 12 hours.',
+    lead: 'A free browser war of logistics on a live 3D globe.',
+    feats: ['Drones & EW', 'Airdrops', 'Fleets', 'Satellites', 'The bomb'],
+    shared: 'One shared world. Every player joins the same war.', new: 'New season',
+    whoWins: 'Who holds the planet?',
+  },
+  uk: {
+    cap: 'Браузерна війна логістики', url: 'globalwar.xyz', play: 'Грай безкоштовно', playAt: 'Грай безкоштовно на',
+    free: 'Безкоштовно · Без реєстрації · У браузері', two: 'Дві фракції.', one: 'Одна планета.',
+    atl: 'Атлантика', pac: 'Пацифіка', vs: 'проти', trailer: 'Офіційний трейлер', every: 'Кожна війна тримається', sl: 'на лініях постачання',
+    nuke1: 'Ядерна', nuke2: 'зима', nukeSub: 'Два удари за сезон. Програють усі.',
+    drones: 'Дрони. РЕБ.', blackouts: 'Блекаути.', dronesSub: 'Зони ураження дронів, купол РЕБ, далекобійні удари',
+    convoys: 'Відправляй конвої.', front: 'Проривай фронт.',
+    game: 'Це гра.', notGame: 'В Україні — ні.', ready: 'Ви справді готові до справжньої війни?',
+    season: 'Сім днів. Один сезон.', capital: 'Візьми їхню столицю. Утримай її 12 годин.',
+    lead: 'Безкоштовна браузерна війна логістики на живому 3D-глобусі.',
+    feats: ['Дрони й РЕБ', 'Десанти', 'Флоти', 'Супутники', 'Бомба'],
+    shared: 'Один спільний світ. Усі гравці — в одній війні.', new: 'Новий сезон',
+    whoWins: 'Хто втримає планету?',
+  },
+};
+const t = TX[LANG] || TX.en;
+
+// ---------- the mark: a globe split between the two factions, crossed by one supply line ----------
+let uid = 0;
+function mark(size, o = {}) {
+  const n = ++uid, mono = o.mono, ink = o.ink || '#ffffff', dark = '#05080d';
+  const body = mono ? `
+    <circle r="40" fill="none" stroke="${ink}" stroke-width="3.2"/>
+    <g fill="none" stroke="${ink}" stroke-opacity=".45" stroke-width="1.5">
+      <ellipse rx="15" ry="40"/><path d="M-40 0H40M-36.5-16H36.5M-36.5 16H36.5"/>
+    </g>` : `
+    <circle r="46.5" fill="none" stroke="#4aa3ff" stroke-opacity=".35" stroke-width="1.1"/>
+    <g clip-path="url(#c${n})">
+      <rect x="-50" y="-50" width="100" height="100" fill="#ffad33"/>
+      <path d="M-50-50H13L-13 50H-50Z" fill="#4aa3ff"/>
+      <g fill="none" stroke="${dark}" stroke-opacity=".3" stroke-width="1.15">
+        <ellipse rx="15" ry="40"/><ellipse rx="30" ry="40"/><path d="M-40 0H40M-36.5-16H36.5M-36.5 16H36.5M-25-31H25M-25 31H25"/>
+      </g>
+      <circle r="40" fill="url(#s${n})"/>
+    </g>`;
+  const route = `
+    <path d="M-23 17C-21-6 1-22 21-14" fill="none" stroke="${mono ? 'none' : dark}" stroke-opacity=".55" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-23 17C-21-6 1-22 21-14" fill="none" stroke="${ink}" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M21-14L9 23M-23 17L9 23" fill="none" stroke="${ink}" stroke-opacity="${mono ? .6 : .75}" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3.2 3.2"/>
+    <circle cx="-23" cy="17" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2.4}"/>
+    <circle cx="21" cy="-14" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2.4}"/>
+    <circle cx="9" cy="23" r="3.2" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 1.8}"/>`;
+  return `<svg width="${size}" height="${size}" viewBox="-50 -50 100 100" style="display:block;flex:none">
+    <defs>
+      <clipPath id="c${n}"><circle r="40"/></clipPath>
+      <radialGradient id="s${n}" cx="36%" cy="30%" r="78%">
+        <stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+        <stop offset=".8" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity=".6"/>
+      </radialGradient>
+    </defs>${body}${route}</svg>`;
+}
+const wordmark = (s, o = {}) => `<div class="wm ${o.dark ? 'dark' : ''}" style="--s:${s}px">
+  <div class="wm-t">SUPPLY LINES</div><div class="wm-r"><i class="b"></i><span></span><i class="a"></i></div>
+  ${o.cap === false ? '' : `<div class="wm-c">${o.cap || t.cap}</div>`}</div>`;
+const lockup = (s, o = {}) => `<div class="lock" style="gap:${s * .32}px">${mark(s * 1.62, o)}${wordmark(s, o)}</div>`;
+const stacked = (s, o = {}) => `<div class="lock st" style="gap:${s * .38}px">${mark(s * 2.6, o)}${wordmark(s, o)}</div>`;
+const img = (n, x, y, w, extra = '') => `<img class="bg" src="${BG(n)}" style="left:${x}px;top:${y}px;width:${w}px;${extra}">`;
+const at = (x, y, html, style = '') => `<div class="abs" style="left:${x}px;top:${y}px;${style}">${html}</div>`;
+const H = (html, size, w, style = '') => `<div class="h" data-fit style="font-size:${size}px;width:${w}px;${style}">${html}</div>`;
+const chip = (txt, s, cls = '') => `<span class="chip ${cls}" style="font-size:${s}px;padding:${s * .42}px ${s * .6}px ${s * .36}px">${txt}</span>`;
+const factions = s => `<div class="vs" style="font-size:${s}px;letter-spacing:.04em"><span style="color:var(--blue)">${t.atl}</span>
+  <span style="color:var(--dim);font-weight:500;text-transform:none;margin:0 .25em">${t.vs}</span><span style="color:var(--amber)">${t.pac}</span></div>`;
+const vignette = (a = .7) => `<div class="shade" style="background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,${a}) 100%)"></div>`;
+const fade = (dir, from, to, a = .92) => `<div class="shade" style="background:linear-gradient(${dir},rgba(5,8,13,${a}) ${from}%,rgba(5,8,13,0) ${to}%)"></div>`;
+
+// ---------- boards ----------
+const A = {};
+// logos (transparent)
+A['logo-mark'] = { w: 0, h: 0, clear: 1, langs: ['x'], dsf: 1, r: () => `<div style="padding:12px">${mark(1000)}</div>` };
+A['logo-mark-mono-white'] = { clear: 1, langs: ['x'], r: () => `<div style="padding:12px">${mark(1000, { mono: 1 })}</div>` };
+A['logo-mark-mono-navy'] = { clear: 1, langs: ['x'], r: () => `<div style="padding:12px">${mark(1000, { mono: 1, ink: '#0b1420' })}</div>` };
+A['logo-horizontal'] = { clear: 1, dsf: 2, r: () => `<div style="padding:20px">${lockup(150)}</div>` };
+A['logo-horizontal-dark'] = { clear: 1, dsf: 2, r: () => `<div style="padding:20px">${lockup(150, { dark: 1 })}</div>` };
+A['logo-stacked'] = { clear: 1, dsf: 2, r: () => `<div style="padding:20px">${stacked(130)}</div>` };
+A['logo-wordmark'] = { clear: 1, dsf: 2, langs: ['x'], r: () => `<div style="padding:20px">${wordmark(160, { cap: false })}</div>` };
+A['logo-wordmark-dark'] = { clear: 1, dsf: 2, langs: ['x'], r: () => `<div style="padding:20px">${wordmark(160, { cap: false, dark: 1 })}</div>` };
+
+// avatar for every network (circle-safe)
+A['avatar'] = { w: 1024, h: 1024, langs: ['x'], r: () => `
+  <div class="shade" style="background:radial-gradient(circle at 50% 46%,#13243a 0%,#091320 45%,#05080d 75%)"></div>
+  ${at(152, 152, mark(720), 'filter:drop-shadow(0 0 60px rgba(74,163,255,.28))')}` };
+
+// link preview / og
+A['og'] = { w: 1200, h: 630, r: () => `
+  ${img('globe', 180, -150, 1560)}
+  ${fade('90deg', 30, 66, .97)}${vignette(.55)}
+  ${at(64, 70, lockup(54))}
+  ${at(64, 268, H(`${t.two}<br><span class="a">${t.one}</span>`, 78, 620))}
+  ${at(64, 450, `<div class="sub" style="font-size:26px;width:600px">${t.lead}</div>`)}
+  ${at(64, 548, `<div class="fx" style="gap:22px">${chip(t.play, 22)}<span class="url" style="font-size:28px">${t.url}</span></div>`)}` };
+
+// YouTube thumbnails 1280×720
+A['yt-thumb-trailer'] = { w: 1280, h: 720, r: () => `
+  ${img('nuke', -560, -60, 1640)}
+  ${fade('270deg', 30, 62, .96)}${vignette(.6)}
+  ${at(560, 64, chip(t.trailer, 30))}
+  ${at(560, 170, H(`${t.two}<br><span class="a">${t.one}</span>`, 150, 680))}
+  ${at(560, 560, lockup(46, { cap: false }))}` };
+A['yt-thumb-nuke'] = { w: 1280, h: 720, r: () => `
+  ${img('flash', -980, -560, 2800)}
+  <div class="shade" style="background:radial-gradient(circle at 26% 46%,rgba(255,180,90,.18),transparent 40%)"></div>
+  ${fade('270deg', 28, 60, .95)}${vignette(.55)}
+  ${at(600, 120, H(`<span class="r">${t.nuke1}</span><br>${t.nuke2}`, 190, 640))}
+  ${at(604, 520, `<div class="sub" style="font-size:36px;width:620px">${t.nukeSub}</div>`)}
+  ${at(1080, 40, mark(150))}` };
+A['yt-thumb-drones'] = { w: 1280, h: 720, r: () => `
+  ${img('drones', -380, -260, 2100)}
+  ${fade('0deg', 18, 62, .96)}${vignette(.5)}
+  ${at(60, 380, H(`${t.drones}<br><span class="b">${t.blackouts}</span>`, 150, 1160))}
+  ${at(60, 50, chip('SUPPLY LINES', 30, 'blue'))}` };
+A['yt-thumb-factions'] = { w: 1280, h: 720, r: () => `
+  ${img('split', -330, -170, 1960)}
+  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.15),rgba(5,8,13,.55) 50%,rgba(5,8,13,.15))"></div>
+  ${fade('0deg', 0, 40, .9)}${vignette(.55)}
+  ${at(0, 120, H(`<span class="b">${t.atl}</span>`, 170, 1280, 'text-align:center'))}
+  ${at(0, 300, `<div class="vs" style="width:1280px;text-align:center;font-size:90px;color:var(--ink);font-weight:500;text-transform:${LANG === 'uk' ? 'uppercase' : 'uppercase'}">${t.vs}</div>`)}
+  ${at(0, 420, H(`<span class="a">${t.pac}</span>`, 170, 1280, 'text-align:center'))}
+  ${at(0, 620, `<div style="width:1280px;display:flex;justify-content:center">${lockup(38, { cap: false })}</div>`)}` };
+A['yt-thumb-realwar'] = { w: 1280, h: 720, r: () => `
+  ${img('globe', 330, -120, 1460, 'opacity:.55;filter:grayscale(.5)')}
+  ${fade('90deg', 30, 75, 1)}
+  ${at(70, 110, H(t.game, 110, 760))}
+  ${at(70, 240, H(`<span class="g">${t.notGame}</span>`, 110, 1000))}
+  ${at(74, 410, `<div class="sub" style="font-size:40px;width:760px">${t.ready}</div>`)}
+  ${at(70, 590, lockup(40, { cap: false }))}` };
+
+// YouTube channel banner 2560×1440 (safe area 1546×423 in the middle)
+A['yt-banner'] = { w: 2560, h: 1440, r: () => `
+  ${img('europe', 0, 0, 2560)}
+  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.35) 0%,rgba(5,8,13,.9) 36%,rgba(5,8,13,.9) 64%,rgba(5,8,13,.35) 100%)"></div>
+  ${vignette(.6)}
+  ${at(507, 560, lockup(96))}
+  ${at(1500, 572, `<div style="width:560px">
+      <div class="sub" style="font-size:40px">${t.lead}</div>
+      <div class="fx" style="gap:22px;margin-top:34px">${chip(t.play, 28)}<span class="url" style="font-size:40px">${t.url}</span></div></div>`)}` };
+
+// X / Twitter header 1500×500
+A['x-header'] = { w: 1500, h: 500, r: () => `
+  ${img('asia', -120, -380, 1740)}
+  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.25) 0%,rgba(5,8,13,.92) 42%,rgba(5,8,13,.92) 100%)"></div>
+  ${vignette(.5)}
+  ${at(600, 88, lockup(76))}
+  ${at(606, 300, factions(46))}
+  ${at(606, 380, `<div class="fx" style="gap:20px">${chip(t.play, 22)}<span class="url" style="font-size:30px">${t.url}</span></div>`)}` };
+
+// Facebook cover 1640×624 (sides crop on mobile: keep content within ~1100 px in the middle)
+A['fb-cover'] = { w: 1640, h: 624, r: () => `
+  ${img('split', -140, -260, 1920)}
+  <div class="shade" style="background:radial-gradient(ellipse 60% 75% at 50% 50%,rgba(5,8,13,.9),rgba(5,8,13,.45) 100%)"></div>
+  ${vignette(.6)}
+  ${at(0, 110, `<div style="width:1640px;display:flex;justify-content:center">${lockup(84)}</div>`)}
+  ${at(0, 352, `<div style="width:1640px;display:flex;justify-content:center">${factions(46)}</div>`)}
+  ${at(0, 440, `<div style="width:1640px;display:flex;justify-content:center;gap:22px" class="fx">${chip(t.play, 24)}<span class="url" style="font-size:34px">${t.url}</span></div>`)}` };
+
+// Instagram / Facebook feed
+A['ig-square-planet'] = { w: 1080, h: 1080, r: () => `
+  ${img('globe', -420, 230, 1920)}
+  ${fade('180deg', 22, 52, 1)}${vignette(.5)}
+  ${at(80, 86, lockup(44, { cap: false }))}
+  ${at(80, 220, H(`${t.two}<br><span class="a">${t.one}</span>`, 128, 920))}
+  ${at(80, 970, `<div class="fx" style="gap:20px">${chip(t.play, 24)}<span class="url" style="font-size:34px">${t.url}</span></div>`)}` };
+A['ig-square-realwar'] = { w: 1080, h: 1080, r: () => `
+  <div class="shade" style="background:radial-gradient(circle at 50% 120%,#1a2433,#05080d 60%)"></div>
+  ${at(90, 300, H(t.game, 124, 900))}
+  ${at(90, 430, H(`<span class="g">${t.notGame}</span>`, 124, 900))}
+  ${at(94, 610, `<div class="sub" style="font-size:44px;width:880px">${t.ready}</div>`)}
+  ${at(90, 900, lockup(40, { cap: false }))}` };
+A['ig-square-drones'] = { w: 1080, h: 1080, r: () => `
+  ${img('drones', -700, -120, 2300)}
+  ${fade('0deg', 20, 60, .97)}${vignette(.5)}
+  ${at(80, 80, lockup(40, { cap: false }))}
+  ${at(80, 640, H(`${t.drones}<br><span class="b">${t.blackouts}</span>`, 130, 920))}
+  ${at(84, 920, `<div class="sub" style="font-size:32px;width:900px;color:var(--mute)">${t.dronesSub}</div>`)}` };
+A['ig-portrait'] = { w: 1080, h: 1350, r: () => `
+  ${img('nuke', -900, 150, 2880)}
+  ${fade('180deg', 18, 40, 1)}${fade('0deg', 12, 36, 1)}${vignette(.45)}
+  ${at(0, 90, `<div style="width:1080px;display:flex;justify-content:center">${lockup(58)}</div>`)}
+  ${at(0, 1000, H(`${t.every}<br><span class="a">${t.sl}</span>`, 84, 1080, 'text-align:center'))}
+  ${at(0, 1220, `<div style="width:1080px;justify-content:center;gap:22px" class="fx">${chip(t.play, 24)}<span class="url" style="font-size:34px">${t.url}</span></div>`)}` };
+
+// Stories / Reels / TikTok cover 1080×1920 (keep text out of the top 250 and bottom 340)
+A['story'] = { w: 1080, h: 1920, r: () => `
+  ${img('nuke', -1180, 380, 3400)}
+  ${fade('180deg', 16, 34, 1)}${fade('0deg', 18, 40, 1)}${vignette(.4)}
+  ${at(0, 280, H(`${t.two}<br><span class="a">${t.one}</span>`, 130, 1080, 'text-align:center'))}
+  ${at(0, 1300, `<div style="width:1080px;display:flex;justify-content:center">${stacked(62)}</div>`)}
+  ${at(0, 1720, `<div style="width:1080px;justify-content:center;gap:22px" class="fx">${chip(t.play, 28)}<span class="url" style="font-size:40px">${t.url}</span></div>`)}` };
+
+// ---------- render ----------
+window.ASSETS = Object.fromEntries(Object.entries(A).map(([k, v]) => [k, { w: v.w || 0, h: v.h || 0, clear: !!v.clear, dsf: v.dsf || 1, langs: v.langs || ['en', 'uk'] }]));
+const name = Q.get('a');
+const art = document.getElementById('art');
+async function fit() {
+  for (const el of document.querySelectorAll('[data-fit]')) {
+    let s = parseFloat(getComputedStyle(el).fontSize);
+    while (el.scrollWidth > el.clientWidth + 1 && s > 12) { s -= 1; el.style.fontSize = s + 'px'; }
+  }
+}
+window.ready = (async () => {
+  if (!name || !A[name]) return 'list';
+  const a = A[name];
+  document.documentElement.lang = LANG === 'uk' ? 'uk' : 'en';
+  if (a.clear) art.className = 'clear'; else { art.style.width = a.w + 'px'; art.style.height = a.h + 'px'; }
+  art.innerHTML = a.r();
+  await Promise.all([...art.querySelectorAll('img')].map(i => i.decode().catch(() => {})));
+  await Promise.all(['500', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Condensed"`, 'AБЇ')));
+  await document.fonts.load('600 20px Manrope', 'AБ');
+  await document.fonts.ready;
+  await fit();
+  const r = art.getBoundingClientRect();
+  return { x: r.x, y: r.y, w: r.width, h: r.height };
+})();
+</script>
+</body>
+</html>

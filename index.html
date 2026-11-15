@@ -1930,6 +1930,7 @@ function flyToVec(v) { flyTarget = v.clone().multiplyScalar(Math.max(1.9, Math.m
 let muted = false, actx = null;
 $('muteBtn').onclick = () => { muted = !muted; $('muteBtn').classList.toggle('off', muted); setMusicGain(); };
 function sfx(kind) {
+  if (window.__sfxLog) window.__sfxLog('sfx', kind);
   if (muted || !actx) return;
   const t0 = actx.currentTime, tone = (f, d, at = 0, type = 'sine', vol = 0.06) => { const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t0 + at); g.gain.setValueAtTime(vol, t0 + at); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + d); o.connect(g).connect(actx.destination); o.start(t0 + at); o.stop(t0 + at + d + 0.02); };
   if (kind === 'send') tone(660, 0.08, 0, 'triangle', 0.05);
@@ -1951,9 +1952,10 @@ function sfx(kind) {
     if (big) { const o = actx.createOscillator(), og = actx.createGain(); o.frequency.setValueAtTime(95, t0); o.frequency.exponentialRampToValueAtTime(38, t0 + 0.6); og.gain.setValueAtTime(0.16, t0); og.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7); o.connect(og).connect(actx.destination); o.start(t0); o.stop(t0 + 0.75); }
   }
 }
-function siren() { if (muted || !actx) return; const t0 = actx.currentTime; for (let k = 0; k < 6; k++) { const o = actx.createOscillator(), g = actx.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(k % 2 ? 520 : 700, t0 + k * 0.45); g.gain.setValueAtTime(0.035, t0 + k * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t0 + k * 0.45 + 0.44); o.connect(g).connect(actx.destination); o.start(t0 + k * 0.45); o.stop(t0 + k * 0.45 + 0.45); } }
+function siren() { if (window.__sfxLog) window.__sfxLog('siren'); if (muted || !actx) return; const t0 = actx.currentTime; for (let k = 0; k < 6; k++) { const o = actx.createOscillator(), g = actx.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(k % 2 ? 520 : 700, t0 + k * 0.45); g.gain.setValueAtTime(0.035, t0 + k * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t0 + k * 0.45 + 0.44); o.connect(g).connect(actx.destination); o.start(t0 + k * 0.45); o.stop(t0 + k * 0.45 + 0.45); } }
 let raid = null, raidHold = 0;
 function raidOn() {
+  if (window.__sfxLog) window.__sfxLog('raidOn');
   if (raid || !actx) return;
   const out = actx.createGain(), lp = actx.createBiquadFilter(), trem = actx.createGain(), tl = actx.createOscillator(), td = actx.createGain();
   const dly = actx.createDelay(1), fb = actx.createGain(), wet = actx.createGain();
@@ -1974,6 +1976,7 @@ function raidOn() {
   raid = { out, oscs: [o1, o2, tl], lfo: { stop() {} }, timer: setInterval(plan, 4000) };
 }
 function raidOff(after = 0) {
+  if (window.__sfxLog) window.__sfxLog('raidOff', after);
   if (!raid) return; const r = raid; raid = null; clearInterval(r.timer); const t = actx.currentTime + after;
   r.out.gain.cancelScheduledValues(t); r.out.gain.setTargetAtTime(0, t, 1.2);
   setTimeout(() => { try { r.oscs.forEach(o => o.stop()); r.lfo.stop(); r.out.disconnect(); } catch (e) {} }, (after + 6) * 1000);
@@ -1985,7 +1988,7 @@ function updateRaid() {
   if (soon && performance.now() > raidHold) raidOn(); else if (!ms.length && raid) raidOff();
   if (raid) raid.out.gain.setTargetAtTime(muted ? 0 : 0.06, actx.currentTime, 0.3);
 }
-function boom() { if (muted || !actx) return; const len = actx.sampleRate * 2.5, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+function boom() { if (window.__sfxLog) window.__sfxLog('boom'); if (muted || !actx) return; const len = actx.sampleRate * 2.5, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
   const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain(); src.buffer = buf; f.type = 'lowpass'; f.frequency.value = 220; g.gain.value = 0.6; src.connect(f).connect(g).connect(actx.destination); src.start();
 }
 // ================= adaptive music: slow minor pads, a pulse joins when fighting is close =================
@@ -3046,7 +3049,7 @@ requestAnimationFrame(frame);
 // test hooks
 window.__g = { get fleets() { return S.fleets; }, placeFleets, tick(n = 1, dt = 0.1) { for (let k = 0; k < n; k++) frame(last + dt * 1000); }, startTutorial, get tut() { return tut; }, paintOverlay, paintRoutes, stepNukeFx, demoNuke, nukeBlast, renderer, nukeFx, camera, controls, scene, renderNukePanel, nukePanelHtml, startReplay, get tension() { return tension; }, get replaying() { return !!replay; }, openShare, openArchive, openSignal, missionsHud, E, act, clickCity, select, setMode, cities, flyTo, hud, placeLabels, placeNations, paintCities, render: () => renderer.render(scene, camera),
   look(i, d = 2.3) { camera.position.copy(cities[i].v).multiplyScalar(d); controls.update(); },
-  get actx() { return actx; }, sfx, raidOn, raidOff, setSpeed, boom, blast, sparks, capturePillar, sunDir, flyToVec, get speed() { return speed; },
+  get actx() { return actx; }, sfx, siren, raidOn, raidOff, setSpeed, boom, blast, sparks, capturePillar, sunDir, flyToVec, get speed() { return speed; },
   get online() { return online; }, get me() { return me; }, get myId() { return myId; }, get selected() { return selected; }, get you() { return youInfo; }, get mode() { return mode; } };
 </script>
 </body>

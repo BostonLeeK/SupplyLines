@@ -71,13 +71,19 @@ function drawTitles(T) {
   for (const tt of titles) {
     if (T < tt.t0 || T > tt.t1) continue;
     const a = Math.min(1, (T - tt.t0) / 0.45, (tt.t1 - T) / 0.45), rise = (1 - ease((T - tt.t0) / 0.6)) * 14;
-    const size = tt.size || 96, y = (tt.y ?? 0.5) * H + rise;
-    ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.font = `700 ${size}px ${FONT}`; ctx.shadowColor = 'rgba(0,0,0,.85)'; ctx.shadowBlur = 30;
-    ctx.fillStyle = tt.color || '#f2f5f9';
+    const size = tt.size || 96, y = (tt.y ?? 0.5) * H + rise, lines = tt.text.split('\n');
+    // a soft dark band behind the words, so they read over any part of the map
+    const bandH = size * (lines.length * 1.08 + (tt.sub ? 0.9 : 0)) + size * 1.1, bandY = y + (tt.sub ? size * 0.3 : 0);
+    if (!tt.bare) { ctx.save(); ctx.globalAlpha = a * 0.78; const gb = ctx.createLinearGradient(0, bandY - bandH / 2, 0, bandY + bandH / 2);
+      gb.addColorStop(0, 'rgba(3,6,10,0)'); gb.addColorStop(0.3, 'rgba(3,6,10,.82)'); gb.addColorStop(0.7, 'rgba(3,6,10,.82)'); gb.addColorStop(1, 'rgba(3,6,10,0)');
+      ctx.fillStyle = gb; ctx.fillRect(0, bandY - bandH / 2, W, bandH); ctx.restore(); }
+    ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+    ctx.font = `700 ${size}px ${FONT}`;
     if (tt.spacing) ctx.letterSpacing = tt.spacing + 'px';
-    const lines = tt.text.split('\n'); lines.forEach((l, k) => ctx.fillText(l, W / 2, y + (k - (lines.length - 1) / 2) * size * 1.08));
-    if (tt.sub) { ctx.font = `500 ${Math.round(size * 0.36)}px ${FONT}`; ctx.fillStyle = '#b9c4d2'; ctx.letterSpacing = '0px'; ctx.fillText(tt.sub, W / 2, y + lines.length * size * 0.54 + size * 0.42); }
+    lines.forEach((l, k) => { const ly = y + (k - (lines.length - 1) / 2) * size * 1.08;
+      ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 24; ctx.lineWidth = Math.max(4, size * 0.07); ctx.strokeStyle = 'rgba(2,4,8,.85)'; ctx.strokeText(l, W / 2, ly);
+      ctx.shadowBlur = 0; ctx.fillStyle = tt.color || '#f2f5f9'; ctx.fillText(l, W / 2, ly); });
+    if (tt.sub) { ctx.font = `500 ${Math.round(size * 0.36)}px ${FONT}`; ctx.letterSpacing = '0px'; const sy = y + lines.length * size * 0.54 + size * 0.42; ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(2,4,8,.85)'; ctx.strokeText(tt.sub, W / 2, sy); ctx.fillStyle = '#c9d2dd'; ctx.fillText(tt.sub, W / 2, sy); }
     ctx.restore();
   }
 }
@@ -199,14 +205,13 @@ export async function run(opt = {}) {
     const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find(m => MediaRecorder.isTypeSupported(m));
     rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 14e6, audioBitsPerSecond: 192e3 }); rec.ondataavailable = e => e.data.size && chunks.push(e.data); rec.start(1000);
   }
-  if (ac && !opt.from) score(ac.currentTime + 0.05);
+  if (ac && !opt.from && !opt.frames) score(ac.currentTime + 0.05);
 
-  const done = new Promise(resolve => {
-    const t0 = performance.now() - (opt.from || 0) * 1000; const fired = new Set(); const once = (k, T, at, fn) => { if (T >= at && !fired.has(k)) { fired.add(k); try { fn(); } catch (e) { console.warn('trailer', k, e); } } };
-    let last = t0, missiles = [], blackTarget = -1, satCity = -1, dropCv = null;
-    const loop = now => {
-      const T = (now - t0) / 1000, dt = Math.min(0.1, (now - last) / 1000); last = now; fillCp(); window.__trT = T;
-      if (opt.stopAt && T > opt.stopAt) return resolve();
+  const fired = new Set(); const once = (k, T, at, fn) => { if (T >= at && !fired.has(k)) { fired.add(k); try { fn(); } catch (e) { console.warn('trailer', k, e); } } };
+  let missiles = [], blackTarget = -1, satCity = -1, dropCv = null;
+  // one frame of the film at trailer second T; advance() moves the game itself (frame-by-frame mode only)
+  const step = (T, dt, advance) => {
+      fillCp(); window.__trT = T;
       // ---- shots and beats ----
       once('s1', T, 0, () => { cam(atl, eu, 4.6, 3.3, 0, 7.2, 0.25); g.setSpeed(1); });
       once('s2', T, 7, () => { cam(eu, unit(city('Paris').v), 2.5, 1.75, 7, 15, 0.22); });
@@ -253,6 +258,7 @@ export async function run(opt = {}) {
         if (m.t >= 1) { m._done = true; const s2 = S(); const hit = E.blastCities(m.target); s2.missiles = s2.missiles.filter(x => x !== m); for (const i of hit) { s2.rad[i] = 1; s2.owner[i] = -1; s2.troops[i] = 0; } g.nukeBlast(m.target, hit); g.paintOverlay(); flash = Math.max(flash, 0.55); shake = 1; }
       }
       once('raidoff', T, 80.2, () => g.raidOff(1.5));
+      if (advance) advance();
       // overlays
       labelA = T < 7 ? 0 : T < 9 ? (T - 7) / 2 : T < 64 ? 1 : T < 66 ? (66 - T) / 2 : 0;
       scoreA = T < 56.5 ? 0 : T < 57.5 ? T - 56.5 : T < 65.5 ? 1 : Math.max(0, 66.5 - T);
@@ -260,11 +266,38 @@ export async function run(opt = {}) {
       applyCam(T); flash = Math.max(0, flash - dt * 2.4);
       if (shake > 0) { shake = Math.max(0, shake - dt * 1.6); const a = 0.02 * shake; g.camera.position.add(new V((Math.random() - 0.5) * a, (Math.random() - 0.5) * a, (Math.random() - 0.5) * a)); g.camera.lookAt(0, 0, 0); }
       g.renderer.render(g.scene, g.camera); drawFrame(T);
-      if (T < 91.2) requestAnimationFrame(loop); else resolve();
+  };
+  const END = 91.2;
+  if (opt.frames) {
+    // frame-by-frame: the game's own loop stops and we step it exactly 1/fps per frame, every frame goes to ffmpeg,
+    // and every sound the game makes is logged with its trailer second for the audio pass
+    const fps = opt.fps || 60, base = opt.frames, raf = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = cb => (cb && cb.name === 'frame' ? 0 : raf(cb));
+    const log = []; let curT = 0; window.__sfxLog = (k, a) => log.push([+curT.toFixed(3), k, a ?? null]);
+    const r0 = await fetch(`${base}/start?name=${encodeURIComponent(opt.name || 'trailer.mp4')}&fps=${fps}`); if (!r0.ok) throw new Error('start: ' + await r0.text());
+    const n = Math.round(END * fps);
+    for (let f = opt.from ? Math.round(opt.from * fps) : 0; f < n; f++) {
+      const T = f / fps; curT = T; step(T, 1 / fps, () => g.tick(1, 1 / fps));
+      // synchronous encode: toBlob gets postponed when the page is in the background
+      const bin = atob(out.toDataURL('image/jpeg', 0.94).split(',')[1]), u8 = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
+      const rf = await fetch(base + '/frame', { method: 'POST', body: u8 }); if (!rf.ok) throw new Error('frame ' + f);
+      window.__trFrame = f;
+    }
+    window.__sfxLog = null;
+    try { localStorage.setItem('sl-trailer-sounds', JSON.stringify(log)); } catch (e) {}
+    window.__trSounds = log;
+    return await (await fetch(base + '/end')).text();
+  }
+  await new Promise(resolve => {
+    const t0 = performance.now() - (opt.from || 0) * 1000; let last = t0;
+    const loop = now => {
+      const T = (now - t0) / 1000, dt = Math.min(0.1, (now - last) / 1000); last = now;
+      if (opt.stopAt && T > opt.stopAt) return resolve();
+      step(T, dt, null);
+      if (T < END) requestAnimationFrame(loop); else resolve();
     };
     requestAnimationFrame(loop);
   });
-  await done;
   if (rec) {
     await new Promise(r => { rec.onstop = r; rec.stop(); });
     const blob = new Blob(chunks, { type: rec.mimeType });
@@ -272,6 +305,27 @@ export async function run(opt = {}) {
     return blob.size;
   }
   return 'done';
+}
+// audio pass for a frame-by-frame render: the score plus every logged game sound, in real time, recorded on its own
+export async function audio(opt = {}) {
+  ac = g.actx; if (!ac) throw new Error('press PLAY first');
+  if (ac.state !== 'running') await ac.resume();
+  const raf = window.requestAnimationFrame.bind(window); window.requestAnimationFrame = cb => (cb && cb.name === 'frame' ? 0 : raf(cb));   // no game running, so no stray sounds
+  patchAudio(); recDest = ac.createMediaStreamDestination(); window.__slRec = recDest;
+  const log = opt.sounds || JSON.parse(localStorage.getItem('sl-trailer-sounds') || '[]'), END = 91.2;
+  const mime = ['audio/webm;codecs=opus', 'audio/webm'].find(m => MediaRecorder.isTypeSupported(m));
+  const rec = new MediaRecorder(recDest.stream, { mimeType: mime, audioBitsPerSecond: 256e3 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.start(500); await new Promise(r => setTimeout(r, 300));
+  const LEAD = 1, t0 = ac.currentTime + LEAD; score(t0);
+  // sync mark: a short click exactly 0.5 s before trailer second 0; the mux step finds it and cuts it away
+  { const o = ac.createOscillator(), gn = ac.createGain(); o.frequency.value = 1000; gn.gain.setValueAtTime(0.5, t0 - 0.5); gn.gain.setValueAtTime(0, t0 - 0.48); o.connect(gn).connect(ac.destination); gn.gain.value = 0; gn.gain.setValueAtTime(0, ac.currentTime); gn.gain.setValueAtTime(0.5, t0 - 0.5); gn.gain.setValueAtTime(0, t0 - 0.48); o.start(t0 - 0.6); o.stop(t0 - 0.4); }
+  const play = ([, k, a]) => { if (k === 'sfx') g.sfx(a); else if (k === 'boom') g.boom(); else if (k === 'raidOn') g.raidOn(); else if (k === 'raidOff') g.raidOff(a || 0); else if (k === 'siren') g.siren(); };
+  // a MessageChannel loop instead of timers: timers get throttled on background pages, this keeps sounds within a few ms
+  await new Promise(resolve => { let i = 0; const ch = new MessageChannel(); ch.port1.onmessage = () => { const now = ac.currentTime - t0; window.__trT = now; while (i < log.length && log[i][0] <= now + 0.003) play(log[i++]); if (now > END + 1) { ch.port1.close(); return resolve(); } ch.port2.postMessage(0); }; ch.port2.postMessage(0); });
+  await new Promise(r => { rec.onstop = r; rec.stop(); });
+  const blob = new Blob(chunks, { type: rec.mimeType });
+  const r = await fetch(opt.upload + '?name=' + encodeURIComponent(opt.name || 'trailer-audio.webm'), { method: 'POST', body: blob });
+  return (await r.text()) + ' · lead ' + LEAD + ' s · sounds ' + log.length;
 }
 // a single frame at trailer second T, for checking the look without recording (scenes depend on time, so this only frames the camera)
 export function still(drawT = 10) { if (!out) setupCanvas(); applyCam(drawT); g.renderer.render(g.scene, g.camera); drawFrame(drawT); return out; }
