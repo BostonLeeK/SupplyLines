@@ -52,7 +52,7 @@
  "Airdrop": "Десант",
  "Blockade": "Блокада",
  "Fleet": "Флот",
- "Build": "Будувати",
+ "Build": "Будівництво",
  "Rally": "Збір",
  "Volunteers": "Добровольці",
  "elected": "обирається",
@@ -166,5 +166,6 @@
  "Play now": "Грати",
  "Connecting…": "Підключення…",
  "Outnumber the garrison": "Будь сильнішим за гарнізон",
- "More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.": "Хто приведе більше військ, ніж у захисників, той і забирає місто. Міста, відрізані від столиці й мегахабів, перестають виробляти війська."
+ "More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.": "Хто приведе більше військ, ніж у захисників, той і забирає місто. Міста, відрізані від столиці й мегахабів, перестають виробляти війська.",
+ "BUILD": "БУДІВНИЦТВО"
 }
