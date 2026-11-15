@@ -96,6 +96,23 @@ token with Google and stores only a salted hash of the Google account id (in `au
 
 For local development without Google, `GOOGLE_CLIENT_ID=test` shows a "TEST SIGN-IN" button that accepts any made-up account id. Never use `test` on a public server.
 
+## Troubleshooting: "Live alert status is unavailable"
+
+The server fetches air-raid alerts from ubilling.net.ua and daily figures from russianwarship.rip. Check what it sees:
+
+```bash
+curl -s https://globalwar.xyz/realwar.json | head -c 300
+docker compose logs game | grep -i "cannot load"
+```
+
+`status.alerts` shows the exact error. If the VPS cannot reach the source (some hosts or regions are blocked), test from the server itself:
+
+```bash
+curl -sI https://ubilling.net.ua/aerialalerts/
+```
+
+If that fails too, point `ALERTS_URL` in `.env` to a mirror or a small proxy you run elsewhere that returns the same JSON, then `docker compose up -d`.
+
 ## Updating
 
 ```bash

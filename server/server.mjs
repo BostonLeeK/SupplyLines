@@ -73,20 +73,24 @@ setInterval(saveWorld, 15000);
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { saveWorld(); savePlayers(); process.exit(0); });
 const archive = readJson('archive.json', []);
 // ---------- real war: live public data, cached ----------
-const realWar = { alerts: null, alertsAt: 0, staff: null, staffAt: 0 };
+const realWar = { alerts: null, alertsAt: 0, staff: null, staffAt: 0, alertsErr: null, staffErr: null };
+// the alert source can be swapped (a mirror or your own proxy) if the VPS cannot reach it directly
+const ALERTS_URL = process.env.ALERTS_URL || 'https://ubilling.net.ua/aerialalerts/';
+const errText = e => [e && e.message, e && e.cause && (e.cause.code || e.cause.message)].filter(Boolean).join(' / ') || String(e);
+const logOnce = (() => { const last = {}; return (key, msg) => { if (last[key] === msg) return; last[key] = msg; console.warn(new Date().toISOString(), key, msg); }; })();
 const ALWAYS_ON = ['Автономна Республіка Крим', 'Севастополь']; // occupied since before 2022: their alert never clears
 async function getJson(url) { const r = await fetch(url, { headers: { 'user-agent': 'supply-lines-game' }, signal: AbortSignal.timeout(10000) }); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function pollAlerts() {
   try {
-    const j = await getJson('https://ubilling.net.ua/aerialalerts/'), st = j.states || {};
+    const j = await getJson(ALERTS_URL), st = j.states || {}; if (!Object.keys(st).length) throw new Error('no states in response');
     const stale = v => v.alertnow && Date.now() - Date.parse(String(v.changed).replace(' ', 'T') + '+02:00') > 7 * 864e5; // occupied regions sit under a permanent alert
     const oblasts = Object.entries(st).filter(([n, v]) => !ALWAYS_ON.includes(n) && !stale(v));
     realWar.alerts = { on: oblasts.filter(([, v]) => v.alertnow).map(([n, v]) => [n, v.changed]), total: oblasts.length, kyiv: !!(st['м. Київ'] || {}).alertnow, at: j.cachedat };
-    realWar.alertsAt = Date.now();
-  } catch (e) {}
+    realWar.alertsAt = Date.now(); if (realWar.alertsErr) { realWar.alertsErr = null; logOnce('alerts', 'ok again'); }
+  } catch (e) { realWar.alertsErr = errText(e); logOnce('alerts', 'cannot load ' + ALERTS_URL + ': ' + realWar.alertsErr); }
 }
 async function pollStaff() {
-  try { const j = await getJson('https://russianwarship.rip/api/v2/statistics/latest'); const d = j.data; realWar.staff = { date: d.date, day: d.day, drones: d.stats.uav_systems, dronesToday: d.increase.uav_systems, missiles: d.stats.cruise_missiles, missilesToday: d.increase.cruise_missiles }; realWar.staffAt = Date.now(); } catch (e) {}
+  try { const j = await getJson('https://russianwarship.rip/api/v2/statistics/latest'); const d = j.data; realWar.staff = { date: d.date, day: d.day, drones: d.stats.uav_systems, dronesToday: d.increase.uav_systems, missiles: d.stats.cruise_missiles, missilesToday: d.increase.cruise_missiles }; realWar.staffAt = Date.now(); realWar.staffErr = null; } catch (e) { realWar.staffErr = errText(e); logOnce('staff', 'cannot load General Staff data: ' + realWar.staffErr); }
 }
 pollAlerts(); pollStaff(); setInterval(pollAlerts, 60 * 1000); setInterval(pollStaff, 60 * 60 * 1000);
 // ---------- web push: alerts reach players who are not in the game right now ----------
@@ -157,7 +161,7 @@ const server = http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
   if (p === '/world.json') return sendPacked(req, res, 'application/json', JSON.stringify(worldState()), { 'cache-control': 'no-cache', 'access-control-allow-origin': '*' });
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
-  if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 10 * 60e3 ? realWar.alerts : null, staff: realWar.staff })); }
+  if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 15 * 60e3 ? realWar.alerts : null, staff: realWar.staff, status: { alerts: realWar.alertsErr ? 'error: ' + realWar.alertsErr : realWar.alertsAt ? 'ok' : 'loading', staff: realWar.staffErr ? 'error: ' + realWar.staffErr : realWar.staffAt ? 'ok' : 'loading' } })); }
   if (p === '/wire.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(wireLog.slice(0, 30))); }
   if (p === '/archive.json') return sendPacked(req, res, 'application/json', JSON.stringify(archive.slice(-30).reverse()), { 'cache-control': 'no-cache' });
   if (!PUBLIC.has(p)) { res.writeHead(404); return res.end('not found'); }

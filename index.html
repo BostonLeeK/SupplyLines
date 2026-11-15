@@ -260,6 +260,7 @@ body.replay .lbl .n{display:none}
 #leftcol{max-height:calc(100vh - 32px);overflow-y:auto;overflow-x:hidden;padding-right:2px}
 #leftcol::-webkit-scrollbar{width:4px}
 .cap.fold{cursor:pointer;user-select:none}
+#gen .cap.fold::after{order:2;margin-left:8px}
 .cap.fold::after{content:'▾';margin-left:6px;color:var(--faint);font-size:10px}
 .folded .cap.fold::after{content:'▸'}
 .folded>*:not(.cap){display:none!important}
@@ -525,7 +526,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 </div>
 
 <div id="feed"></div>
-<div id="leftcol"><div id="opPanel"></div><div id="gen"><div class="cap">General of your faction <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
+<div id="leftcol"><div id="opPanel"></div><div id="gen"><div class="cap fold">General of your faction <button id="genVote" class="gv">VOTE</button></div><div id="genName"></div><div id="genTools"><button id="mkAtk" class="mk">⚔ ATTACK MARK <span class="k">M</span></button><button id="mkDef" class="mk">🛡 DEFEND MARK</button></div><div id="genList"></div><div id="volunteer"></div></div><div id="squad"></div><div id="missions"><div class="cap fold">Season missions <b id="msCount"></b></div><div id="msList"></div><div id="rankLine"></div></div>
 <div id="regions"><div class="cap fold" style="margin-bottom:8px">Regions <b id="rgCount"></b></div><div id="rgList"></div><div class="note">Hold every city in a region: +30% production there, +8 points and +1 max CP.</div></div></div>
 
 <div id="bottom">
@@ -2070,7 +2071,7 @@ let foldInit = false;
 function initFolds() {
   if (foldInit) return; foldInit = true;
   let saved = {}; try { saved = JSON.parse(localStorage.getItem('sl-folds') || '{}'); } catch (e) {}
-  for (const id of ['regions', 'missions']) {
+  for (const id of ['gen', 'regions', 'missions']) {
     const box = $(id); if (!box) continue;
     const folded = id in saved ? saved[id] : (id === 'regions' && innerHeight < 900);
     box.classList.toggle('folded', folded);
