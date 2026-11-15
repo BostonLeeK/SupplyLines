@@ -7,12 +7,12 @@
      tools/make-brand.mjs opens each board in headless Chrome and saves it as PNG. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Manrope:wght@500;700;800&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Fira+Sans+Condensed:wght@500;600;700&family=Manrope:wght@500;700;800&display=block" rel="stylesheet">
 <style>
 :root{
   --bg:#05080d; --navy:#0b1420; --ink:#e9eef5; --mute:#9aa7b6; --dim:#5d6b7c;
   --blue:#4aa3ff; --amber:#ffad33; --gold:#ffc23d; --red:#ff6b5b;
-  --disp:"IBM Plex Sans Condensed","Arial Narrow",sans-serif; --body:Manrope,system-ui,sans-serif;
+  --disp:"IBM Plex Sans Condensed","Fira Sans Condensed","Arial Narrow",sans-serif; --body:Manrope,system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:transparent}
@@ -56,7 +56,7 @@ body{font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased
 <script>
 const Q = new URLSearchParams(location.search);
 const LANG = Q.get('l') || 'en';
-const BG = n => `bg/${n}.jpg`;
+const BG = n => `bg/${n}${LANG === 'uk' ? '-uk' : ''}.jpg`;
 
 const TX = {
   en: {
@@ -109,11 +109,11 @@ function mark(size, o = {}) {
       <circle r="40" fill="url(#s${n})"/>
     </g>`;
   const route = `
-    <path d="M-23 17C-21-6 1-22 21-14" fill="none" stroke="${mono ? 'none' : dark}" stroke-opacity=".55" stroke-width="8" stroke-linecap="round"/>
+    <path d="M-23 17C-21-6 1-22 21-14" fill="none" stroke="${mono ? 'none' : dark}" stroke-opacity=".4" stroke-width="7" stroke-linecap="round"/>
     <path d="M-23 17C-21-6 1-22 21-14" fill="none" stroke="${ink}" stroke-width="3.4" stroke-linecap="round"/>
     <path d="M21-14L9 23M-23 17L9 23" fill="none" stroke="${ink}" stroke-opacity="${mono ? .6 : .75}" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="3.2 3.2"/>
-    <circle cx="-23" cy="17" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2.4}"/>
-    <circle cx="21" cy="-14" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2.4}"/>
+    <circle cx="-23" cy="17" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2}"/>
+    <circle cx="21" cy="-14" r="5.4" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 2}"/>
     <circle cx="9" cy="23" r="3.2" fill="${mono ? ink : '#fff'}" stroke="${dark}" stroke-width="${mono ? 0 : 1.8}"/>`;
   return `<svg width="${size}" height="${size}" viewBox="-50 -50 100 100" style="display:block;flex:none">
     <defs>
@@ -155,12 +155,18 @@ A['avatar'] = { w: 1024, h: 1024, langs: ['x'], r: () => `
   <div class="shade" style="background:radial-gradient(circle at 50% 46%,#13243a 0%,#091320 45%,#05080d 75%)"></div>
   ${at(152, 152, mark(720), 'filter:drop-shadow(0 0 60px rgba(74,163,255,.28))')}` };
 
-// link preview / og
-A['og'] = { w: 1200, h: 630, r: () => `
+// the game's own icons (written straight into icons/): full square, maskable (mark inside the 80 % safe circle), notification badge (white silhouette)
+const iconBg = `<div class="shade" style="background:radial-gradient(circle at 50% 44%,#14273f 0%,#0a1524 50%,#05080d 85%)"></div>`;
+A['app-icon'] = { w: 512, h: 512, langs: ['x'], out: { x: [['icons/icon-512.png', 1], ['icons/icon-192.png', .375]] }, r: () => `${iconBg}${at(36, 36, mark(440))}` };
+A['app-icon-maskable'] = { w: 512, h: 512, langs: ['x'], out: { x: [['icons/icon-maskable-512.png', 1]] }, r: () => `${iconBg}${at(66, 66, mark(380))}` };
+A['app-badge'] = { w: 96, h: 96, clear: 1, langs: ['x'], out: { x: [['icons/badge-96.png', 1]] }, r: () => `<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center">${mark(92, { mono: 1 })}</div>` };
+
+// link preview / og (also written to og.jpg / og-uk.jpg in the site root)
+A['og'] = { w: 1200, h: 630, out: { en: [['og.jpg', 1]], uk: [['og-uk.jpg', 1]] }, r: () => `
   ${img('globe', 180, -150, 1560)}
   ${fade('90deg', 30, 66, .97)}${vignette(.55)}
-  ${at(64, 70, lockup(54))}
-  ${at(64, 268, H(`${t.two}<br><span class="a">${t.one}</span>`, 78, 620))}
+  ${at(64, 60, lockup(66))}
+  ${at(64, 262, H(`${t.two}<br><span class="a">${t.one}</span>`, 78, 620))}
   ${at(64, 450, `<div class="sub" style="font-size:26px;width:600px">${t.lead}</div>`)}
   ${at(64, 548, `<div class="fx" style="gap:22px">${chip(t.play, 22)}<span class="url" style="font-size:28px">${t.url}</span></div>`)}` };
 
@@ -172,12 +178,11 @@ A['yt-thumb-trailer'] = { w: 1280, h: 720, r: () => `
   ${at(560, 170, H(`${t.two}<br><span class="a">${t.one}</span>`, 150, 680))}
   ${at(560, 560, lockup(46, { cap: false }))}` };
 A['yt-thumb-nuke'] = { w: 1280, h: 720, r: () => `
-  ${img('flash', -980, -560, 2800)}
-  <div class="shade" style="background:radial-gradient(circle at 26% 46%,rgba(255,180,90,.18),transparent 40%)"></div>
-  ${fade('270deg', 28, 60, .95)}${vignette(.55)}
-  ${at(600, 120, H(`<span class="r">${t.nuke1}</span><br>${t.nuke2}`, 190, 640))}
-  ${at(604, 520, `<div class="sub" style="font-size:36px;width:620px">${t.nukeSub}</div>`)}
-  ${at(1080, 40, mark(150))}` };
+  ${img('flash', -1820, -1290, 3900)}
+  ${fade('270deg', 30, 62, .95)}${vignette(.55)}
+  ${at(600, 90, H(`<span class="r">${t.nuke1}</span><br>${t.nuke2}`, 190, 640))}
+  ${at(604, 470, `<div class="sub" style="font-size:34px;width:640px">${t.nukeSub}</div>`)}
+  ${at(604, 600, lockup(42, { cap: false }))}` };
 A['yt-thumb-drones'] = { w: 1280, h: 720, r: () => `
   ${img('drones', -380, -260, 2100)}
   ${fade('0deg', 18, 62, .96)}${vignette(.5)}
@@ -201,9 +206,9 @@ A['yt-thumb-realwar'] = { w: 1280, h: 720, r: () => `
 
 // YouTube channel banner 2560×1440 (safe area 1546×423 in the middle)
 A['yt-banner'] = { w: 2560, h: 1440, r: () => `
-  ${img('europe', 0, 0, 2560)}
-  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.35) 0%,rgba(5,8,13,.9) 36%,rgba(5,8,13,.9) 64%,rgba(5,8,13,.35) 100%)"></div>
-  ${vignette(.6)}
+  ${img('split', -320, -180, 3200)}
+  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.1) 0%,rgba(5,8,13,.72) 32%,rgba(5,8,13,.72) 68%,rgba(5,8,13,.1) 100%)"></div>
+  ${vignette(.5)}
   ${at(507, 560, lockup(96))}
   ${at(1500, 572, `<div style="width:560px">
       <div class="sub" style="font-size:40px">${t.lead}</div>
@@ -211,8 +216,8 @@ A['yt-banner'] = { w: 2560, h: 1440, r: () => `
 
 // X / Twitter header 1500×500
 A['x-header'] = { w: 1500, h: 500, r: () => `
-  ${img('asia', -120, -380, 1740)}
-  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,.25) 0%,rgba(5,8,13,.92) 42%,rgba(5,8,13,.92) 100%)"></div>
+  ${img('globe', -560, -240, 1600)}
+  <div class="shade" style="background:linear-gradient(90deg,rgba(5,8,13,0) 0%,rgba(5,8,13,.15) 22%,rgba(5,8,13,.92) 42%,rgba(5,8,13,.92) 100%)"></div>
   ${vignette(.5)}
   ${at(600, 88, lockup(76))}
   ${at(606, 300, factions(46))}
@@ -247,22 +252,22 @@ A['ig-square-drones'] = { w: 1080, h: 1080, r: () => `
   ${at(80, 640, H(`${t.drones}<br><span class="b">${t.blackouts}</span>`, 130, 920))}
   ${at(84, 920, `<div class="sub" style="font-size:32px;width:900px;color:var(--mute)">${t.dronesSub}</div>`)}` };
 A['ig-portrait'] = { w: 1080, h: 1350, r: () => `
-  ${img('nuke', -900, 150, 2880)}
-  ${fade('180deg', 18, 40, 1)}${fade('0deg', 12, 36, 1)}${vignette(.45)}
-  ${at(0, 90, `<div style="width:1080px;display:flex;justify-content:center">${lockup(58)}</div>`)}
-  ${at(0, 1000, H(`${t.every}<br><span class="a">${t.sl}</span>`, 84, 1080, 'text-align:center'))}
+  ${img('nuke', -265, 170, 1660)}
+  ${fade('180deg', 8, 22, 1)}${fade('0deg', 20, 34, 1)}${vignette(.35)}
+  ${at(0, 76, `<div style="width:1080px;display:flex;justify-content:center">${lockup(52, { cap: false })}</div>`)}
+  ${at(60, 1010, H(`${t.every}<br><span class="a">${t.sl}</span>`, 84, 960, 'text-align:center'))}
   ${at(0, 1220, `<div style="width:1080px;justify-content:center;gap:22px" class="fx">${chip(t.play, 24)}<span class="url" style="font-size:34px">${t.url}</span></div>`)}` };
 
 // Stories / Reels / TikTok cover 1080×1920 (keep text out of the top 250 and bottom 340)
 A['story'] = { w: 1080, h: 1920, r: () => `
-  ${img('nuke', -1180, 380, 3400)}
-  ${fade('180deg', 16, 34, 1)}${fade('0deg', 18, 40, 1)}${vignette(.4)}
-  ${at(0, 280, H(`${t.two}<br><span class="a">${t.one}</span>`, 130, 1080, 'text-align:center'))}
-  ${at(0, 1300, `<div style="width:1080px;display:flex;justify-content:center">${stacked(62)}</div>`)}
-  ${at(0, 1720, `<div style="width:1080px;justify-content:center;gap:22px" class="fx">${chip(t.play, 28)}<span class="url" style="font-size:40px">${t.url}</span></div>`)}` };
+  ${img('nuke', -620, 330, 2300)}
+  ${fade('180deg', 14, 24, 1)}${fade('0deg', 20, 32, 1)}${vignette(.3)}
+  ${at(60, 260, H(`${t.two}<br><span class="a">${t.one}</span>`, 130, 960, 'text-align:center'))}
+  ${at(0, 1350, `<div style="width:1080px;display:flex;justify-content:center">${lockup(64, { cap: false })}</div>`)}
+  ${at(0, 1490, `<div style="width:1080px;justify-content:center;gap:22px" class="fx">${chip(t.play, 28)}<span class="url" style="font-size:40px">${t.url}</span></div>`)}` };
 
 // ---------- render ----------
-window.ASSETS = Object.fromEntries(Object.entries(A).map(([k, v]) => [k, { w: v.w || 0, h: v.h || 0, clear: !!v.clear, dsf: v.dsf || 1, langs: v.langs || ['en', 'uk'] }]));
+window.ASSETS = Object.fromEntries(Object.entries(A).map(([k, v]) => [k, { w: v.w || 0, h: v.h || 0, clear: !!v.clear, dsf: v.dsf || 1, langs: v.langs || ['en', 'uk'], out: v.out || {} }]));
 const name = Q.get('a');
 const art = document.getElementById('art');
 async function fit() {
@@ -279,6 +284,7 @@ window.ready = (async () => {
   art.innerHTML = a.r();
   await Promise.all([...art.querySelectorAll('img')].map(i => i.decode().catch(() => {})));
   await Promise.all(['500', '600', '700'].map(w => document.fonts.load(`${w} 40px "IBM Plex Sans Condensed"`, 'AБЇ')));
+  await Promise.all(['500', '600', '700'].map(w => document.fonts.load(`${w} 40px "Fira Sans Condensed"`, 'БЇґ')));
   await document.fonts.load('600 20px Manrope', 'AБ');
   await document.fonts.ready;
   await fit();

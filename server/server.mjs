@@ -138,7 +138,7 @@ let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); s
 
 // ---------- static files ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const PUBLIC = new Set(['/i18n.js', '/i18n-uk.js', '/og.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
+const PUBLIC = new Set(['/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
 // static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
 const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
 function cachedFile(p) {
@@ -158,6 +158,16 @@ function sendPacked(req, res, type, body, extra = {}) {
   if (buf.length > 1024 && /\bgzip\b/.test(ae)) { res.writeHead(200, { ...head, 'content-encoding': 'gzip' }); return res.end(zlib.gzipSync(buf)); }
   res.writeHead(200, head); res.end(buf);
 }
+const OG_UK = {
+  '/index.html': ['Supply Lines: безкоштовна браузерна війна логістики', 'Дві фракції, одна планета, без реєстрації. Веди конвої по 3D-глобусу й захоплюй світ місто за містом.', 'https://globalwar.xyz/?lang=uk'],
+  '/world.html': ['Supply Lines: світ у війні просто зараз', 'Дві фракції, одна планета, без реєстрації. Подивись, хто тримає світ, і стань на лінію фронту.', 'https://globalwar.xyz/world?lang=uk'],
+};
+function ukPreview(html, p) {
+  const [title, desc, url] = OG_UK[p];
+  return html.replaceAll('https://globalwar.xyz/og.jpg', 'https://globalwar.xyz/og-uk.jpg')
+    .replace(/(<meta property="og:title" content=")[^"]*/, '$1' + title).replace(/(<meta property="og:description" content=")[^"]*/, '$1' + desc)
+    .replace(/(<meta property="og:url" content=")[^"]*/, '$1' + url).replace('<meta property="og:type"', '<meta property="og:locale" content="uk_UA">\n<meta property="og:type"');
+}
 // error reports, stats, health check, backups
 const ops = createOps({ DATA, getHealth: () => ({ season, simT: Math.round(E.S.simT), ended: !!E.S.ended, online: humansOnline(), players: E.players.size, uptime: Math.round(process.uptime()) }) });
 const server = http.createServer((req, res) => {
@@ -170,6 +180,8 @@ const server = http.createServer((req, res) => {
   if (p === '/archive.json') return sendPacked(req, res, 'application/json', JSON.stringify(archive.slice(-30).reverse()), { 'cache-control': 'no-cache' });
   if (!PUBLIC.has(p)) { res.writeHead(404); return res.end('not found'); }
   let c; try { c = cachedFile(p); } catch { res.writeHead(404); return res.end('not found'); }
+  // a shared link with ?lang=uk gets the Ukrainian link preview (the page itself switches language from the same parameter)
+  if ((p === '/index.html' || p === '/world.html') && /[?&]lang=uk(&|$)/.test(req.url)) return sendPacked(req, res, TYPES['.html'], ukPreview(c.raw.toString('utf8'), p), { 'cache-control': 'no-cache' });
   const ae = String(req.headers['accept-encoding'] || ''), enc = c.br && /\bbr\b/.test(ae) ? 'br' : c.gz && /\bgzip\b/.test(ae) ? 'gzip' : null;
   const head = { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache', etag: c.etag, vary: 'Accept-Encoding' };
   if (req.headers['if-none-match'] === c.etag) { res.writeHead(304, head); return res.end(); }

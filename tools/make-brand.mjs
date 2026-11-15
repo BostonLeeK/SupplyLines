@@ -1,7 +1,7 @@
 // Renders the brand kit (brand/src/kit.html) to PNG with headless Chrome over the DevTools protocol.
 // node tools/make-brand.mjs                 every asset, both languages
 // node tools/make-brand.mjs yt-thumb-nuke   only assets whose name contains the filter
-// Output: brand/logo/*.png (language-neutral), brand/en/*.png, brand/uk/*.png
+// Output: brand/logo/*.png (language-neutral), brand/en/*.png, brand/uk/*.png, and the game's icons/*.png, og.jpg, og-uk.jpg
 import { spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
@@ -54,6 +54,22 @@ for (const [name, a] of Object.entries(assets)) {
     const file = path.join(dir, `${name}${lang === 'x' ? '' : '-' + lang}.png`);
     fs.writeFileSync(file, Buffer.from(shot.data, 'base64'));
     console.log(path.relative(root, file), `${Math.round(clip.width * a.dsf)}×${Math.round(clip.height * a.dsf)}`); n++;
+    for (const [rel, dsf] of a.out[lang] || []) {   // copies the game itself uses: icons/, og.jpg
+      const b = await open(`${kit}?a=${name}&l=${lang === 'x' ? 'en' : lang}`, a.w, a.h, dsf, a.clear);
+      const jpg = rel.endsWith('.jpg');
+      const o = await cdp('Page.captureScreenshot', { format: jpg ? 'jpeg' : 'png', quality: jpg ? 88 : undefined, captureBeyondViewport: true, fromSurface: true,
+        clip: { x: b.x, y: b.y, width: Math.ceil(b.w), height: Math.ceil(b.h), scale: 1 } });
+      fs.writeFileSync(path.join(root, rel), Buffer.from(o.data, 'base64'));
+      console.log(rel, `${Math.round(b.w * dsf)}×${Math.round(b.h * dsf)}`); n++;
+    }
+  }
+}
+if (!filter || 'svg'.includes(filter)) {   // the mark as plain vector files (no fonts inside)
+  await open(kit, 800, 600, 1, false);
+  const svgs = await evalP(`[['logo-mark', mark(1000)], ['logo-mark-mono-white', mark(1000, { mono: 1 })], ['logo-mark-mono-navy', mark(1000, { mono: 1, ink: '#0b1420' })]]`);
+  for (const [f, svg] of svgs) {
+    fs.writeFileSync(path.join(root, 'brand', 'logo', f + '.svg'), svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace(/ style="[^"]*"/, '').replace(/\n\s*/g, '\n'));
+    console.log('brand/logo/' + f + '.svg'); n++;
   }
 }
 ws.close(); chrome.kill();

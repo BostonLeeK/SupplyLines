@@ -11,7 +11,8 @@
     "test": "node tools/test-engine.mjs && node tools/test-persist.mjs",
     "balance": "node tools/balance.mjs 16",
     "build:net": "cd tools && npm install && node build-net.mjs",
-    "icons": "node tools/make-icons.mjs"
+    "icons": "node tools/make-brand.mjs app",
+    "brand": "node tools/make-brand.mjs"
   },
   "dependencies": {
     "web-push": "^3.6.7",
