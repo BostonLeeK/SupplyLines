@@ -563,7 +563,17 @@ body.online #simCtl,body.online #speedBtn{display:none}
   #feed{top:auto;bottom:170px;width:240px} .ev:nth-child(n+4){display:none}
   .side{padding:0 9px;height:38px} .side .pts{font-size:17px} .side .nm{display:none}
   #bottom{width:calc(100% - 28px);bottom:12px}
-  #cmd{flex-wrap:wrap} #cmd .blk{padding:8px 9px} #pips i{width:9px} .chips button{min-width:32px}
+  #cmd{flex-wrap:wrap} #cmd .blk{padding:8px 10px}
+  /* orders: label on the left, the bar across the rest of the row */
+  #cmd .blk:first-child{flex:1 1 100%;flex-direction:row;align-items:center;gap:12px}
+  #cmd .blk:first-child .cap{flex:0 0 auto;flex-direction:column;gap:4px;justify-content:center}
+  #cmd .blk:first-child #pips{flex:1 1 auto} #pips i{height:20px}
+  /* convoy: share and kind side by side as two segmented controls across the full width */
+  #cmd .blk:nth-child(2){flex:1 1 100%;flex-direction:row;align-items:center;gap:10px;border-left:0!important;border-top:1px solid var(--edge)}
+  #cmd .blk:nth-child(2) .cap{display:none}
+  #cmd .blk:nth-child(2) .chips{flex:0 0 36%;gap:3px} #cmd .blk:nth-child(2) .chips.kinds{flex:1 1 auto}
+  #cmd .blk:nth-child(2) .chips button{flex:1 1 0;min-width:0;height:36px;padding:0 2px;font-size:12px}
+  #cmd .blk:nth-child(2) .chips.kinds button{font-size:11px;letter-spacing:.02em}
   .abil{flex-basis:100%;border-top:1px solid var(--edge)} .ab{min-width:0}
   #corner{bottom:auto;top:118px} #drawer{bottom:auto;top:166px}
   #corner .rwBtn{bottom:auto;top:calc(100% + 8px);height:30px;padding:0 12px;font-size:11px}
