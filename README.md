@@ -37,6 +37,7 @@ The map is the real world with three changes:
 | **Seasons** | A season is 7 game days. Points come from cities and whole regions. Take the enemy capital and hold it for 12 game hours to win at once. Your rank and XP stay with you. |
 | **Fog of war** | You see enemy garrisons and convoys only near your own network. The server sends each faction only its own view. |
 | **Abilities** | Fortify, sabotage, airdrop, blockade, fleets, rally points, signals, three convoy types (standard, fast, heavy). |
+| **Drones, EW, blackouts** | Drone kill zones bleed enemy convoys on a city's routes; EW domes jam drones and strikes; long-range drone strikes black out a region and halve its production. |
 | **Intel** | Satellites lift the fog over a wide area; spies reveal an enemy city and its plans, and are caught one time in four. |
 | **Canals and straits** | Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca: hold the controlling city and their sea lanes close to the enemy. |
 | **Doctrine** | Each season the general picks Blitzkrieg, Sea power, Air power or Diplomacy for the whole faction. |

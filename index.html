@@ -38,14 +38,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#05080d; --ink:#e9eef5; --dim:#7d8a9a; --faint:#3a4656;
   --plate:#0b1118; --plate2:#111a24; --edge:#1f2a37;
   --a:#4aa3ff; --a-ink:#06192e; --b:#ffad33; --b-ink:#2b1700;
   --good:#5be08a; --bad:#ff6b5b; --cp:#ffc23d;
-  --disp:"Unbounded",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+  --disp:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 .modal .sheet>.foot:first-child{position:sticky;top:0;z-index:3;background:var(--bg);margin-top:0;padding:6px 0 10px;box-shadow:0 10px 14px -10px var(--bg)}
@@ -383,6 +383,7 @@ input[type=range]{accent-color:var(--ink)}
 .lbl.fort .n{box-shadow:0 0 0 2px #e9eef5,0 0 10px rgba(255,255,255,.5)}
 .lbl.cmd .n::before{content:"◆ ";font-size:8px}
 .lbl.spied .n{box-shadow:0 0 0 2px #c58bff}
+.lbl.dark .n{filter:grayscale(.85) brightness(.55)} .lbl.dark::after{content:'⚡';font-size:11px;margin-left:2px;filter:drop-shadow(0 0 3px #000)}
 .lbl.spied::after{content:'🕵';font-size:11px;margin-left:2px;filter:drop-shadow(0 0 3px #000)}
 .lbl.fog .n{background:#0d141c;color:#5d6b7c;border-style:dashed}
 .lbl.f0.fog .n{border-color:var(--a)} .lbl.f1.fog .n{border-color:var(--b)}
@@ -598,6 +599,9 @@ body.online #simCtl,body.online #speedBtn{display:none}
       <button class="ab" id="abSab" title="Sabotage an enemy city next to your network: no production and defence ×0.7 for 12 hours"><span class="hk">S</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="13" r="8"/><path d="M14.35 4.65 16.3 2.7a2.41 2.41 0 0 1 3.4 0l1.6 1.6a2.4 2.4 0 0 1 0 3.4l-1.95 1.95"/><path d="m22 2-1.5 1.5"/></svg><span class="lb">SABOTAGE</span><span class="cost">3 CP</span></button>
       <button class="ab" id="abAir" title="Airdrop from one of your megahubs to any city within 3,500 km, ignoring routes (max 30 troops)"><span class="hk">D</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10a8 8 0 0116 0z"/><path d="M4 10l8 9 8-9M12 10v9"/></svg><span class="lb">AIRDROP</span><span class="cost">3 CP</span></button>
       <button class="ab" id="abBlock" title="Blockade an enemy port linked to you by sea: its sea routes close for 12 hours"><span class="hk">B</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 12H3a9 9 0 0018 0h-2M8 10h8"/></svg><span class="lb">BLOCKADE</span><span class="cost">3 CP</span></button>
+      <button class="ab" id="abDrone" title="Drones: a kill zone over a city on your border or your own. Enemy convoys on its routes lose 20%, and you see the city and its neighbours. Half a day, up to 3 zones"><span class="hk">Q</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg><span class="lb">DRONES</span><span class="cost">2 CP</span></button>
+      <button class="ab" id="abEw" title="Electronic warfare: a dome over your city. Enemy drones within 900 km stop working and long-range strikes are jammed. One day"><span class="hk">W</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 20a9 9 0 0118 0"/><path d="M7 20a5 5 0 0110 0"/><path d="M12 20v-3"/><path d="M4 6l3 3M20 6l-3 3M12 3v3"/></svg><span class="lb">EW</span><span class="cost">3 CP</span></button>
+      <button class="ab" id="abStrike" title="Long-range drone strike on a large enemy city or megahub within 3,000 km: its region goes dark for half a day and makes half the troops. Air defence may shoot it down; EW jams it"><span class="hk">Y</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><span class="lb">STRIKE</span><span class="cost">4 CP</span></button>
       <button class="ab" id="abSat" title="Satellite pass: lift the fog within 2,200 km of a point for about half a day"><span class="hk">T</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 9 3 5 7l4 4"/><path d="m17 11 4 4-4 4-4-4"/><path d="m8 12 4 4 6-6-4-4Z"/><path d="m16 8 3-3"/><path d="M9 21a6 6 0 0 0-6-6"/></svg><span class="lb">SATELLITE</span><span class="cost">4 CP</span></button>
       <button class="ab" id="abSpy" title="Send a spy into an enemy city: reveals it and its neighbours for a day and brings a report. 25% chance the agent is caught"><span class="hk">I</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg><span class="lb">SPY</span><span class="cost">2 CP</span></button>
       <button class="ab" id="abEnvoy" title="Send an envoy to a free nation bordering your network: at 100 favour all its free cities join you"><span class="hk">E</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg><span class="lb">ENVOY</span><span class="cost">3 CP</span></button>
@@ -672,7 +676,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div class="modal hidden" id="manual"><div class="sheet manSheet">
   <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">FIELD MANUAL</h1><button class="btn2" id="manClose">CLOSE</button></div>
   <div class="mtabs"><button class="mt on" data-tab="basics">Basics</button><button class="mt" data-tab="abilities">Abilities</button><button class="mt" data-tab="intel">Intel & diplomacy</button><button class="mt" data-tab="world">World</button></div>
-  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. Megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about half a day.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
+  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. Megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>Q</kbd><b>Drones</b><em>2 CP</em></div><p>A kill zone over a city on your border or your own: enemy convoys on its routes lose 20%, and you see the area. Half a day, up to 3 zones.</p></div><div class="mc"><div class="mh"><kbd>W</kbd><b>EW</b><em>3 CP</em></div><p>A dome over your city: enemy drones within 900 km stop working and long-range strikes are jammed. One day.</p></div><div class="mc"><div class="mh"><kbd>Y</kbd><b>Drone strike</b><em>4 CP</em></div><p>Hit a large enemy city or megahub within 3,000 km: its region goes dark for half a day and the enemy makes half the troops there. Air defence shoots down half; EW jams them all.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about half a day.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
 </div></div>
 <div class="modal hidden" id="realwar"><div class="sheet rwSheet">
   <div class="rwKick">This is a game. In Ukraine it is not.</div>
@@ -706,13 +710,13 @@ body.online #simCtl,body.online #speedBtn{display:none}
   <div class="lead">A global war of logistics. Two factions, one planet, no sign-up: open the page and you are on the front line. Russia is gone, its nations are free, and where Muscovy was there is now a sea.</div>
   <div class="steps">
     <div class="step"><div class="no">01</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#2a3644" stroke-width="2"/><circle cx="40" cy="32" r="16" fill="none" stroke="#fff" stroke-width="2"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#06192e">48</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#2a3644"/><text x="160" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
+      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#2a3644" stroke-width="2"/><circle cx="40" cy="32" r="16" fill="none" stroke="#fff" stroke-width="2"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">48</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#2a3644"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
       <b>Select your city</b><span>Cities in your colour produce troops over time.</span></div>
     <div class="step"><div class="no">02</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#fff" stroke-width="2"/><circle cx="100" cy="32" r="5" fill="var(--a)"/><circle cx="88" cy="32" r="3" fill="var(--a)" opacity=".6"/><circle cx="78" cy="32" r="2" fill="var(--a)" opacity=".3"/><rect x="26" y="23" width="28" height="18" rx="3" fill="#fff"/><text x="40" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#000">24</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#fff" stroke-width="2"/><text x="160" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
+      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#fff" stroke-width="2"/><circle cx="100" cy="32" r="5" fill="var(--a)"/><circle cx="88" cy="32" r="3" fill="var(--a)" opacity=".6"/><circle cx="78" cy="32" r="2" fill="var(--a)" opacity=".3"/><rect x="26" y="23" width="28" height="18" rx="3" fill="#fff"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#000">24</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#fff" stroke-width="2"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
       <b>Click a glowing city</b><span>Green ring: you will take it. Drag from one of your cities to another to move troops.</span></div>
     <div class="step"><div class="no">03</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="var(--a)" stroke-width="2" opacity=".7"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#06192e">24</text><circle cx="160" cy="32" r="22" fill="none" stroke="var(--a)" stroke-width="2" opacity=".5"/><rect x="146" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="160" y="36" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="10" fill="#06192e">22</text></svg>
+      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="var(--a)" stroke-width="2" opacity=".7"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">24</text><circle cx="160" cy="32" r="22" fill="none" stroke="var(--a)" stroke-width="2" opacity=".5"/><rect x="146" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">22</text></svg>
       <b>Outnumber the garrison</b><span>More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.</span></div>
   </div>
   <div class="foot"><div><div class="team" id="assign"></div><div class="team" id="netStatus" style="font-size:12px;margin-top:6px;color:var(--dim)"></div><div class="gAuth" id="gAuthIntro"></div></div><button class="play" id="go">PLAY</button></div>
@@ -1221,6 +1225,13 @@ function onGameEvent(ev) {
     case 'chief': if (ev.f === me) event(`★ ${ev.who === myId ? 'You are' : ev.name + ' is'} now the general of ${FN[me]}${ev.votes ? ` (${ev.votes} ${ev.votes === 1 ? 'vote' : 'votes'})` : ''}`, me); if (ev.f === me && ev.who === myId) toast('You are the general: place strategic marks', 'good'); break;
     case 'mark': if (ev.f === me) { event(`★ General ${ev.by}: ${ev.kind === 'attack' ? '⚔ ATTACK' : '🛡 HOLD'} ${cname(ev.city)}`, me, ev.city); } break;
     case 'unmark': break;
+    case 'drones': refreshVis(); if (ev.f === me && ev.who === myId) event(`🛸 Drones over ${cname(ev.city)}${ev.jammed ? ': <b>jammed by enemy EW</b> for now' : ': enemy convoys on its routes lose 20%'}`, me, ev.city); break;
+    case 'drone_hit': if (ev.victim === me && ev.who === myId) { event(`🛸 Drones hit your convoy near ${cname(ev.city)}: ${ev.lost} troops lost`, 'warn', ev.city); toast(`🛸 −${ev.lost}`, 'bad', ev.city); } else if (ev.f === me && ev.lost >= 10) event(`🛸 Our drones near ${cname(ev.city)} hit an enemy convoy: −${ev.lost}`, me, ev.city); sparks(ev.city, ev.f, 6); break;
+    case 'ew': if (ev.f === me) event(`📡 EW dome over ${cname(ev.city)}: enemy drones and strikes are jammed within 900 km`, me, ev.city); break;
+    case 'blackout': blast(ev.city, ev.f, false); if (ev.victim === me) { event(`⚡ Blackout in <b>${REGIONS[ev.r]}</b>: an enemy drone hit ${cname(ev.city)}. Production there is halved for ~${Math.round(K.BLACKOUT_TIME * GMIN / 60)} h`, 'alarm', ev.city); sfx('alarm'); } else if (ev.f === me) { event(`⚡ Our drones knocked out power in <b>${REGIONS[ev.r]}</b>`, me, ev.city); if (ev.who === myId) toast('⚡ Blackout', 'good', ev.city); } break;
+    case 'strike_down': if (ev.f === me && ev.who === myId) toast('Shot down by air defence', 'bad', ev.city); else if (ev.f !== me && owner[ev.city] === me) event(`🛡 Our air defence shot down a drone heading for ${cname(ev.city)}`, me, ev.city); break;
+    case 'strike_jammed': if (ev.f === me && ev.who === myId) toast('Jammed by enemy EW', 'bad', ev.city); else if (ev.f !== me) event(`📡 Our EW jammed a drone heading for ${cname(ev.city)}`, me, ev.city); break;
+    case 'power_back': if (ev.f === me) event(`💡 Power is back in <b>${REGIONS[ev.r]}</b>`, me); break;
     case 'sat': refreshVis(); if (ev.f === me) event(`🛰 Satellite over ${cname(ev.city)}: fog lifted for ~${Math.round(K.SAT_TIME * GMIN / 60)} h${ev.who === myId ? '' : ' (' + ev.by + ')'}`, me, ev.city); break;
     case 'spy': refreshVis(); if (ev.f === me) { const o = ev.order >= 0 ? cname(ev.order) : 'none'; event(`🕵 Agent in ${cname(ev.city)}: garrison ${ev.troops}, enemy army ${ev.army.toLocaleString('en-US')}, rally point ${o}, nuclear program ${ev.ready ? 'READY' : ev.nuke + '%'}${ev.arm >= 0 ? ', LAUNCH BEING PREPARED at ' + cname(ev.arm) : ''}`, me, ev.city); if (ev.who === myId) toast('Report received', 'good', ev.city); } break;
     case 'spy_caught': if (ev.f === me) { event(`🕵 Our agent was caught in ${cname(ev.city)}`, 'warn', ev.city); if (ev.who === myId) toast('Agent caught', 'bad', ev.city); } else event(`🕵 Enemy spy caught in ${cname(ev.city)}`, me, ev.city); break;
@@ -1372,7 +1383,7 @@ const blocked = i => S.block[i] > simT;
 
 // ================= player input & selection =================
 let selected = -1, selRoute = null, hoverCity = -1, mode = 'convoy', pct = 0.5, convoyKind = 'std', selFleet = null;
-function setMode(m) { mode = m; if (m !== 'sail') selFleet = null; if (m === 'sabotage' || m === 'rally' || m === 'blockade' || m === 'nuke' || m === 'sail' || m === 'envoy' || m === 'sat' || m === 'spy' || m === 'markA' || m === 'markD') selected = -1; refreshUI(); }
+function setMode(m) { mode = m; if (m !== 'sail') selFleet = null; if (m === 'sabotage' || m === 'rally' || m === 'blockade' || m === 'nuke' || m === 'sail' || m === 'envoy' || m === 'sat' || m === 'spy' || m === 'markA' || m === 'markD' || m === 'drone' || m === 'ew' || m === 'strike') selected = -1; refreshUI(); }
 function select(i) { selected = i; selRoute = i >= 0 ? E.routeFrom(i, me) : null; }
 function clickCity(i) {
   if (S.ended) return;
@@ -1380,6 +1391,9 @@ function clickCity(i) {
   if (mode === 'sabotage') { setMode('convoy'); return act({ type: 'sabotage', city: i }, { city: i, ok: 'Sabotaged' }); }
   if (mode === 'blockade') { setMode('convoy'); return act({ type: 'blockade', city: i }, { city: i, ok: 'Blockade set' }); }
   if (mode === 'markA' || mode === 'markD') { const kind = mode === 'markA' ? 'attack' : 'defend'; setMode('convoy'); return act({ type: 'mark', city: i, kind }, { city: i, ok: `${kind === 'attack' ? '⚔ Attack' : '🛡 Defend'} mark on ${cities[i].name}` }); }
+  if (mode === 'drone') { setMode('convoy'); return act({ type: 'drones', city: i }, { city: i, ok: `Drones over ${cities[i].name}` }); }
+  if (mode === 'ew') { setMode('convoy'); return act({ type: 'ew', city: i }, { city: i, ok: `EW dome over ${cities[i].name}` }); }
+  if (mode === 'strike') { setMode('convoy'); return act({ type: 'strike', city: i }, { city: i }); }
   if (mode === 'sat') { setMode('convoy'); return act({ type: 'satellite', city: i }, { city: i, ok: `Satellite over ${cities[i].name}` }); }
   if (mode === 'spy') { if (owner[i] !== 1 - me) return toast('Spies go to enemy cities', 'bad', i); setMode('convoy'); return act({ type: 'spy', city: i }, { city: i, ok: `Agent sent to ${cities[i].name}` }); }
   if (mode === 'envoy') { setMode('convoy'); const n = cities[i].nation; return act({ type: 'envoy', city: i }, { city: i, ok: `Envoy sent to ${NATIONS[n][0]}` }); }
@@ -1456,6 +1470,9 @@ function isTarget(i) {
   if (mode === 'markA') return owner[i] !== me && !S.rad[i];
   if (mode === 'markD') return owner[i] === me;
   if (mode === 'envoy') return E.envoyOk(me, i);
+  if (mode === 'drone') return E.droneOk(me, i) && !(S.drones || []).some(z => z.f === me && z.i === i && z.until > simT);
+  if (mode === 'ew') return owner[i] === me;
+  if (mode === 'strike') return E.strikeOk(me, i);
   if (mode === 'sat') return !(visCache ? visCache[i] : troops[i] >= 0 || owner[i] !== 1 - me);
   if (mode === 'spy') return owner[i] === 1 - me && !(S.spies || []).some(x => x.i === i);
   if (mode === 'sail') { const fl = (S.fleets || []).find(x => x.id === selFleet); return !!fl && !fl.moving && E.harbour(i) && i !== fl.at; }
@@ -1466,6 +1483,8 @@ const TGT_COL = { win: new THREE.Color('#5be08a'), lose: new THREE.Color('#ff6b5
 function targetOutcome(i) {
   if (mode === 'sail' || mode === 'build') return 'win';
   if (mode === 'markA' || mode === 'markD') return 'win';
+  if (mode === 'drone' || mode === 'ew') return 'win';
+  if (mode === 'strike') return E.jammed(me, i) ? 'lose' : E.aaCover(i, me) >= 0 ? 'unk' : 'win';
   if (mode === 'sat') return 'win';
   if (mode === 'spy') return 'unk';
   if (mode === 'envoy') { const n = cities[i].nation; return S.favour[n][me] + E.envoyGain(n, me) >= 100 ? 'win' : 'unk'; }
@@ -1543,6 +1562,9 @@ function showTip(x, y) {
   if (mode === 'rally') body = `<div class="m">Click to propose this city as your faction's rally point.</div>`;
   else if (mode === 'sabotage') body = isTarget(c.i) ? `<div class="res ok">Sabotage: no production, defence ×0.7 for 12 h</div><div class="m">${cp(K.SAB_COST)} · garrison ${Math.floor(troops[c.i])}</div>` : `<div class="res no">${o !== 1 - me ? 'Only enemy cities' : sab[c.i] > simT ? 'Already sabotaged' : 'Not connected to your network'}</div>`;
   else if (mode === 'markA' || mode === 'markD') body = isTarget(c.i) ? `<div class="res ok">${mode === 'markA' ? '⚔ Attack mark: your faction +15% here' : '🛡 Defend mark: +20% defence'}</div><div class="m">Visible to your whole faction for one game day. Click again with the same mark to remove it.</div>` : `<div class="res no">${mode === 'markA' ? 'Attack marks go on cities you do not hold' : 'Defend marks go on your own cities'}</div>`;
+  else if (mode === 'drone') body = isTarget(c.i) ? `<div class="res ok">Drone kill zone over ${c.name}</div><div class="m">Enemy convoys on its routes lose 20% for ~${Math.round(K.DRONE_TIME * GMIN / 60)} h. You see the city and its neighbours.${E.jammed(me, c.i) ? ' <b style="color:var(--bad)">Enemy EW nearby: the drones will be jammed.</b>' : ''} ${cp(K.DRONE_COST)}</div>` : `<div class="res no">Drones fly over your own cities and the ones bordering your network</div>`;
+  else if (mode === 'ew') body = owner[c.i] === me ? `<div class="res ok">EW dome over ${c.name}</div><div class="m">Enemy drones within 900 km stop working and strikes are jammed for ~${Math.round(K.EW_TIME * GMIN / 60)} h. ${cp(K.EW_COST)}</div>` : `<div class="res no">Electronic warfare goes on your own city</div>`;
+  else if (mode === 'strike') body = E.strikeOk(me, c.i) ? (E.jammed(me, c.i) ? `<div class="res no">Enemy EW covers ${c.name}: the strike would be jammed</div>` : `<div class="res ${E.aaCover(c.i, me) >= 0 ? '' : 'ok'}" style="${E.aaCover(c.i, me) >= 0 ? 'color:var(--cp)' : ''}">Strike ${c.name}: ${REGIONS[c.region]} goes dark</div><div class="m">${E.aaCover(c.i, me) >= 0 ? 'Air defence covers it: half the strikes are shot down. ' : ''}A blackout halves the enemy's production in the region for ~${Math.round(K.BLACKOUT_TIME * GMIN / 60)} h. ${cp(K.STRIKE_COST)}</div>`) : `<div class="res no">Long-range drones hit large enemy cities and megahubs within 3,000 km</div>`;
   else if (mode === 'sat') body = `<div class="res ok">Satellite pass over ${c.name}</div><div class="m">Reveals every city and convoy within 2,200 km for ~${Math.round(K.SAT_TIME * GMIN / 60)} h. ${cp(K.SAT_COST)}</div>`;
   else if (mode === 'spy') body = owner[c.i] === 1 - me ? `<div class="res" style="color:var(--cp)">Agent into ${c.name}: 75% success</div><div class="m">Reveals the city and its neighbours for ~${Math.round(K.SPY_TIME * GMIN / 60)} h and reports the enemy's army, rally point and nuclear program. ${cp(K.SPY_COST)}</div>` : `<div class="res no">Spies go to enemy cities</div>`;
   else if (mode === 'envoy') { const n = c.nation; body = E.envoyOk(me, c.i) ? `<div class="res ok">Envoy to ${NATIONS[n][0]}: favour ${Math.round(fav[me])} → ${Math.min(100, Math.round(fav[me] + E.envoyGain(n, me)))}</div><div class="m">At 100, ${E.nationCities[n].filter(j => owner[j] < 0).length} free ${E.nationCities[n].length === 1 ? 'city joins' : 'cities join'} you with +20% garrisons. ${cp(E.envoyCost(me))}</div>` : `<div class="res no">${n < 0 ? 'Not a free nation' : o >= 0 ? 'No longer independent' : 'Must border your network'}</div>`; }
@@ -1586,8 +1608,8 @@ function updateCard() {
 // ================= new players: abilities open up step by step =================
 const NOVICE = [
   { goal: () => ({ text: 'take 3 cities', n: Math.min(3, myStats().caps || 0), of: 3 }), open: ['abFort', 'abRally'], after: 180 },
-  { goal: () => ({ text: 'take a large city or a megahub', n: nov.big ? 1 : 0, of: 1 }), open: ['abSab', 'abAir', 'abBlock'], after: 480, note: 'New abilities: <b>sabotage</b>, <b>airdrop</b> and <b>blockade</b>. Hover a button to see what it does' },
-  { goal: () => ({ text: 'use any ability', n: nov.used ? 1 : 0, of: 1 }), open: ['abSat', 'abSpy', 'abEnvoy'], panels: ['gen', 'squad'], after: 900, note: 'New: <b>satellite</b>, <b>spy</b> and <b>envoys</b>. Your faction\'s general and squads are now on the left' },
+  { goal: () => ({ text: 'take a large city or a megahub', n: nov.big ? 1 : 0, of: 1 }), open: ['abSab', 'abAir', 'abBlock', 'abDrone'], after: 480, note: 'New abilities: <b>sabotage</b>, <b>airdrop</b>, <b>blockade</b> and <b>drones</b>. Hover a button to see what it does' },
+  { goal: () => ({ text: 'use any ability', n: nov.used ? 1 : 0, of: 1 }), open: ['abSat', 'abSpy', 'abEnvoy', 'abEw', 'abStrike'], panels: ['gen', 'squad'], after: 900, note: 'New: <b>satellite</b>, <b>spy</b> and <b>envoys</b>. Your faction\'s general and squads are now on the left' },
   { open: ['abFleet', 'abBuild'], note: 'Everything is open: <b>fleets</b> and <b>railways and airfields</b>' },
 ];
 const ALL_AB = NOVICE.flatMap(x => x.open), ALL_PANELS = ['gen', 'squad'];
@@ -1623,6 +1645,9 @@ function updateHint() {
   else if (mode === 'blockade') h = 'Pick an enemy port linked to your cities by sea <span class="k">Esc</span>';
   else if (mode === 'markA') h = 'General: mark a city to attack. Your faction gets +15% there and bots push to it. Up to 3 marks for a day <span class="k">Esc</span>';
   else if (mode === 'markD') h = 'General: mark one of your cities to hold. It defends +20% for a day <span class="k">Esc</span>';
+  else if (mode === 'drone') h = 'Pick a city on your border or your own: drones hit enemy convoys on its routes for half a day <span class="k">Esc</span>';
+  else if (mode === 'ew') h = 'Pick your city: the EW dome jams enemy drones and strikes within 900 km for a day <span class="k">Esc</span>';
+  else if (mode === 'strike') h = 'Pick a large enemy city or megahub within 3,000 km: a hit blacks out its region for half a day <span class="k">Esc</span>';
   else if (mode === 'sat') h = 'Click anywhere in the fog: a satellite lifts it within 2,200 km for about half a day <span class="k">Esc</span>';
   else if (mode === 'spy') h = 'Pick an enemy city, even in the fog. The agent reveals it and its neighbours and reports back. 1 in 4 get caught <span class="k">Esc</span>';
   else if (mode === 'envoy') h = 'Pick a free nation\'s city on your border (former Russia). At 100 favour all its free cities join you. Taking them by force is a betrayal <span class="k">Esc</span>';
@@ -1707,6 +1732,9 @@ function updateButtons() {
   const ownSel = selected >= 0 && owner[selected] === me, en = energyNow();
   $('abFort').disabled = !(ownSel && fort[selected] <= simT && en >= K.FORT_COST);
   $('abSab').disabled = en < K.SAB_COST && mode !== 'sabotage';
+  $('abDrone').disabled = en < K.DRONE_COST && mode !== 'drone'; $('abDrone').classList.toggle('on', mode === 'drone');
+  $('abEw').disabled = en < K.EW_COST && mode !== 'ew'; $('abEw').classList.toggle('on', mode === 'ew');
+  $('abStrike').disabled = en < K.STRIKE_COST && mode !== 'strike'; $('abStrike').classList.toggle('on', mode === 'strike');
   $('abSat').disabled = en < K.SAT_COST && mode !== 'sat'; $('abSat').classList.toggle('on', mode === 'sat');
   $('abSpy').disabled = en < K.SPY_COST && mode !== 'spy'; $('abSpy').classList.toggle('on', mode === 'spy');
   const ec = E.envoyCost(me); $('abEnvoy').querySelector('.cost').textContent = ec + ' CP'; $('abEnvoy').disabled = en < ec && mode !== 'envoy'; $('abEnvoy').classList.toggle('on', mode === 'envoy');
@@ -1720,6 +1748,9 @@ $('abFort').onclick = () => { if (selected < 0 || owner[selected] !== me) return
 $('abSab').onclick = () => setMode(mode === 'sabotage' ? 'convoy' : 'sabotage');
 $('abAir').onclick = () => { if (mode === 'airdrop') return setMode('convoy'); if (selected < 0 || !(cities[selected].tier === 3 || S.field[selected]) || owner[selected] !== me) return event('Select one of your megahubs or airfields first', 'warn'); setMode('airdrop'); };
 $('abRally').onclick = () => setMode(mode === 'rally' ? 'convoy' : 'rally');
+$('abDrone').onclick = () => setMode(mode === 'drone' ? 'convoy' : 'drone');
+$('abEw').onclick = () => setMode(mode === 'ew' ? 'convoy' : 'ew');
+$('abStrike').onclick = () => setMode(mode === 'strike' ? 'convoy' : 'strike');
 $('abSat').onclick = () => setMode(mode === 'sat' ? 'convoy' : 'sat');
 $('abSpy').onclick = () => setMode(mode === 'spy' ? 'convoy' : 'spy');
 $('abEnvoy').onclick = () => setMode(mode === 'envoy' ? 'convoy' : 'envoy');
@@ -1755,6 +1786,9 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyL') $('abBuild').click();
   if (e.code === 'KeyE') $('abEnvoy').click();
   if (e.code === 'KeyT') $('abSat').click();
+  if (e.code === 'KeyQ') $('abDrone').click();
+  if (e.code === 'KeyW') $('abEw').click();
+  if (e.code === 'KeyY') $('abStrike').click();
   if (e.code === 'KeyM' && amChief()) $('mkAtk').click();
   if (e.code === 'KeyI') $('abSpy').click();
   if (['1', '2', '3'].includes(e.key)) document.querySelectorAll('[data-pct]')[+e.key - 1].click();
@@ -2254,16 +2288,16 @@ async function drawShare(pts) {
   // frame
   g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(24, 24, W - 48, H - 48); g.lineWidth = 1.5; g.strokeRect(36, 36, W - 72, H - 72);
   const sc = SCENARIOS[S.scenario] || SCENARIOS.classic, camp = campaign ? ` · GREAT WAR ${campaign.n}` : '';
-  g.fillStyle = '#e9eef5'; g.font = '800 20px Unbounded, sans-serif'; g.fillText(`SEASON ${endSeason} · ${sc.name.toUpperCase()}${camp}`, 70, 92);
+  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", sans-serif'; g.fillText(`SEASON ${endSeason} · ${sc.name.toUpperCase()}${camp}`, 70, 92);
   const slogan = (w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)];
   const lines = w >= 0 ? [FN[w].toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
-  let y = 180; lines.forEach((l, k) => { g.font = `800 ${k === 0 && w >= 0 ? 78 : 64}px Unbounded, sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
+  let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "IBM Plex Sans Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
   // stats
   const box = (x, label, val, c) => { g.fillStyle = 'rgba(11,17,24,.82)'; g.fillRect(x, 470, 200, 84); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(x, 470, 200, 84);
-    g.fillStyle = '#9aa7b6'; g.font = '700 13px Unbounded, sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '800 32px Unbounded, sans-serif'; g.fillText(val, x + 14, 538); };
+    g.fillStyle = '#9aa7b6'; g.font = '700 13px "IBM Plex Sans Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "IBM Plex Sans Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
   box(66, 'SCORE', `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : 'YOU'}`, `${st.caps || 0} TAKEN`, FCSS[me]);
   if (campaign) box(498, 'CAMPAIGN', `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
-  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '800 18px Unbounded, sans-serif'; g.fillText('JOIN THE WAR · ' + location.host.toUpperCase(), 66, H - 48);
+  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", sans-serif'; g.fillText('JOIN THE WAR · ' + location.host.toUpperCase(), 66, H - 48);
   g.textAlign = 'right'; g.fillText('SUPPLY LINES', W - 66, H - 48); g.textAlign = 'left';
 }
 let campaign = null;
@@ -2624,7 +2658,98 @@ $('go').onclick = () => { if (!window.__played) { window.__played = 1; window.sl
 
 let last = performance.now(), hudT = 0, labT = 0, ovT = 0, rtT = 0;
 const satRings = new Map();
+function makeRing(i, km, color, dash, gap) {
+  const n = cities[i].v.clone().normalize(), a = Math.abs(n.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0), t1 = new THREE.Vector3().crossVectors(n, a).normalize(), t2 = new THREE.Vector3().crossVectors(n, t1), th = km / 6371, pts = [];
+  for (let k = 0; k <= 96; k++) { const q = k / 96 * Math.PI * 2; pts.push(n.clone().multiplyScalar(Math.cos(th)).add(t1.clone().multiplyScalar(Math.sin(th) * Math.cos(q))).add(t2.clone().multiplyScalar(Math.sin(th) * Math.sin(q))).multiplyScalar(1.006)); }
+  const r = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color, dashSize: dash, gapSize: gap, transparent: true, opacity: 0.8, depthWrite: false }));
+  r.computeLineDistances(); scene.add(r); return r;
+}
+const warRings = new Map(), droneObjs = new Map(), domeObjs = new Map(), darkObjs = new Map();
+const UP = new THREE.Vector3(0, 1, 0);
+const tangents = n => { const a = Math.abs(n.y) < 0.9 ? UP : new THREE.Vector3(1, 0, 0), t1 = new THREE.Vector3().crossVectors(n, a).normalize(); return [t1, new THREE.Vector3().crossVectors(n, t1)]; };
+// a small quadcopter: body, X-shaped arms, four spinning rotor discs
+const DRONE_PARTS = { body: new THREE.BoxGeometry(0.55, 0.2, 0.55), arm: new THREE.BoxGeometry(2.1, 0.07, 0.12), rotor: new THREE.CircleGeometry(0.42, 18), cam: new THREE.SphereGeometry(0.16, 8, 6) };
+function makeDrone(color) {
+  const g = new THREE.Group(), mat = new THREE.MeshBasicMaterial({ color, transparent: true, depthWrite: false });
+  const rotorMat = new THREE.MeshBasicMaterial({ color: 0xe9eef5, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+  g.add(new THREE.Mesh(DRONE_PARTS.body, mat));
+  for (const r of [Math.PI / 4, -Math.PI / 4]) { const a = new THREE.Mesh(DRONE_PARTS.arm, mat); a.rotation.y = r; g.add(a); }
+  const cam = new THREE.Mesh(DRONE_PARTS.cam, new THREE.MeshBasicMaterial({ color: 0x0b1118, depthWrite: false })); cam.position.set(0, -0.12, 0.25); g.add(cam);
+  g.rotors = [];
+  for (const [x, z] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { const d = new THREE.Mesh(DRONE_PARTS.rotor, rotorMat); d.position.set(x * 0.74, 0.12, z * 0.74); d.rotation.x = -Math.PI / 2; g.add(d); g.rotors.push(d); }
+  g.mat = mat; g.rotorMat = rotorMat; g.scale.setScalar(0.0085); return g;
+}
+const DOME_GEO = new THREE.SphereGeometry(1, 48, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+// a few rings of latitude read as a force field; a full wireframe looked like a disco ball
+const DOME_RINGS = (() => { const pts = []; for (const h of [0.02, 0.45, 0.78]) { const rr = Math.sqrt(1 - h * h); for (let k = 0; k < 64; k++) { const a = k / 64 * Math.PI * 2, b = (k + 1) / 64 * Math.PI * 2; pts.push(Math.cos(a) * rr, h, Math.sin(a) * rr, Math.cos(b) * rr, h, Math.sin(b) * rr); } } const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); return g; })();
+function makeDome(i) {
+  const n = cities[i].v.clone().normalize(), th = K.EW_KM / 6371, g = new THREE.Group();
+  const shell = new THREE.Mesh(DOME_GEO, new THREE.MeshBasicMaterial({ color: 0xb48cff, transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const grid = new THREE.LineSegments(DOME_RINGS, new THREE.LineBasicMaterial({ color: 0xc9a8ff, transparent: true, opacity: 0.3, depthWrite: false }));
+  g.add(shell, grid); g.position.copy(n.clone().multiplyScalar(Math.cos(th)));
+  g.quaternion.setFromUnitVectors(UP, n); g.scale.set(Math.sin(th), Math.sin(th) * 0.55, Math.sin(th));
+  g.shell = shell; g.grid = grid; scene.add(g); return g;
+}
+const DARK_GEO = new THREE.CircleGeometry(1, 40);
+function makeDark(i) {
+  const n = cities[i].v.clone().normalize(), m = new THREE.Mesh(DARK_GEO, new THREE.MeshBasicMaterial({ color: 0x010205, transparent: true, opacity: 0.5, depthWrite: false }));
+  m.position.copy(n.clone().multiplyScalar(1.0042)); m.lookAt(n.clone().multiplyScalar(2)); m.scale.setScalar(260 / 6371 * (cities[i].tier >= 2 ? 1.25 : 1));
+  m.phase = Math.random() * 10; scene.add(m); return m;
+}
+function placeWar3D(t) {
+  const sec = t / 1000;
+  // drones
+  const live = new Set();
+  for (const z of S.drones || []) {
+    if (z.until <= simT) continue; const key = z.f + ':' + z.i; live.add(key);
+    let o = droneObjs.get(key);
+    if (!o) { const col = z.f === me ? FCOL[me].getHex() : 0xff6b5b; o = { n: cities[z.i].v.clone().normalize(), list: [0, 1, 2].map(() => { const d = makeDrone(col); scene.add(d); return d; }) }; [o.t1, o.t2] = tangents(o.n); droneObjs.set(key, o); }
+    const jam = E.jammed(z.f, z.i), fade = Math.min(1, (z.until - simT) / 8);
+    o.list.forEach((d, k) => {
+      const ph = sec * (jam ? 0.25 : 0.9) + k * Math.PI * 2 / 3, rad = 0.03 + 0.006 * Math.sin(sec * 0.7 + k), alt = 1.028 + 0.004 * Math.sin(sec * 2.3 + k * 1.7);
+      d.position.copy(o.n).multiplyScalar(alt).addScaledVector(o.t1, Math.cos(ph) * rad).addScaledVector(o.t2, Math.sin(ph) * rad);
+      d.quaternion.setFromUnitVectors(UP, o.n);
+      d.rotateY(-ph);   // nose along the circle
+      for (const r of d.rotors) r.rotation.z += jam ? 0.05 : 0.9;
+      d.mat.opacity = (jam ? 0.25 : 1) * fade; d.rotorMat.opacity = (jam ? 0.1 : 0.35) * fade;
+      d.visible = o.n.dot(camera.position.clone().normalize()) > 0.05;
+    });
+  }
+  for (const [k, o] of droneObjs) if (!live.has(k)) { for (const d of o.list) { scene.remove(d); d.mat.dispose(); d.rotorMat.dispose(); } droneObjs.delete(k); }
+  // EW domes
+  const liveD = new Set();
+  for (const d of S.ew || []) {
+    if (d.until <= simT) continue; const key = d.f + ':' + d.i; liveD.add(key);
+    let g = domeObjs.get(key); if (!g) { g = makeDome(d.i); domeObjs.set(key, g); }
+    const fade = Math.min(1, (d.until - simT) / 8), sh = 0.5 + 0.5 * Math.sin(sec * 1.7 + d.i);
+    g.shell.material.opacity = (0.025 + 0.015 * sh) * fade; g.grid.material.opacity = (0.1 + 0.08 * sh) * fade;
+  }
+  for (const [k, g] of domeObjs) if (!liveD.has(k)) { scene.remove(g); g.shell.material.dispose(); g.grid.material.dispose(); domeObjs.delete(k); }
+  // blackouts: dark patches that flicker now and then
+  const dark = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r)), liveK = new Set();
+  for (const c of cities) {
+    if (!(owner[c.i] >= 0 && dark.has(owner[c.i] + ':' + c.region))) continue; liveK.add(c.i);
+    let m = darkObjs.get(c.i); if (!m) { m = makeDark(c.i); darkObjs.set(c.i, m); }
+    const flick = Math.sin(sec * 9 + m.phase) > 0.97 ? 0.25 : 0.55; m.material.opacity = flick;
+  }
+  for (const [k, m] of darkObjs) if (!liveK.has(k)) { scene.remove(m); m.material.dispose(); darkObjs.delete(k); }
+}
+function placeWarRings(t) {
+  const live = new Set();
+  const want = [];
+  for (const z of S.drones || []) if (z.until > simT) want.push({ key: 'd' + z.f + ':' + z.i, i: z.i, km: 260, color: z.f === me ? FCOL[me].getHex() : 0xff6b5b, dash: 0.006, gap: 0.006, until: z.until, dim: true });
+  for (const d of S.ew || []) if (d.until > simT) want.push({ key: 'e' + d.f + ':' + d.i, i: d.i, km: K.EW_KM, color: 0xb48cff, dash: 0.02, gap: 0.012, until: d.until });
+  for (const w of want) {
+    live.add(w.key); let r = warRings.get(w.key);
+    if (!r) { r = makeRing(w.i, w.km, w.color, w.dash, w.gap); warRings.set(w.key, r); }
+    r.material.opacity = Math.min(1, (w.until - simT) / 10) * (w.dim ? 0.25 : w.pulse ? 0.55 + 0.35 * Math.sin(t / 160) : 0.5);
+  }
+  for (const [k, r] of warRings) if (!live.has(k)) { scene.remove(r); r.geometry.dispose(); r.material.dispose(); warRings.delete(k); }
+  const dark = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r));
+  for (const c of cities) { const on = owner[c.i] >= 0 && dark.has(owner[c.i] + ':' + c.region); if (c.el.classList.contains('dark') !== on) c.el.classList.toggle('dark', on); }
+}
 function placeSats(t) {
+  placeWarRings(t); placeWar3D(t);
   const live = new Set();
   for (const st of S.sats || []) {
     if (st.f !== me || st.until <= simT) continue; const key = st.f + ':' + st.i + ':' + Math.round(st.until); live.add(key);

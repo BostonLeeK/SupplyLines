@@ -17,6 +17,8 @@ export const K = {
   CHOKE_PTS: 2, RAIL_COST: 3, RAIL_SPEED: 1.8, FIELD_COST: 4, EXILE_COST: 5, EXILE_SLOW: 2, EXILE_PROD: 0.85,
   GOV_TIME: 128, WONDER_PTS: 3, OP_TIME: 154, OP_GAP: 40, OP_PTS: 5, TRADE_EVERY: 10, TRADE_MAX: 12, TRADE_VALUE: 0.25, PIRATE_LOSS: 0.1,
   UNREST_TIME: 64, UNREST_EVERY: 8, UNREST_CHANCE: 0.15, UNREST_LOSS: 0.3, SNOW_SLOW: 0.7, MONSOON_SLOW: 0.75, BOT_RAILS: 30, BOT_FIELDS: 5,
+  DRONE_COST: 2, DRONE_TIME: 64, DRONE_LOSS: 0.2, DRONE_MAX: 3, EW_COST: 3, EW_TIME: 128, EW_KM: 900,
+  STRIKE_COST: 4, STRIKE_KM: 3000, STRIKE_AA: 0.5, BLACKOUT_TIME: 64, BLACKOUT_PROD: 0.5,
   NIGHT_FOG: 0.55, NIGHT_AA: 0.5, NIGHT_SPY: 0.12, NIGHT_SAB: 1.5,
   CAP_HOLD: 64, CAP_PTS: 10, // hold the enemy capital for 12 game hours to win the season; +10 points while you hold it
   MARK_MAX: 3, MARK_ATK: 1.15, MARK_DEF: 1.2,
@@ -171,7 +173,7 @@ export function createEngine(NET, opts = {}) {
     S.owner = new Int8Array(N).fill(-1); S.troops = new Float32Array(N); S.supplied = new Uint8Array(N); S.frontDist = new Int16Array(N);
     S.fort = new Float32Array(N); S.sab = new Float32Array(N); S.heat = new Float32Array(edges.length); S.hold = new Float32Array(N);
     S.regionHeld = REGIONS.map(() => -1); S.mobil = [1, 1]; S.orders = [-1, -1]; S.history = []; S.convoys = [];
-    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
+    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.drones = []; S.ew = []; S.blackout = []; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
     S.gov = new Array(N).fill(''); S.capBy = new Array(N).fill(''); S.capAt = new Float32Array(N); S.ops = [null, null]; S.opPts = [0, 0]; S.tradePts = [0, 0]; S.ships = []; nextOpAt = [K.SEASON / 14, K.SEASON / 14]; nextShip = 3;
     S.capHold = [null, null]; S.doctrine = [null, null]; S.exile = [-1, -1]; S.rail = new Uint8Array(edges.length); S.field = new Uint8Array(N); S.unrest = new Float32Array(N);
     { const m = new Date().getUTCMonth(); S.weather = Object.keys(WEATHER).filter(k => WEATHER[k].months.includes(m)); if (S.scenario === 'frost' && !S.weather.includes('snow')) S.weather.push('snow'); }
@@ -299,6 +301,27 @@ export function createEngine(NET, opts = {}) {
   E.volunteerOk = f => { const p = E.scores().pts, l = 1 - f; return p[f] >= Math.max(1, p[l]) * 1.3 && p[f] - p[l] >= 30; };
   E.markAt = (f, i, kind) => (S.marks || []).some(m => m.f === f && m.i === i && m.kind === kind && m.until > S.simT);
   E.defMult = i => (S.owner[i] >= 0 && E.markAt(S.owner[i], i, 'defend') ? K.MARK_DEF : 1) * (cities[i].cap >= 0 ? 1.3 : 1) * (S.fort[i] > S.simT ? K.FORT_MULT : 1) * (S.sab[i] > S.simT ? K.SAB_MULT : 1) * (E.cmdrActive(i) ? K.CMDR_MULT : 1) * (S.owner[i] >= 0 && E.doc(S.owner[i]) === 'blitz' ? 0.9 : 1);
+  // ---------- drones, electronic warfare, blackouts ----------
+  E.jammed = (f, i) => (S.ew || []).some(d => d.f !== f && d.until > S.simT && kmBetween(d.i, i) <= K.EW_KM);   // f's drones near i are jammed
+  E.droneOk = (f, i) => i >= 0 && i < N && !S.rad[i] && (S.owner[i] === f || E.touchesNet(f, i));
+  E.strikeOk = (f, i) => i >= 0 && i < N && S.owner[i] === 1 - f && cities[i].tier >= 2 && !S.rad[i] && cities.some(c => S.owner[c.i] === f && kmBetween(c.i, i) <= K.STRIKE_KM);
+  E.blackoutAt = (f, r) => (S.blackout || []).some(b => b.f === f && b.r === r && b.until > S.simT);
+  function droneHit(cv) {
+    if (!S.drones || !S.drones.length || cv.e.temp) return;
+    for (const z of S.drones) {
+      if (z.f === cv.f || z.until <= S.simT || (cv.e.a !== z.i && cv.e.b !== z.i) || E.jammed(z.f, z.i)) continue;
+      const lost = Math.max(1, Math.round(cv.n * K.DRONE_LOSS)); cv.n = Math.max(1, cv.n - lost);
+      if (lost >= 3) emit({ k: 'drone_hit', f: z.f, victim: cv.f, city: z.i, lost, who: pubOf(cv.who) });
+      return;   // one zone per route is enough
+    }
+  }
+  function strike(f, i, who) {
+    if (E.jammed(f, i)) { emit({ k: 'strike_jammed', f, city: i, who: pubOf(who) }); return 'jammed'; }
+    if (E.aaCover(i, f) >= 0 && Math.random() < K.STRIKE_AA * (E.isNight && E.isNight(i) ? K.NIGHT_AA * 2 : 1)) { emit({ k: 'strike_down', f, city: i, who: pubOf(who) }); return 'down'; }
+    const r = cities[i].region, v = 1 - f;
+    S.blackout = (S.blackout || []).filter(b => !(b.f === v && b.r === r)); S.blackout.push({ f: v, r, until: S.simT + K.BLACKOUT_TIME, city: i });
+    emit({ k: 'blackout', f, victim: v, city: i, r, who: pubOf(who) }); return 'hit';
+  }
   E.aaCover = (i, attacker) => { const o = S.owner[i]; if (o < 0 || o === attacker) return -1; for (const h of hubs) if (S.owner[h] === o && kmBetween(h, i) <= K.AA_KM) return h; return -1; };
   E.canBlockade = (f, i) => cities[i].port && S.owner[i] === 1 - f && S.block[i] <= S.simT && adj[i].some(x => x.e.type === 1 && S.owner[x.to] === f);
   E.defOf = i => S.troops[i] * E.defMult(i);
@@ -312,6 +335,7 @@ export function createEngine(NET, opts = {}) {
     const sl = Math.cos(K.SAT_KM / 6371);
     for (const st of S.sats || []) if (st.f === f && st.until > S.simT) for (let i = 0; i < N; i++) if (!vis[i] && dot(cities[i].u, cities[st.i].u) > sl) vis[i] = 1;
     for (const sp of S.spies || []) if (sp.f === f && sp.until > S.simT) { vis[sp.i] = 1; for (const { to } of adj[sp.i]) vis[to] = 1; }
+    for (const z of S.drones || []) if (z.f === f && z.until > S.simT) { vis[z.i] = 1; for (const { to } of adj[z.i]) vis[to] = 1; }
     return vis;
   };
   E.nearOrder = (f, i) => S.orders[f] >= 0 && S.owner[i] !== f && (i === S.orders[f] || adj[i].some(x => x.to === S.orders[f]));
@@ -319,7 +343,7 @@ export function createEngine(NET, opts = {}) {
 
   // ---------- convoys ----------
   function launch(cv) { cv.id = convoySeq++; enterEdge(cv); S.convoys.push(cv); }
-  function enterEdge(cv) { const e = cv.es[cv.hop]; cv.e = e; cv.fwd = e.a === cv.nodes[cv.hop]; cv.t = 0; e.convoys.push(cv); if (S.fleets && S.fleets.length) interceptAtSea(cv); pirates(cv); }
+  function enterEdge(cv) { const e = cv.es[cv.hop]; cv.e = e; cv.fwd = e.a === cv.nodes[cv.hop]; cv.t = 0; e.convoys.push(cv); if (S.fleets && S.fleets.length) interceptAtSea(cv); pirates(cv); droneHit(cv); }
   E.pirateLane = e => e.type === 1 && !e.temp && (pirate.has(e.a) || pirate.has(e.b));
   E.escorted = (e, f) => (S.fleets || []).some(fl => fl.f === f && !fl.moving && (fl.at === e.a || fl.at === e.b));
   function pirates(cv) {
@@ -508,6 +532,18 @@ export function createEngine(NET, opts = {}) {
         const c = own.filter(i => E.fieldOk(f, i) && S.frontDist[i] <= 2); if (c.length) { const i = c[(Math.random() * c.length) | 0]; S.field[i] = 1; emit({ k: 'airfield', f, city: i, who: 'bot' }); return; } }
     } else if (r >= 0.158 && r < 0.17) { // a decoy at the enemy to draw their reserves
       const fr = own.filter(i => S.frontDist[i] === 0); if (fr.length) { const a = fr[(Math.random() * fr.length) | 0], t = adj[a].find(x => S.owner[x.to] === 1 - f); if (t) { send(f, a, t.to, S.troops[a] * 0.7, 'bot', null, 'decoy'); return; } }
+    }
+    if (r >= 0.17 && r < 0.2) {
+      const q = Math.random();
+      if (q < 0.55) { // drones over an enemy city on the front
+        const fr = []; for (let i = 0; i < N; i++) if (S.owner[i] === 1 - f && E.touchesNet(f, i)) fr.push(i);
+        if (fr.length && S.drones.filter(z => z.f === f && z.until > S.simT).length < K.DRONE_MAX) { const i = fr.reduce((a, b) => S.troops[b] > S.troops[a] ? b : a); if (!S.drones.some(z => z.f === f && z.i === i)) { S.drones.push({ f, i, until: S.simT + K.DRONE_TIME }); emit({ k: 'drones', f, city: i, who: 'bot' }); return; } }
+      } else if (q < 0.8) { // a dome over a megahub near enemy drones
+        const hub = own.filter(h => (S.drones || []).some(z => z.f !== f && z.until > S.simT && kmBetween(z.i, h) <= K.EW_KM * 0.6) && !(S.ew || []).some(d => d.f === f && d.until > S.simT && kmBetween(d.i, h) <= K.EW_KM)).sort((x, y) => S.troops[y] - S.troops[x])[0];
+        if (hub !== undefined) { S.ew.push({ f, i: hub, until: S.simT + K.EW_TIME }); emit({ k: 'ew', f, city: hub, who: 'bot' }); return; }
+      } else { // a long-range strike on an enemy megahub
+        const t = hubs.filter(h => E.strikeOk(f, h)); if (t.length) { strike(f, t[(Math.random() * t.length) | 0], 'bot'); return; }
+      }
     }
     if (r < 0.05) {
       let b = -1, bv = 0; for (let k = 0; k < 6; k++) { const i = own[(Math.random() * own.length) | 0]; if (S.frontDist[i] === 0 && S.fort[i] <= S.simT) { const v = K.VALUE[cities[i].tier] + (cities[i].cap >= 0 ? 5 : 0); if (v > bv) { bv = v; b = i; } } }
@@ -780,12 +816,13 @@ export function createEngine(NET, opts = {}) {
     }
     if (S.sats && S.sats.length && S.sats.some(x => x.until <= S.simT)) S.sats = S.sats.filter(x => x.until > S.simT);
     if (S.spies && S.spies.length && S.spies.some(x => x.until <= S.simT)) S.spies = S.spies.filter(x => x.until > S.simT);
+    for (const key of ['drones', 'ew', 'blackout']) if (S[key] && S[key].length && S[key].some(x => x.until <= S.simT)) { if (key === 'blackout') for (const b of S[key]) if (b.until <= S.simT) emit({ k: 'power_back', f: b.f, r: b.r }); S[key] = S[key].filter(x => x.until > S.simT); }
     chiefT -= dt; if (chiefT <= 0) { chiefT = 2; updateChief(0); updateChief(1); if (S.marks.length && S.marks.some(m => m.until <= S.simT)) S.marks = S.marks.filter(m => m.until > S.simT); }
     for (const p of players.values()) p.cp = Math.min(E.cpMax(p.f), p.cp + dt / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
     const mult = [E.grainMult(0), E.grainMult(1)], oil = [E.oilMult(0), E.oilMult(1)];
     for (let i = 0; i < N; i++) if (S.owner[i] >= 0 && S.supplied[i] && S.sab[i] <= S.simT && !(S.unrest[i] > S.simT)) {
       const c = cities[i], o = S.owner[i], tp = c.cap === o ? 3 : c.tier, cap = K.CAPT[tp] + (c.cap === o ? 120 : 0), rb = S.regionHeld[c.region] === o ? 1.3 : 1;
-      if (S.troops[i] < cap) S.troops[i] = Math.min(cap, S.troops[i] + (K.PROD[tp] + (c.cap === o ? 0.9 : 0)) * rb * S.mobil[o] * mult[o] * (S.exile[o] >= 0 ? K.EXILE_PROD : 1) * dt);
+      if (S.troops[i] < cap) S.troops[i] = Math.min(cap, S.troops[i] + (K.PROD[tp] + (c.cap === o ? 0.9 : 0)) * rb * S.mobil[o] * mult[o] * (S.exile[o] >= 0 ? K.EXILE_PROD : 1) * (S.blackout && S.blackout.length && E.blackoutAt(o, c.region) ? K.BLACKOUT_PROD : 1) * dt);
     }
     for (const cv of S.convoys) { if (!cv.alive) continue; cv.t += K.SPEED[cv.e.type] * (cv.e.storm ? K.STORM_SLOW : 1) * oil[cv.f] * kindOf(cv).speed * docSpeed(cv) * dt / cv.e.km; if (cv.t >= 1) { leaveEdge(cv); arrive(cv, cv.nodes[cv.hop + 1]); } }
     fightOnEdges();
@@ -968,6 +1005,26 @@ export function createEngine(NET, opts = {}) {
         S.marks.push({ f, i, kind, until: S.simT + 900 / 7, by: p.name });
         emit({ k: 'mark', f, city: i, kind, by: p.name, who: pubOf(pid) }); return { ok: true, sfx: 'fort' };
       }
+      case 'drones': {
+        if (!E.droneOk(f, i)) return fail('Drones fly over your own cities and the ones bordering your network');
+        if (p.cp < K.DRONE_COST) return fail(`Drones cost ${K.DRONE_COST} CP`);
+        if (S.drones.some(z => z.f === f && z.i === i && z.until > S.simT)) return fail('Drones already patrol there');
+        const mine = S.drones.filter(z => z.f === f && z.until > S.simT); if (mine.length >= K.DRONE_MAX) S.drones.splice(S.drones.indexOf(mine[0]), 1);
+        p.cp -= K.DRONE_COST; p.drones = (p.drones || 0) + 1;
+        S.drones.push({ f, i, until: S.simT + K.DRONE_TIME }); emit({ k: 'drones', f, city: i, by: p.name, who: pubOf(pid), jammed: E.jammed(f, i) }); return { ok: true, sfx: 'fort' };
+      }
+      case 'ew': {
+        if (!valid(i) || S.owner[i] !== f) return fail('Electronic warfare goes on your own city');
+        if (p.cp < K.EW_COST) return fail(`Electronic warfare costs ${K.EW_COST} CP`);
+        S.ew = S.ew.filter(d => !(d.f === f && d.i === i)); S.ew.push({ f, i, until: S.simT + K.EW_TIME });
+        p.cp -= K.EW_COST; emit({ k: 'ew', f, city: i, by: p.name, who: pubOf(pid) }); return { ok: true, sfx: 'fort' };
+      }
+      case 'strike': {
+        if (!E.strikeOk(f, i)) return fail(`Long-range drones hit large enemy cities and megahubs within ${K.STRIKE_KM.toLocaleString('en-US')} km`);
+        if (p.cp < K.STRIKE_COST) return fail(`A drone strike costs ${K.STRIKE_COST} CP`);
+        p.cp -= K.STRIKE_COST; p.strikes = (p.strikes || 0) + 1;
+        const out = strike(f, i, pid); return { ok: true, sfx: out === 'hit' ? 'win' : 'err', result: out };
+      }
       case 'satellite': {
         if (!valid(i)) return fail('Pick a point on the map');
         if (p.cp < E.satCost(f)) return fail(`A satellite pass costs ${E.satCost(f)} CP`);
@@ -1037,6 +1094,7 @@ export function createEngine(NET, opts = {}) {
     marks: (S.marks || []).filter(m => viewer < 0 || m.f === viewer),
     chief: [0, 1].map(f => { const p = E.chiefOf(f); return p ? { name: p.name, pub: p.pub, votes: E.votesFor(f, p.pub), rank: rankOf(p.xp || 0).name } : null; }),
     roster: viewer >= 0 ? humansOnline(viewer).map(p => ({ pub: p.pub, name: p.name, rank: rankOf(p.xp || 0).name, votes: E.votesFor(viewer, p.pub) })).sort((a, b) => b.votes - a.votes).slice(0, 40) : [],
+    drones: (S.drones || []).map(z => ({ f: z.f, i: z.i, until: +z.until.toFixed(1) })), ew: (S.ew || []).map(d => ({ f: d.f, i: d.i, until: +d.until.toFixed(1) })), blackout: S.blackout || [],
     sats: (S.sats || []).filter(x => viewer < 0 || x.f === viewer), spies: (S.spies || []).filter(x => viewer < 0 || x.f === viewer),
     favour: (S.favour || []).map(x => [Math.round(x[0]), Math.round(x[1])]),
     fleets: S.fleets.filter(fl => !vis || fl.f === viewer || (fl.at >= 0 ? vis[fl.at] : (vis[fl.moving.es[fl.moving.hop].a] || vis[fl.moving.es[fl.moving.hop].b]))).map(fl => ({ id: fl.id, f: fl.f, str: Math.round(fl.str), at: fl.at, who: pubOf(fl.who), mv: fl.moving ? { es: fl.moving.es.map(e => e.i), nodes: fl.moving.nodes, hop: fl.moving.hop, t: +fl.moving.t.toFixed(4) } : null })),
@@ -1061,6 +1119,7 @@ export function createEngine(NET, opts = {}) {
     S.penalty = snap.penalty || [0, 0]; S.strikes = snap.strikes || 0; S.winter = !!snap.winter; S.rage = snap.rage || [0, 0];
     if (snap.nuke) S.nuke = snap.nuke;
     if (snap.favour) S.favour = snap.favour;
+    S.drones = snap.drones || []; S.ew = snap.ew || []; S.blackout = snap.blackout || [];
     S.gev = snap.gev || null; S.capHold = snap.capHold || [null, null]; S.doctrine = snap.doctrine || [null, null]; S.exile = snap.exile || [-1, -1]; S.rail = new Uint8Array(edges.length); for (const k of snap.rail || []) S.rail[k] = 1; S.field = new Uint8Array(N); for (const k of snap.field || []) S.field[k] = 1; S.unrest = new Float32Array(N); for (const [k, v] of snap.unrest || []) S.unrest[k] = v; S.weather = snap.weather || []; S.scenario = snap.scenario || 'classic'; if (snap.caps) E.applyCaps(snap.caps); S.gov = new Array(N).fill(''); for (const [k, n] of snap.gov || []) S.gov[k] = n; S.ops = snap.ops || [null, null]; S.ships = (snap.ships || []).map(([id, e, fwd, t]) => ({ id, e, fwd: !!fwd, t })); S.opPts = snap.opPts || [0, 0]; S.tradePts = snap.tradePts || [0, 0]; S.cos = snap.cos || {}; S.marks = snap.marks || []; S.chiefInfo = snap.chief || [null, null]; S.roster = snap.roster || []; S.sats = snap.sats || []; S.spies = snap.spies || [];
     S.fleets = (snap.fleets || []).map(x => ({ id: x.id, f: x.f, str: x.str, at: x.at, who: x.who, moving: x.mv ? { es: x.mv.es.map(k => edges[k]), nodes: x.mv.nodes, hop: x.mv.hop, t: x.mv.t } : null }));
     const oldM = new Map((S.missiles || []).map(m => [m.id, m])); S.missiles = (snap.missiles || []).map(m => { const o = oldM.get(m.id); if (o && Math.abs(o.t - m.t) < 0.05) m.t = o.t; return m; });
@@ -1086,7 +1145,7 @@ export function createEngine(NET, opts = {}) {
   E.save = () => ({
     v: 1, S: { simT: S.simT, season: S.season, ended: S.ended, owner: Array.from(S.owner), troops: Array.from(S.troops), fort: Array.from(S.fort), sab: Array.from(S.sab), hold: Array.from(S.hold),
       heat: Array.from(S.heat), regionHeld: S.regionHeld, mobil: S.mobil, orders: S.orders, history: S.history, frames: S.frames, cmdr: S.cmdr,
-      block: Array.from(S.block), blockBy: Array.from(S.blockBy), storms: S.storms, rad: Array.from(S.rad), penalty: S.penalty, rage: S.rage, strikes: S.strikes, winter: S.winter, nuke: S.nuke, favour: S.favour, gev: S.gev, marks: S.marks, sats: S.sats, spies: S.spies, gevDay: S.gevDay, gevUsed: S.gevUsed, missiles: S.missiles, capHold: S.capHold, doctrine: S.doctrine, exile: S.exile, rail: Array.from(S.rail), field: Array.from(S.field), unrest: Array.from(S.unrest), weather: S.weather, scenario: S.scenario, caps: CAPS.slice(), gov: S.gov, capBy: S.capBy, capAt: Array.from(S.capAt), ops: S.ops, opPts: S.opPts, tradePts: S.tradePts, ships: S.ships, scars: S.scars, scarUntil: S.scarUntil, fleets: S.fleets.map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(e => e.i) } : null })) },
+      block: Array.from(S.block), blockBy: Array.from(S.blockBy), storms: S.storms, rad: Array.from(S.rad), penalty: S.penalty, rage: S.rage, strikes: S.strikes, winter: S.winter, nuke: S.nuke, favour: S.favour, gev: S.gev, marks: S.marks, drones: S.drones, ew: S.ew, blackout: S.blackout, sats: S.sats, spies: S.spies, gevDay: S.gevDay, gevUsed: S.gevUsed, missiles: S.missiles, capHold: S.capHold, doctrine: S.doctrine, exile: S.exile, rail: Array.from(S.rail), field: Array.from(S.field), unrest: Array.from(S.unrest), weather: S.weather, scenario: S.scenario, caps: CAPS.slice(), gov: S.gov, capBy: S.capBy, capAt: Array.from(S.capAt), ops: S.ops, opPts: S.opPts, tradePts: S.tradePts, ships: S.ships, scars: S.scars, scarUntil: S.scarUntil, fleets: S.fleets.map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(e => e.i) } : null })) },
     conv: S.convoys.map(c => ({ kind: c.kind, f: c.f, n: c.n, es: c.drop ? null : c.es.map(x => x.i), drop: c.drop ? [c.es[0].a, c.es[0].b] : null, nodes: c.nodes, hop: c.hop, t: c.t, who: c.who })),
     inner: { orderUntil, botAcc, nextSupply, nextBotOrder, nextHist, nextStorm, heroes, convoySeq, bots: E.bots },
     players: [...players.values()].map(p => { const { online, ...rest } = p; return rest; }),
@@ -1098,6 +1157,7 @@ export function createEngine(NET, opts = {}) {
     S.owner = Int8Array.from(s.owner); S.troops = Float32Array.from(s.troops); S.fort = Float32Array.from(s.fort); S.sab = Float32Array.from(s.sab); S.hold = s.hold ? Float32Array.from(s.hold) : new Float32Array(N);
     S.rad = Uint8Array.from(s.rad || new Array(N).fill(0)); S.penalty = s.penalty || [0, 0]; S.rage = s.rage || [0, 0]; S.strikes = s.strikes || 0; S.winter = !!s.winter;
     S.nuke = s.nuke || [0, 1].map(() => ({ prog: 0, ready: false, used: false, arm: null })); S.missiles = s.missiles || []; S.capHold = s.capHold || [null, null]; S.doctrine = s.doctrine || [null, null]; S.exile = s.exile || [-1, -1]; S.rail = s.rail && s.rail.length === edges.length ? Uint8Array.from(s.rail) : new Uint8Array(edges.length); S.field = s.field ? Uint8Array.from(s.field) : new Uint8Array(N); S.unrest = s.unrest ? Float32Array.from(s.unrest) : new Float32Array(N); S.weather = s.weather || []; S.scenario = s.scenario || 'classic'; if (s.caps) E.applyCaps(s.caps); S.gov = s.gov || new Array(N).fill(''); S.capBy = s.capBy || new Array(N).fill(''); S.capAt = s.capAt ? Float32Array.from(s.capAt) : new Float32Array(N); S.ops = s.ops || [null, null]; S.opPts = s.opPts || [0, 0]; S.tradePts = s.tradePts || [0, 0]; S.ships = s.ships || []; S.scars = s.scars || []; S.scarUntil = s.scarUntil || 0;
+    S.drones = s.drones || []; S.ew = s.ew || []; S.blackout = s.blackout || [];
     S.gev = s.gev || null; S.marks = s.marks || []; S.sats = s.sats || []; S.spies = s.spies || []; S.gevDay = s.gevDay || 0; S.gevUsed = s.gevUsed || [];
     S.favour = s.favour || Array.from({ length: NN }, () => [0, 0]);
     S.fleets = (s.fleets || []).map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(k => edges[k]) } : null }));
