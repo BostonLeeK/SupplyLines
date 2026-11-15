@@ -138,7 +138,7 @@ let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); s
 
 // ---------- static files ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const PUBLIC = new Set(['/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
+const PUBLIC = new Set(['/icons.js', '/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
 // static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
 const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
 function cachedFile(p) {

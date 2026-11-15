@@ -46,7 +46,7 @@
     var t = dict[norm(core)]; return t === undefined ? null : m[1] + t + m[3];
   }
   function tr(s, depth) {
-    if (lang === 'en' || !s || !/[A-Za-z]/.test(s)) return s;
+    if (lang === 'en' || !s || !/[A-Za-z]/.test(s)) return s;   // (icons are swapped in after this, in English too)
     var hit = cache.get(s); if (hit !== undefined) return hit;
     var m = s.match(/^(\s*)([\s\S]*?)(\s*)$/), core = m[2], out = null, t = dict[norm(core)];
     if (t !== undefined) out = m[1] + t + m[3];
@@ -71,10 +71,29 @@
   var SKIP = { SCRIPT: 1, STYLE: 1, TEXTAREA: 1, INPUT: 1, CODE: 1, PRE: 1, NOSCRIPT: 1 };
   function skip(el) { return !el || SKIP[el.nodeName] || (el.closest && el.closest('[translate="no"],.notr')); }
   function text(n) {
+    if (n.__eiGen) return;                                      // a piece we split off ourselves
     var v = n.nodeValue; if (n.__slOut === v) return;          // our own last write
-    if (skip(n.parentNode)) return;
+    if (skip(n.parentNode)) { if (n.parentNode && !SKIP[n.parentNode.nodeName]) iconize(n); return; }   // untranslated text still gets icons
     originals.set(n, v);
     var t = tr(v); n.__slOut = t; if (t !== v) n.nodeValue = t;
+    iconize(n);
+  }
+  // emoji → line icons (icons.js): the node keeps the text before the first emoji, the rest follows as icon + text pieces
+  var NOICON = { OPTION: 1, TITLE: 1, TEXTAREA: 1 };
+  function iconize(n) {
+    var I = window.slIcons; if (!I) return;
+    if (n.__eiParts) { for (var k = 0; k < n.__eiParts.length; k++) { var x = n.__eiParts[k]; if (x.parentNode) x.parentNode.removeChild(x); } n.__eiParts = null; }
+    var v = n.nodeValue, p = n.parentNode; if (!v || !p || !I.test(v)) return;
+    if (NOICON[p.nodeName] || p.namespaceURI === 'http://www.w3.org/2000/svg') { var st = I.strip(v); n.__slOut = st; n.nodeValue = st; return; }
+    var bits = I.split(v), made = [], after = n.nextSibling;
+    n.__slOut = bits[0]; n.nodeValue = bits[0];
+    for (var i = 1; i < bits.length; i++) {
+      var el;
+      if (i % 2) { el = document.createElement('span'); el.className = 'eiw'; el.innerHTML = I.markup(bits[i]); }
+      else { if (!bits[i]) continue; el = document.createTextNode(bits[i]); el.__eiGen = true; }
+      p.insertBefore(el, after); made.push(el);
+    }
+    n.__eiParts = made;
   }
   var ATTRS = ['title', 'placeholder', 'aria-label'];
   function attrs(el) {
@@ -82,7 +101,7 @@
     for (var i = 0; i < ATTRS.length; i++) {
       var a = ATTRS[i], v = el.getAttribute && el.getAttribute(a); if (!v) continue;
       var key = '__sl_' + a; if (el[key] === v) continue;
-      el[key + '_en'] = v; var t = tr(v); el[key] = t; if (t !== v) el.setAttribute(a, t);
+      el[key + '_en'] = v; var t = tr(v); if (window.slIcons && window.slIcons.test(t)) t = window.slIcons.strip(t); el[key] = t; if (t !== v) el.setAttribute(a, t);
     }
   }
   function walk(root) {
