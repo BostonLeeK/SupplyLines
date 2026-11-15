@@ -26,7 +26,7 @@
  "Convoy": "Конвой",
  "ALL": "УСЕ",
  "SPY": "АГЕНТ",
- "free": "безкоштовно",
+ "free": "без ОД",
  "Right now: air-raid alert in": "Просто зараз: повітряна тривога в",
  "regions of Ukraine. Are you sure you are ready for a real war?": "областях України. Ти точно готовий(-а) до справжньої війни?",
  "Are you sure you are ready for a real war?": "Ти точно готовий(-а) до справжньої війни?",
@@ -164,5 +164,7 @@
  "The world server is offline": "Сервер світу недоступний",
  "Supply Lines is a free browser game. Open the page and you are on the front line: no sign-up.": "Supply Lines — безкоштовна браузерна гра. Відкрий сторінку — і ти вже на передовій, без реєстрації.",
  "Play now": "Грати",
- "Connecting…": "Підключення…"
+ "Connecting…": "Підключення…",
+ "Outnumber the garrison": "Будь сильнішим за гарнізон",
+ "More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.": "Хто приведе більше військ, ніж у захисників, той і забирає місто. Міста, відрізані від столиці й мегахабів, перестають виробляти війська."
 }

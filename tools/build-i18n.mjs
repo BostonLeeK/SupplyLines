@@ -21,6 +21,8 @@ for (const f of ['tools/i18n-base-uk.json', 'tools/i18n-uk.json', 'tools/i18n-ex
   ua.forEach((name, i) => { const en = NET.cities[i] && NET.cities[i][0]; if (en && !dict[en]) dict[en] = name.replace('ʼ', '’'); });
 }
 
+// house style: «росія» and «московія» are written in lower case
+for (const k of Object.keys(dict)) dict[k] = dict[k].replace(/Росі(я|ї|ю|єю)/g, 'росі$1').replace(/Москові(я|ї|ю|єю)/g, 'москові$1');
 // sentence templates: every template literal, split at HTML tags (each piece becomes its own text node)
 const pat = [], seen = new Set();
 for (const f of ['index.html', 'world.html', 'game/engine.js', 'server/server.mjs']) {

@@ -309,7 +309,7 @@ body.replay #rpCap{display:block} #rpCap{display:none}
 #regions .note{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.35}
 
 /* bottom bar */
-#bottom{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(1120px,calc(100% - 520px));min-width:0}
+#bottom{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:4;display:flex;flex-direction:column;align-items:center;gap:8px;width:min(1120px,calc(100% - 2 * var(--cw, 330px) - 60px));min-width:0}
 #hint{font-weight:700;font-size:13px;padding:7px 14px;background:rgba(5,8,13,.78);border-radius:20px;text-align:center}
 .k{display:inline-block;font:700 10px/1 var(--disp);border:1px solid var(--faint);border-radius:3px;padding:3px 5px;margin:0 2px;color:var(--dim)}
 #cmd{display:flex;align-items:stretch;background:var(--plate);border:1px solid var(--edge);border-radius:8px;width:100%;overflow:hidden}
@@ -518,7 +518,7 @@ body.intro #top,body.intro #feed,body.intro #bottom,body.intro #corner,body.intr
 #top,#feed,#bottom,#corner,#labels,#leftcol{transition:opacity .5s}
 body.online #simCtl,body.online #speedBtn{display:none}
 @media (max-width:1500px){
-  #bottom{width:min(1120px,calc(100% - 600px))}
+  #bottom{left:264px;transform:none;width:calc(100% - 264px - var(--cw, 330px) - 30px)}
   .ab .lb{display:none} .ab{padding:6px 2px;gap:3px} .ab svg{width:19px;height:19px}
 }
 @media (max-height:860px){
@@ -2162,7 +2162,9 @@ function initFolds() {
     box.querySelector('.cap.fold').addEventListener('click', e => { if (e.target.closest('button')) return; box.classList.toggle('folded'); saved[id] = box.classList.contains('folded'); try { localStorage.setItem('sl-folds', JSON.stringify(saved)); } catch (e2) {} });
   }
 }
+function fitCorner() { const w = Math.round($('corner').getBoundingClientRect().width); if (w && w !== fitCorner.w) { fitCorner.w = w; document.documentElement.style.setProperty('--cw', w + 'px'); } }
 function fitLeftcol() {
+  fitCorner();
   if (innerWidth <= 1100) return; const lc = $('leftcol'), evs = [...$('feed').children].filter(e => e.offsetParent), fb = evs.length ? Math.max(...evs.map(e => e.getBoundingClientRect().bottom)) : 0;
   const mh = Math.max(220, innerHeight - Math.max(14, fb) - 30) + 'px'; if (lc.style.maxHeight !== mh) lc.style.maxHeight = mh;
 }
