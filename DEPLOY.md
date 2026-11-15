@@ -50,6 +50,7 @@ HOST_PORT=5177
 SIM_SPEED=0.125
 BOTS=120
 VAPID_SUBJECT=mailto:you@your-domain
+STATS_KEY=some-long-random-string
 ```
 
 `SIM_SPEED` sets the pace: at `0.125` (the default) a season lasts 2 hours of real time, at `1` 15 minutes, at `0.0104` a full day. `CP_SECONDS` (default `45`) is how many real seconds one command point takes to refill, so a longer season does not starve players of CP.
@@ -112,6 +113,13 @@ curl -sI https://ubilling.net.ua/aerialalerts/
 ```
 
 If that fails too, point `ALERTS_URL` in `.env` to a mirror or a small proxy you run elsewhere that returns the same JSON, then `docker compose up -d`.
+
+## Stats, errors, health and backups
+
+- **Stats:** open `https://globalwar.xyz/stats?key=YOUR_KEY` after setting `STATS_KEY=YOUR_KEY` in `.env` (any long random string). It shows, per day: page loads, unique visitors, how many pressed PLAY, played 5+ minutes and came back, plus JS errors. No cookies are set and no IP addresses are stored: a visitor is recognised for one day through a hash with a random salt that lives only in memory.
+- **Errors from players' browsers** are written to `errors.log` in the data volume: `docker compose exec game tail -n 50 /data/errors.log`.
+- **Health:** `/healthz` returns the season, players online and uptime. Docker uses it as a healthcheck, so `docker compose ps` shows `healthy`; point any uptime monitor (UptimeRobot and similar) at it.
+- **Backups:** once a day the server copies the world, players, squads, archive, accounts, stats and the VAPID key into `/data/backups/YYYY-MM-DD/` and keeps 14 days. These protect against a broken save, not against losing the disk, so also copy the volume off the server now and then (see Logs and backups).
 
 ## Updating
 

@@ -15,6 +15,7 @@ services:
       - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@example.com}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - ALERTS_URL=${ALERTS_URL:-}
+      - STATS_KEY=${STATS_KEY:-}
     volumes:
       - game-data:/data
   # A separate world where a season lasts about 30 minutes (SIM_SPEED 0.5). Proxy /fast/ to it and set FAST_URL=/fast/
@@ -32,6 +33,7 @@ services:
       - MAIN_URL=${MAIN_URL:-/}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - ALERTS_URL=${ALERTS_URL:-}
+      - STATS_KEY=${STATS_KEY:-}
     volumes:
       - fast-data:/data
 volumes:

@@ -14,6 +14,7 @@ import { WebSocketServer } from 'ws';
 import webpush from 'web-push';
 import { createEngine, K, FN, REGIONS, GEVENTS, SCENARIOS, rankOf } from '../game/engine.js';
 import { createWire } from './wire.mjs';
+import { createOps } from './ops.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = +process.env.PORT || 5177;
@@ -70,7 +71,7 @@ if (!(world && E.load(world))) { prepareSeason(); E.reset(); }
 if (world && E.S.simT > 0) loadSavedPlayers(), console.log(`Resumed season at day ${Math.floor(E.S.simT / K.SEASON * 7) + 1} with ${E.players.size} players`);
 const saveWorld = () => writeJson('world.json', E.save());
 setInterval(saveWorld, 15000);
-for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { saveWorld(); savePlayers(); process.exit(0); });
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { saveWorld(); savePlayers(); ops.saveStats(); process.exit(0); });
 const archive = readJson('archive.json', []);
 // ---------- real war: live public data, cached ----------
 const realWar = { alerts: null, alertsAt: 0, staff: null, staffAt: 0, alertsErr: null, staffErr: null };
@@ -137,7 +138,7 @@ let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); s
 
 // ---------- static files ----------
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const PUBLIC = new Set(['/og.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
+const PUBLIC = new Set(['/i18n.js', '/i18n-uk.js', '/og.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
 // static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
 const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
 function cachedFile(p) {
@@ -157,8 +158,11 @@ function sendPacked(req, res, type, body, extra = {}) {
   if (buf.length > 1024 && /\bgzip\b/.test(ae)) { res.writeHead(200, { ...head, 'content-encoding': 'gzip' }); return res.end(zlib.gzipSync(buf)); }
   res.writeHead(200, head); res.end(buf);
 }
+// error reports, stats, health check, backups
+const ops = createOps({ DATA, getHealth: () => ({ season, simT: Math.round(E.S.simT), ended: !!E.S.ended, online: humansOnline(), players: E.players.size, uptime: Math.round(process.uptime()) }) });
 const server = http.createServer((req, res) => {
-  let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
+  let p; try { p = decodeURIComponent(req.url.split('?')[0]); } catch { res.writeHead(400); return res.end(); } if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
+  if (ops.handle(req, res, p)) return;
   if (p === '/world.json') return sendPacked(req, res, 'application/json', JSON.stringify(worldState()), { 'cache-control': 'no-cache', 'access-control-allow-origin': '*' });
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
   if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 15 * 60e3 ? realWar.alerts : null, staff: realWar.staff, status: { alerts: realWar.alertsErr ? 'error: ' + realWar.alertsErr : realWar.alertsAt ? 'ok' : 'loading', staff: realWar.staffErr ? 'error: ' + realWar.staffErr : realWar.staffAt ? 'ok' : 'loading' } })); }

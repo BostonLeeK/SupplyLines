@@ -2,6 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+// error reports and privacy-friendly stats (no cookies; the "came back" flag lives only in this browser)
+(function () {
+  var sent = 0, seen = {}, beacon = function (url, o) { try { navigator.sendBeacon(url, JSON.stringify(o)); } catch (e) {} };
+  function report(msg, src, line, col, stack) { msg = String(msg || 'unknown error'); if (sent >= 5 || seen[msg]) return; seen[msg] = 1; sent++; beacon('/api/err', { msg: msg, src: String(src || '').split('/').pop(), line: line || 0, col: col || 0, stack: String(stack || ''), page: location.pathname, v: '1' }); }
+  addEventListener('error', function (e) { var t = e.target; if (t && t !== window && (t.src || t.href)) return report('failed to load ' + (t.src || t.href)); report(e.message, e.filename, e.lineno, e.colno, e.error && e.error.stack); }, true);
+  addEventListener('unhandledrejection', function (e) { var r = e.reason; report('unhandled promise: ' + (r && r.message || r), '', 0, 0, r && r.stack); });
+  window.slStat = function (e) { beacon('/api/ev', { e: e }); };
+  slStat('visit');
+  try { var d = new Date().toISOString().slice(0, 10), first = localStorage.getItem('sl-first'), last = localStorage.getItem('sl-last');
+    if (!first) localStorage.setItem('sl-first', d); else if (last !== d) slStat('return');
+    localStorage.setItem('sl-last', d); } catch (e) {}
+})();
+</script>
+<script src="i18n-uk.js"></script>
+<script src="i18n.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Supply Lines</title>
 <link rel="manifest" href="manifest.json">
@@ -236,16 +252,34 @@ body.online #squad{display:block}
 .ping .ring{position:absolute;bottom:-14px;width:30px;height:30px;border-radius:50%;border:2px solid currentColor;animation:pulse 1.4s ease-out infinite;opacity:.8}
 @keyframes bob{50%{transform:translateY(-4px)}} @keyframes pulse{from{transform:scale(.4);opacity:.9}to{transform:scale(1.6);opacity:0}}
 /* replay */
-#replayBar{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:9;width:min(620px,calc(100% - 28px));background:var(--plate);border:1px solid var(--edge);border-radius:8px;padding:12px 14px;display:none}
+#replayBar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9;width:min(760px,calc(100% - 28px));background:rgba(9,14,22,.94);border:1px solid var(--edge);border-radius:10px;padding:12px 14px 10px;display:none}
 body.replay #replayBar{display:block}
 body.replay #top,body.replay #feed,body.replay #bottom,body.replay #leftcol,body.replay #card,body.replay #tip,body.replay #drawer{display:none!important}
 body.replay .lbl .n{display:none}
-#replayBar .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-#replayBar .t{font:700 13px/1.2 var(--disp)}
-#replayBar .track{height:6px;background:#18222e;border-radius:3px;overflow:hidden;margin-top:10px;display:flex}
-#replayBar .track i{display:block;height:100%}
-#replayBar .prog{height:2px;background:#18222e;margin-top:6px} #replayBar .prog i{display:block;height:100%;background:var(--ink)}
-/* share & archive */
+#replayBar .rpRow{display:flex;align-items:center;gap:10px}
+#replayBar .t{font:700 12px/1.2 var(--disp);letter-spacing:.08em}
+#replayBar .rpDay{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+#replayBar .rpScore{margin-left:auto;font:800 13px/1 var(--disp);font-variant-numeric:tabular-nums}
+.rpBtn{width:34px;height:30px;display:flex;align-items:center;justify-content:center;background:#18222e;border:1px solid var(--edge);border-radius:6px;color:var(--ink);font:700 11px/1 var(--disp);cursor:pointer}
+.rpBtn:hover{border-color:var(--dim)} .rpBtn svg{width:14px;height:14px}
+#rpSpeed{width:40px}
+.rpChart{position:relative;height:64px;margin-top:10px;border-radius:6px;background:#070b11;cursor:pointer;overflow:hidden}
+.rpChart svg{position:absolute;inset:0;width:100%;height:100%}
+#rpHead{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink);box-shadow:0 0 8px rgba(255,255,255,.5);pointer-events:none}
+.rpHint{margin-top:6px;font-size:10.5px;color:var(--mut);text-align:center}
+#rpCap{position:fixed;left:50%;top:70px;transform:translateX(-50%) translateY(-6px);z-index:9;text-align:center;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;max-width:calc(100% - 28px)}
+#rpCap.on{opacity:1;transform:translateX(-50%)}
+#rpCap small{display:block;font:700 11px/1 var(--disp);letter-spacing:.14em;color:var(--dim);margin-bottom:8px}
+#rpCap span{font:800 26px/1.15 var(--disp);text-shadow:0 2px 18px rgba(0,0,0,.8)}
+body.replay #rpCap{display:block} #rpCap{display:none}
+@media (max-width:700px){ #rpCap span{font-size:18px} .rpHint{display:none} #replayBar .rpDay{display:none} }
+.novHide{display:none!important}
+#corner .langBtn{font:800 11px/1 var(--disp);letter-spacing:.04em;width:auto;padding:0 10px}
+.ab.newab{animation:newab 1.2s ease-in-out 4}
+@keyframes newab{50%{box-shadow:inset 0 0 0 2px var(--cp);color:var(--cp)}}
+#hint .goal{color:var(--cp);font-weight:700;margin-left:6px;white-space:nowrap}
+.allCtl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);margin:6px 0 10px;cursor:pointer}
+/* share & archive *//* share & archive */
 #share,#archive{z-index:12;background:rgba(5,8,13,.97)}
 #shareCv{width:100%;border-radius:8px;border:1px solid var(--edge);display:block}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
@@ -365,7 +399,17 @@ input[type=range]{accent-color:var(--ink)}
 .ab.nuke{color:#d7e66a} .ab.nuke .cost{color:#d7e66a}
 .ab.nuke.ready{animation:nukeGlow 1.2s ease-in-out infinite}
 @keyframes nukeGlow{50%{background:rgba(215,230,106,.18)}}
-#nukePanel{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);width:min(420px,calc(100% - 28px));z-index:8;background:var(--plate);border:1px solid #4a5222;border-radius:10px;padding:14px 16px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#nukeDock{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:5}
+#nukeDock .ab.nuke{position:relative;width:70px;height:70px;padding:0;border-radius:50%;border:0;background:radial-gradient(circle,#141a12 58%,transparent 59%),conic-gradient(#d7e66a var(--p,0deg),#26301a 0);box-shadow:0 6px 20px rgba(0,0,0,.5);flex:none;gap:2px;overflow:visible}
+#nukeDock .ab.nuke svg{width:22px;height:22px}
+#nukeDock .ab.nuke .lb{display:none!important}
+#nukeDock .ab.nuke .cost{font:800 10px/1 var(--disp)}
+#nukeDock .ab.nuke .hk{top:auto;bottom:-16px;right:50%;transform:translateX(50%);color:var(--mut)}
+#nukeDock .ab.nuke:hover{filter:brightness(1.2)}
+#nukeDock .ab.nuke.used{opacity:.45}
+@media (max-width:700px){ #nukeDock{right:10px;top:44%} #nukeDock .ab.nuke{width:58px;height:58px} #nukeDock .ab.nuke svg{width:18px;height:18px} #nukePanel{left:14px;right:14px;width:auto;top:auto;bottom:170px;transform:none} }
+body.intro #nukeDock{opacity:0;pointer-events:none} body.replay #nukeDock{display:none}
+#nukePanel{position:fixed;right:98px;top:50%;transform:translateY(-50%);width:min(420px,calc(100% - 28px));z-index:8;background:var(--plate);border:1px solid #4a5222;border-radius:10px;padding:14px 16px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 #nukePanel.open{display:block}
 #nukePanel h3{margin:0 0 10px;font:800 13px/1 var(--disp);letter-spacing:.12em;color:#d7e66a;display:flex;justify-content:space-between}
 #nukePanel .bar2{height:10px;background:#18222e;border-radius:3px;overflow:hidden;margin:6px 0 4px} #nukePanel .bar2 i{display:block;height:100%;background:#d7e66a}
@@ -551,7 +595,9 @@ body.online #simCtl,body.online #speedBtn{display:none}
   </div>
 </div>
 
+<div id="nukeDock"></div>
 <div id="corner">
+  <button class="ic notr langBtn" id="langBtn" title="Мова / Language">UA</button>
   <button class="ic rwBtn" id="realBtn" title="Are you sure you are ready for a real war?">REAL WAR</button>
   <button class="ic" id="speedBtn" title="Speed (Space pauses)">×1</button>
   <button class="ic" id="gearBtn" title="Menu: general, squad, missions, world"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
@@ -562,6 +608,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 </div>
 <div id="drawer">
   <div id="drawerPanels"></div>
+  <label class="allCtl"><input type="checkbox" id="allCtl"> Show all controls (skip the step-by-step start)</label>
   <h3>WORLD</h3><div id="netInfo" style="font-size:12px;color:var(--dim);margin-bottom:6px"></div><div id="simCtl">
   <div class="r"><span>Atlantica players <b id="bAv"></b></span><input type="range" id="bA" min="0" max="1000" step="10" value="120"></div>
   <div class="r"><span>Pacifica players <b id="bBv"></b></span><input type="range" id="bB" min="0" max="1000" step="10" value="120"></div>
@@ -573,8 +620,13 @@ body.online #simCtl,body.online #speedBtn{display:none}
 </div>
 
 <div id="card"></div>
-<div id="replayBar"><div class="row"><span class="t" id="rpTitle">REPLAY</span><span class="team" id="rpDay" style="font-size:12px"></span><button class="btn2" id="rpExit">EXIT</button></div>
-  <div class="track"><i id="rpA" style="background:var(--a)"></i><i id="rpN"></i><i id="rpB" style="background:var(--b);margin-left:auto"></i></div><div class="prog"><i id="rpP"></i></div></div>
+<div id="rpCap"><small id="rpCapDay"></small><span id="rpCapTxt"></span></div>
+<div id="replayBar">
+  <div class="rpRow"><span class="t" id="rpTitle">REPLAY</span><span class="rpDay" id="rpDay"></span><span class="rpScore" id="rpScore"></span>
+    <button class="rpBtn" id="rpPlay" title="Play / pause (Space)"></button><button class="rpBtn" id="rpSpeed" title="Speed">1×</button><button class="btn2" id="rpExit">EXIT</button></div>
+  <div class="rpChart" id="rpChart"><svg id="rpSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg><i id="rpHead"></i></div>
+  <div class="rpHint">Click the chart to jump · Space pause · ← → step · Esc exit</div>
+</div>
 <div id="coach"></div><div id="coachRing"></div><div id="coachDrag">👆</div>
 <div id="nukePanel"></div>
 <div id="nukeBanner"></div>
@@ -639,7 +691,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
       <b>Outnumber the garrison</b><span>More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.</span></div>
   </div>
   <div class="foot"><div><div class="team" id="assign"></div><div class="team" id="netStatus" style="font-size:12px;margin-top:6px;color:var(--dim)"></div><div class="gAuth" id="gAuthIntro"></div></div><button class="play" id="go">PLAY</button></div>
-  <div class="introLinks"><button class="btn2" id="manualBtn" type="button">FIELD MANUAL</button><button class="btn2" id="tutAgain" type="button">REPLAY TUTORIAL</button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a><a class="btn2" id="roomLink" href="#" title="A separate world where a season lasts about half an hour. Handy for a quick test; it does not count for the main war." style="text-decoration:none;display:none">QUICK 30-MIN ROOM ↗</a></div>
+  <div class="introLinks"><button class="btn2" id="manualBtn" type="button">FIELD MANUAL</button><button class="btn2" id="tutAgain" type="button">REPLAY TUTORIAL</button><button class="btn2 notr" id="langIntro" type="button"></button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a><a class="btn2" id="roomLink" href="#" title="A separate world where a season lasts about half an hour. Handy for a quick test; it does not count for the main war." style="text-decoration:none;display:none">QUICK 30-MIN ROOM ↗</a></div>
 </div></div>
 <div class="modal hidden" id="end"><div class="sheet" id="endC"></div></div>
 
@@ -1095,7 +1147,9 @@ function toast(html, kind = 'info', city = -1) {
   if (kind === 'bad') { const h = $('hint'); h.classList.add('flash'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.remove('flash'), 1600); }
 }
 // meta: { city, ok } describes where to show the result and what to say on success
+const ABILITY_CMDS = new Set(['fortify', 'sabotage', 'airdrop', 'blockade', 'satellite', 'spy', 'envoy', 'rally', 'fleet_build', 'build']);
 function act(cmd, meta = {}) {
+  if (ABILITY_CMDS.has(cmd.type)) nov.used = true;
   if (online) { if (ws && ws.readyState === 1) { const id = reqId++; pending.set(id, meta); ws.send(JSON.stringify({ type: 'cmd', id, cmd })); } else toast('Not connected to the server', 'bad'); return; }
   onResult(E.command('me', cmd), meta);
 }
@@ -1116,7 +1170,7 @@ function onGameEvent(ev) {
   const c = ev.city >= 0 ? cities[ev.city] : null, mine = ev.who === myId;
   switch (ev.k) {
     case 'start': feedEl.innerHTML = ''; $('end').classList.add('hidden'); select(-1); event(`Season ${ev.season || ''} started. ${FN[0]} holds ${cities[CAPS[0]].name}, ${FN[1]} holds ${cities[CAPS[1]].name}.`); break;
-    case 'capture':
+    case 'capture': if (ev.who === myId && cities[ev.city] && cities[ev.city].tier >= 2) nov.big = true;
       if (tut && ev.who === myId) tut.captured = true;
       blast(ev.city, ev.f, true); sparks(ev.city, ev.f);
       if (mine) sfx('win'); else if (ev.prev === me && c.tier >= 2) sfx('lose');
@@ -1504,6 +1558,36 @@ function updateCard() {
     <div class="sub" style="margin-top:8px;color:var(--ink)">${mode === 'airdrop' ? `Airdrop sends ${Math.floor(Math.min(E.dropCap(me), troops[selected] - 1))} troops` : `Convoy sends ${E.sendAmount(selected, selected, null, pct)} troops`}</div>`;
   card.style.display = 'block';
 }
+// ================= new players: abilities open up step by step =================
+const NOVICE = [
+  { goal: () => ({ text: 'take 3 cities', n: Math.min(3, myStats().caps || 0), of: 3 }), open: ['abFort', 'abRally'], after: 180 },
+  { goal: () => ({ text: 'take a large city or a megahub', n: nov.big ? 1 : 0, of: 1 }), open: ['abSab', 'abAir', 'abBlock'], after: 480, note: 'New abilities: <b>sabotage</b>, <b>airdrop</b> and <b>blockade</b>. Hover a button to see what it does' },
+  { goal: () => ({ text: 'use any ability', n: nov.used ? 1 : 0, of: 1 }), open: ['abSat', 'abSpy', 'abEnvoy'], panels: ['gen', 'squad'], after: 900, note: 'New: <b>satellite</b>, <b>spy</b> and <b>envoys</b>. Your faction\'s general and squads are now on the left' },
+  { open: ['abFleet', 'abBuild'], note: 'Everything is open: <b>fleets</b> and <b>railways and airfields</b>' },
+];
+const ALL_AB = NOVICE.flatMap(x => x.open), ALL_PANELS = ['gen', 'squad'];
+const nov = { stage: 3, big: false, used: false, t: 0 };
+// players who were here before this step-by-step start (they finished the tutorial) keep the full game
+try { const saved = localStorage.getItem('sl-stage'); if (localStorage.getItem('sl-allctl') === '1') nov.stage = 3; else if (saved !== null) nov.stage = Math.min(3, +saved); else { nov.stage = localStorage.getItem('sl-tut') ? 3 : 0; localStorage.setItem('sl-stage', String(nov.stage)); } } catch (e) { nov.stage = 3; }
+function applyStage(announce) {
+  const open = new Set(NOVICE.slice(0, nov.stage + 1).flatMap(x => x.open)), panels = new Set(NOVICE.slice(0, nov.stage + 1).flatMap(x => x.panels || []));
+  for (const id of ALL_AB) { const el = $(id); if (!el) continue; const on = open.has(id); el.classList.toggle('novHide', !on); if (on) delete el.dataset.locked; else el.dataset.locked = '1'; }
+  for (const id of ALL_PANELS) { const el = $(id); if (el) el.classList.toggle('novHide', !panels.has(id)); }
+  if ($('allCtl')) $('allCtl').checked = nov.stage >= 3;
+  if (announce) { const st = NOVICE[nov.stage]; for (const id of st.open) { const el = $(id); if (el) { el.classList.remove('newab'); void el.offsetWidth; el.classList.add('newab'); } } if (st.note) { event(st.note, me); toast(st.note.replace(/<[^>]+>/g, ''), 'good'); } sfx('win'); }
+}
+function setStage(k, announce) { k = Math.min(3, Math.max(nov.stage, k)); if (k === nov.stage) return; nov.stage = k; try { localStorage.setItem('sl-stage', String(k)); } catch (e) {} applyStage(announce); }
+function noviceTick(dt) {
+  if (nov.stage >= 3 || !running || S.ended) return;
+  const r = myStats().rank; if (r && r.idx >= 2) return setStage(3, false);   // Sergeant and above: the full game
+  nov.t += dt; const st = NOVICE[nov.stage], g = st.goal && st.goal();
+  if ((g && g.n >= g.of) || nov.t >= st.after) setStage(nov.stage + 1, true);
+}
+const noviceGoal = () => { if (nov.stage >= 3) return ''; const g = NOVICE[nov.stage].goal(); return `<span class="goal">Goal: ${g.text}${g.of > 1 ? ` ${g.n}/${g.of}` : ''}</span>`; };
+// hotkeys and clicks on a hidden ability do nothing yet
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.ab[data-locked]'); if (b) { e.stopPropagation(); e.preventDefault(); } }, true);
+$('allCtl').onchange = () => { try { localStorage.setItem('sl-allctl', $('allCtl').checked ? '1' : '0'); } catch (e) {} if ($('allCtl').checked) setStage(3, false); else { nov.stage = 0; try { localStorage.setItem('sl-stage', '0'); } catch (e) {} applyStage(false); } };
+applyStage(false);
 function updateHint() {
   let h;
   if (S.ended) h = online && restartIn ? `Season over. Next season in ${Math.ceil(restartIn / 1000)} s` : 'Season over';
@@ -1520,8 +1604,8 @@ function updateHint() {
   else if (mode === 'nuke') h = '☢ Pick the target. Green: weak air defence. The red circle shows the blast <span class="k">Esc</span>';
   else if (mode === 'airdrop') h = `Pick any enemy or neutral city within 3,500 km of ${cities[selected].name} <span class="k">Esc</span>`;
   else if (selected >= 0) h = energyNow() < 1 ? 'Out of CP: the next point arrives soon' : targetCount ? `Now click a glowing city: ${targetCount} in reach. <span style="color:var(--good)">Green</span> = you would take it, <span style="color:var(--bad)">red</span> = not enough. Drag to your own cities to move troops <span class="k">Esc</span>` : `No enemy or neutral city in reach from ${cities[selected].name}. Pick a city closer to the front <span class="k">Esc</span>`;
-  else h = `Select one of your cities <span style="color:${FCSS[me]}">●</span> to send a convoy`;
-  if ($('hint').innerHTML !== h) $('hint').innerHTML = h;
+  else h = `Select one of your cities <span style="color:${FCSS[me]}">●</span> to send a convoy${noviceGoal()}`;
+  if ($('hint')._h !== h) { $('hint')._h = h; $('hint').innerHTML = h; }
 }
 function refreshUI() { paintCities(); paintRoutes(); updateCard(); updateHint(); updateButtons(); showPreview(hoverCity); if (hoverCity >= 0 || dragging) showTip(mouse[0], mouse[1]); }
 
@@ -2087,7 +2171,7 @@ function missionsHud() {
   const st = myStats(); if (!st.missions) return;
   $('msCount').textContent = `${st.missions.filter(m => m.done).length}/${st.missions.length}`;
   const html = st.missions.map(m => `<div class="ms${m.done ? ' done' : ''}">${m.done ? '✓ ' : ''}${m.text}${m.goal > 1 ? ` · ${m.prog}/${m.goal}` : ''}<div class="bar"><i style="width:${m.prog / m.goal * 100}%"></i></div></div>`).join('');
-  if ($('msList').innerHTML !== html) { $('msList').innerHTML = html; }
+  if ($('msList')._h !== html) { $('msList')._h = html; $('msList').innerHTML = html; }
   const r = st.rank || { name: 'Private' }, xp = st.xp || 0, base = (r.idx >= 0 ? [0, 50, 150, 300, 500, 800, 1200, 1800][r.idx] : 0);
   $('msDrawer').innerHTML = false ? '<div class="cap" style="margin-bottom:6px">Season missions</div>' + html : '';
   const rl = `${insignia(r.idx || 0)} <b>${r.name.toUpperCase()}</b> <button class="lockBtn" id="lockBtn">LOCKER</button> · ${xp} XP${r.next ? ` · next: ${r.next} at ${r.nextXp}` : ''}<div class="xp"><i style="width:${r.nextXp ? (xp - base) / (r.nextXp - base) * 100 : 100}%"></i></div>`;
@@ -2155,7 +2239,7 @@ function realWarNote() {
   if (replay) return; const n = $('rwNote'); n.classList.add('on'); clearTimeout(rwNoteT); rwNoteT = setTimeout(() => n.classList.remove('on'), 16000);
 }
 const OBL_EN = { 'Вінницька': 'Vinnytsia', 'Волинська': 'Volyn', 'Дніпропетровська': 'Dnipropetrovsk', 'Донецька': 'Donetsk', 'Житомирська': 'Zhytomyr', 'Закарпатська': 'Zakarpattia', 'Запорізька': 'Zaporizhzhia', 'Івано-Франківська': 'Ivano-Frankivsk', 'Київська': 'Kyiv region', 'Кіровоградська': 'Kirovohrad', 'Луганська': 'Luhansk', 'Львівська': 'Lviv', 'Миколаївська': 'Mykolaiv', 'Одеська': 'Odesa', 'Полтавська': 'Poltava', 'Рівненська': 'Rivne', 'Сумська': 'Sumy', 'Тернопільська': 'Ternopil', 'Харківська': 'Kharkiv', 'Херсонська': 'Kherson', 'Хмельницька': 'Khmelnytskyi', 'Черкаська': 'Cherkasy', 'Чернівецька': 'Chernivtsi', 'Чернігівська': 'Chernihiv', 'Київ': 'Kyiv city' };
-const OBL = n => { const k = n.replace(' область', '').replace('м. ', ''); return OBL_EN[k] || k; };
+const OBL = n => { const k = n.replace(' область', '').replace('м. ', ''); return window.slLang && slLang.get() === 'uk' ? (k === 'Київ' ? 'Київ' : k + ' обл.') : OBL_EN[k] || k; };
 async function loadRealWar() {
   const box = $('rwLive'); let j = null;
   try { j = await (await fetch('realwar.json', { cache: 'no-store' })).json(); } catch (e) {}
@@ -2232,13 +2316,15 @@ function renderNukePanel() {
   const c = $('nkConfirm'); if (c) c.onclick = () => act({ type: 'nuke_confirm' }, { ok: 'Second key turned' });
   const a = $('nkAbort'); if (a) a.onclick = () => act({ type: 'nuke_abort' }, { ok: 'Launch aborted' });
 }
+$('nukeDock').appendChild($('abNuke'));
 $('abNuke').onclick = () => { if (mode === 'nuke') return setMode('convoy'); $('nukePanel').classList.toggle('open'); $('nukePanel')._h = ''; renderNukePanel(); };
 addEventListener('keydown', e => { if (e.code === 'KeyN' && e.target.tagName !== 'INPUT') $('abNuke').click(); if (e.code === 'Escape') $('nukePanel').classList.remove('open'); });
 function updateNukeHud() {
   updateRaid();
   const nk = (S.nuke || [])[me] || {}, b = $('abNuke');
   $('nukePct').textContent = nk.used ? 'used' : nk.ready ? 'READY' : Math.round((nk.prog || 0) * 100) + '%';
-  b.classList.toggle('ready', !!nk.ready && !nk.used); b.classList.toggle('on', mode === 'nuke');
+  b.classList.toggle('ready', !!nk.ready && !nk.used); b.classList.toggle('on', mode === 'nuke'); b.classList.toggle('used', !!nk.used);
+  b.style.setProperty('--p', (nk.used ? 0 : nk.ready ? 1 : (nk.prog || 0)) * 360 + 'deg');
   renderNukePanel();
   // banner: incoming / outgoing missile, or a launch waiting for your key
   const ban = $('nukeBanner'), m = (S.missiles || [])[0];
@@ -2278,7 +2364,7 @@ const TUT = [
   { id: 'select', title: '1 / 4 · YOUR CAPITAL', text: () => `This is ${cities[CAPS[me]].name}, your capital. Cities in your colour make troops. <b>Click it.</b>`, anchor: () => CAPS[me], done: () => selected >= 0 },
   { id: 'attack', title: '2 / 4 · ATTACK', text: () => { const t = tutTarget(); return t < 0 ? 'Glowing rings are cities you can reach. Click one.' : `Glowing rings are cities you can reach. Green means you will win. <b>Click ${cities[t].name}.</b>` + (E.sendAmount(selected, t, selRoute, pct) > E.defOf(t) ? '' : ' Press <b>3</b> first to send ALL troops.'); }, anchor: () => tutTarget(), done: () => convoys.some(c => c.who === myId && owner[c.nodes[c.nodes.length - 1]] !== me) || tut.captured },
   { id: 'drag', title: '3 / 4 · MOVE TROOPS', text: () => { const p = tutPair(); return p ? `Your convoy is on its way. To move troops between your own cities, <b>drag from ${cities[p[0]].name} to ${cities[p[1]].name}</b>.` : 'To move troops between your own cities, drag from one to another.'; }, anchor: () => { const p = tutPair(); return p ? p[1] : -1; }, drag: () => tutPair(), done: () => convoys.some(c => c.who === myId && owner[c.nodes[c.nodes.length - 1]] === me), skipLabel: 'Skip step' },
-  { id: 'abilities', title: '4 / 4 · ABILITIES & GOALS', text: () => 'Commands cost CP (yellow cells). Fortify, sabotage, airdrop, blockade and the nuclear program are here. Missions on the left give XP and a rank. <b>Right-click a city</b> to signal your faction.', el: () => $('cmd'), next: 'Start playing' },
+  { id: 'abilities', title: '4 / 4 · ABILITIES & GOALS', text: () => (nov.stage < 3 ? 'Abilities cost CP (yellow cells). New ones open up as you play: follow the <b>goal</b> at the bottom of the screen. ' : 'Abilities cost CP (yellow cells). ') + 'Missions on the left give XP and a rank. <b>Right-click a city</b> to signal your faction.', el: () => $('cmd'), next: 'Start playing' },
 ];
 function startTutorial() { tut = { k: 0, captured: false }; refreshCoach(); }
 function endTutorial() { tut = null; tutSave(); $('coach').style.display = 'none'; $('coachRing').style.display = 'none'; $('coachDrag').style.display = 'none'; document.querySelectorAll('.hl').forEach(e => e.classList.remove('hl')); event('Tutorial done. Good luck, commander!', me); }
@@ -2310,7 +2396,7 @@ function openManual(tab) { if (tab) document.querySelectorAll('.mt').forEach(x =
 document.querySelectorAll('.mt').forEach(t => t.onclick = () => openManual(t.dataset.tab));
 $('manualBtn').onclick = () => openManual(); $('manClose').onclick = () => $('manual').classList.add('hidden');
 $('manual').onclick = e => { if (e.target.id === 'manual') $('manual').classList.add('hidden'); };
-$('tutAgain').onclick = () => { try { localStorage.removeItem('sl-tut'); } catch (e) {} $('go').click(); };
+$('tutAgain').onclick = () => { try { localStorage.removeItem('sl-tut'); localStorage.setItem('sl-stage', '0'); localStorage.setItem('sl-allctl', '0'); } catch (e) {} nov.stage = 0; applyStage(false); $('go').click(); };
 
 // ================= fleets on the globe =================
 const fleetEls = new Map();
@@ -2343,32 +2429,99 @@ function placeFleets() {
 // ================= season replay =================
 let replay = null;
 const rpOwner = new Int8Array(N);
+const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>', PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg>', AGAIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg>';
+// turns raw ownership snapshots into a readable story
+function buildReplay(frames) {
+  const F = frames.length, raw = frames.map(f => { const a = new Int8Array(N); for (let i = 0; i < N; i++) a[i] = f[i] === 'a' ? 0 : f[i] === 'b' ? 1 : -1; return a; });
+  // a city changes colour only once it keeps its new owner for two snapshots: contested cities stop flickering
+  const HOLD = Math.max(2, Math.round(F / 45)), GAP = Math.max(3, Math.round(F / 30)), WIN = Math.max(6, Math.round(F / 15));
+  const own = [raw[0]];
+  for (let k = 1; k < F; k++) { const prev = own[k - 1], cur = Int8Array.from(prev); for (let i = 0; i < N; i++) { const o = raw[k][i]; if (o === prev[i]) continue; let keep = true; for (let j = k + 1; j < Math.min(F, k + HOLD); j++) if (raw[j][i] !== o) { keep = false; break; } if (keep) cur[i] = o; } own.push(cur); }
+  const pts = own.map(o => { const p = [0, 0]; for (let i = 0; i < N; i++) if (o[i] >= 0) p[o[i]] += K.VALUE[cities[i].tier]; return p; });
+  const held = o => REGIONS.map((_, r) => { const l = regionCities[r], h = o[l[0]]; return h >= 0 && l.every(i => o[i] === h) ? h : -1; });
+  const moments = []; let hp = held(own[0]);
+  for (let k = 1; k < F; k++) {
+    const o = own[k], p = own[k - 1];
+    for (let i = 0; i < N; i++) if (o[i] !== p[i] && o[i] >= 0) {
+      const c = cities[i];
+      if (c.cap >= 0 && c.cap !== o[i]) moments.push({ k, f: o[i], city: i, w: 3, text: `${FN[o[i]]} takes ${c.name}, the enemy capital` });
+      else if (c.tier === 3) moments.push({ k, f: o[i], city: i, w: 2, text: `${FN[o[i]]} takes ${c.name}` });
+    }
+    const h = held(o); h.forEach((f, r) => { if (f >= 0 && f !== hp[r]) moments.push({ k, f, city: regionCities[r][0], w: 2, text: `${FN[f]} controls all of ${REGIONS[r]}` }); }); hp = h;
+  }
+  // at most one caption every 3 snapshots, keeping the most important one
+  moments.sort((a, b) => a.k - b.k || b.w - a.w); const story = [];
+  for (const m of moments) { const last = story[story.length - 1]; if (last && m.k - last.k < GAP) { if (m.w > last.w) story[story.length - 1] = m; continue; } story.push(m); }
+  // where the action is over the next few snapshots, for the camera
+  const focus = [];
+  for (let k = 0; k < F; k++) { const v = new THREE.Vector3(); let n = 0; for (let j = Math.max(1, k); j < Math.min(F, k + WIN); j++) for (let i = 0; i < N; i++) if (own[j][i] !== own[j - 1][i]) { v.add(cities[i].v); n++; } focus.push(n > 1 && v.lengthSq() > 1e-6 ? v.normalize() : null); }
+  return { own, pts, story, focus, F };
+}
+const rpClock = k => { const gm = Math.min(7 * 1440 - 1, k * 10 * GMIN), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; };
+function drawReplayChart() {
+  const R = replay, max = Math.max(10, ...R.pts.flat()), X = k => k / (R.F - 1) * 600, Y = v => 60 - v / max * 54;
+  const line = f => R.pts.map((p, k) => `${k ? 'L' : 'M'}${X(k).toFixed(1)},${Y(p[f]).toFixed(1)}`).join('');
+  let days = ''; for (let d = 1; d < 7; d++) { const x = d / 7 * 600; days += `<line x1="${x}" x2="${x}" y1="0" y2="64" stroke="#1c2733" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }
+  const marks = R.story.map(m => `<circle cx="${X(m.k)}" cy="${Y(R.pts[m.k][m.f])}" r="${m.w > 2 ? 4 : 3}" fill="${FCSS[m.f]}" stroke="#070b11" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join('');
+  $('rpSvg').innerHTML = days + `<path d="${line(0)}" fill="none" stroke="${FCSS[0]}" stroke-width="2" vector-effect="non-scaling-stroke"/><path d="${line(1)}" fill="none" stroke="${FCSS[1]}" stroke-width="2" vector-effect="non-scaling-stroke"/>` + marks;
+}
+function showCaption(m) {
+  const [d, hh] = rpClock(m.k); $('rpCapDay').textContent = `DAY ${d} · ${hh}`; $('rpCapTxt').textContent = m.text; $('rpCapTxt').style.color = FCSS[m.f];
+  const c = $('rpCap'); c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), 3200 / Math.sqrt(replay ? replay.speed : 1));
+}
+function setFrame(k, animate) {
+  const R = replay, prev = R.shown; rpOwner.set(R.own[k]); R.shown = k;
+  const [d, hh] = rpClock(k), p = R.pts[k];
+  $('rpDay').textContent = `Day ${d} of 7 · ${hh}`;
+  $('rpScore').innerHTML = `<span style="color:${FCSS[0]}">${p[0]}</span> <span style="color:var(--mut)">–</span> <span style="color:${FCSS[1]}">${p[1]}</span>`;
+  if (animate && prev >= 0 && k === prev + 1) {
+    for (let i = 0; i < N; i++) if (R.own[k][i] !== R.own[prev][i] && R.own[k][i] >= 0 && cities[i].tier >= 2) blast(i, R.own[k][i], cities[i].tier === 3);
+    const m = R.story.find(x => x.k === k); if (m) showCaption(m);
+  }
+  paintOverlay(); paintRoutes();
+}
+function replayUi() { const R = replay; if (!R) return; $('rpPlay').innerHTML = R.k >= R.F - 1 && !R.playing ? AGAIN_SVG : R.playing ? PAUSE_SVG : PLAY_SVG; $('rpSpeed').textContent = R.speed + '×'; $('rpHead').style.left = (R.k / (R.F - 1) * 100) + '%'; }
 function startReplay(frames, title) {
   if (!frames || frames.length < 2) return event('No replay recorded for this season', 'warn');
   $('end').classList.add('hidden'); $('archive').classList.add('hidden'); $('share').classList.add('hidden');
   document.body.classList.add('replay'); select(-1); tip.style.display = 'none';
-  replay = { frames, t: 0, dur: Math.min(40, Math.max(18, frames.length * 0.33)), hold: 0, last: -1 };
-  $('rpTitle').textContent = title || 'SEASON REPLAY';
+  const R = buildReplay(frames);
+  replay = { ...R, k: 0, shown: -1, playing: true, speed: 1, rate: (R.F - 1) / Math.max(40, Math.min(120, (R.F - 1) / 1.6)) };   // calm pace: at most ~1.6 snapshots a second at 1×
+  $('rpTitle').textContent = title || 'SEASON REPLAY'; drawReplayChart(); setFrame(0); replayUi();
+  if (R.story.length) setTimeout(() => replay && showCaption({ k: 0, f: R.story[0].f, text: `${R.story.length} key moments: watch the war unfold` }), 400);
 }
-function stopReplay() { replay = null; document.body.classList.remove('replay'); paintOverlay(); paintRoutes(); }
+function stopReplay() { replay = null; document.body.classList.remove('replay'); $('rpCap').classList.remove('on'); paintOverlay(); paintRoutes(); }
+function seekReplay(k) { const R = replay; if (!R) return; R.k = Math.max(0, Math.min(R.F - 1, k)); setFrame(Math.floor(R.k), false); replayUi(); }
 $('rpExit').onclick = stopReplay;
-addEventListener('keydown', e => { if (e.code === 'Escape' && replay) stopReplay(); });
+$('rpPlay').onclick = () => { const R = replay; if (!R) return; if (R.k >= R.F - 1) { seekReplay(0); R.playing = true; } else R.playing = !R.playing; replayUi(); };
+$('rpSpeed').onclick = () => { const R = replay; if (!R) return; R.speed = R.speed === 1 ? 2 : R.speed === 2 ? 4 : 1; replayUi(); };
+{ let scrub = false; const at = e => { const r = $('rpChart').getBoundingClientRect(); return (e.clientX - r.left) / r.width * (replay.F - 1); };
+  $('rpChart').addEventListener('pointerdown', e => { if (!replay) return; scrub = true; $('rpChart').setPointerCapture(e.pointerId); seekReplay(at(e)); });
+  $('rpChart').addEventListener('pointermove', e => { if (scrub && replay) seekReplay(at(e)); });
+  $('rpChart').addEventListener('pointerup', () => { scrub = false; }); }
+addEventListener('keydown', e => {
+  if (!replay) return;
+  if (e.code === 'Escape') stopReplay();
+  else if (e.code === 'Space') { e.preventDefault(); $('rpPlay').click(); }
+  else if (e.code === 'ArrowRight') { replay.playing = false; seekReplay(Math.floor(replay.k) + 1); }
+  else if (e.code === 'ArrowLeft') { replay.playing = false; seekReplay(Math.ceil(replay.k) - 1); }
+});
+const rpTarget = new THREE.Vector3();
 function stepReplay(dt) {
-  replay.t += dt;
-  const p = Math.min(1, replay.t / replay.dur), k = Math.min(replay.frames.length - 1, Math.floor(p * (replay.frames.length - 1)));
-  if (k !== replay.last) {
-    const f = replay.frames[k]; let a = 0, b = 0;
-    for (let i = 0; i < N; i++) { const ch = f[i]; rpOwner[i] = ch === 'a' ? 0 : ch === 'b' ? 1 : -1; if (rpOwner[i] === 0) a += K.VALUE[cities[i].tier]; else if (rpOwner[i] === 1) b += K.VALUE[cities[i].tier]; }
-    const tot = a + b || 1; $('rpA').style.width = a / tot * 100 + '%'; $('rpB').style.width = b / tot * 100 + '%';
-    $('rpDay').textContent = `Day ${Math.min(7, Math.floor(k / (replay.frames.length - 1) * 7) + 1)} of 7 · ${FN[0]} ${a} – ${b} ${FN[1]}`;
-    replay.last = k; paintOverlay(); paintRoutes();
-  }
-  $('rpP').style.width = p * 100 + '%';
-  camera.position.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dt * 0.35));
-  if (camera.position.length() < 2.6) camera.position.multiplyScalar(1 + dt * 0.5);
-  if (p >= 1 && (replay.hold += dt) > 2.5) stopReplay();
+  const R = replay;
+  if (R.playing) { R.k = Math.min(R.F - 1, R.k + dt * R.rate * R.speed); const fk = Math.floor(R.k); if (fk !== R.shown) setFrame(fk, true); if (R.k >= R.F - 1) R.playing = false; replayUi(); }
+  // the camera drifts toward where the fighting is, instead of spinning
+  const f = R.focus[R.shown], dist = Math.max(2.4, Math.min(3.2, camera.position.length()));
+  if (f) { rpTarget.copy(f).multiplyScalar(dist).add(new THREE.Vector3(0, 0.35, 0)).setLength(dist); camera.position.lerp(rpTarget, 1 - Math.exp(-dt * 0.5)).setLength(dist); }
+  else camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), dt * 0.04);
 }
 
+// counts one "played 5+ minutes" per page load, only while the game is visible and running
+{ let played = 0; const t = setInterval(() => { if (running && !document.hidden) played += 15; if (played >= 300) { clearInterval(t); window.slStat && slStat('active5'); } }, 15000); }
+// language switch (the translation itself lives in i18n.js)
+function langUi() { const l = window.slLang ? slLang.get() : 'en'; $('langBtn').textContent = l === 'uk' ? 'UA' : 'EN'; $('langBtn').title = l === 'uk' ? 'Мова: українська. Switch to English' : 'Language: English. Перейти на українську'; $('langIntro').textContent = l === 'uk' ? 'ENGLISH' : 'УКРАЇНСЬКА'; }
+const flipLang = () => { if (!window.slLang) return; slLang.set(slLang.get() === 'uk' ? 'en' : 'uk'); langUi(); };
+$('langBtn').onclick = flipLang; $('langIntro').onclick = flipLang; langUi();
 // ================= installable app & push alerts =================
 let swReg = null, installEvt = null;
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
@@ -2419,7 +2572,7 @@ async function demoNuke() {
   while ((S.missiles || []).length && S.missiles[0].t < 0.8) await wait();
   setSpeed(1); camera.position.copy(t.v).multiplyScalar(1.55).add(new THREE.Vector3(0, 0.25, 0)); controls.update(); flyTarget = null;
 }
-$('go').onclick = () => { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (musicOn) startMusic(); } catch (e) {} document.body.classList.remove('intro'); $('intro').classList.add('hidden'); running = true; focusT = 0; if (qp.get('demo') === 'nuke') setTimeout(demoNuke, 1800); else if (!tutDone() || qp.get('tutorial')) setTimeout(startTutorial, 1700); };
+$('go').onclick = () => { if (!window.__played) { window.__played = 1; window.slStat && slStat('play'); } try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (musicOn) startMusic(); } catch (e) {} document.body.classList.remove('intro'); $('intro').classList.add('hidden'); running = true; focusT = 0; if (qp.get('demo') === 'nuke') setTimeout(demoNuke, 1800); else if (!tutDone() || qp.get('tutorial')) setTimeout(startTutorial, 1700); };
 
 let last = performance.now(), hudT = 0, labT = 0, ovT = 0, rtT = 0;
 const satRings = new Map();
@@ -2446,6 +2599,7 @@ let bootFrames = 0;
 function frame(t) {
   if (bootFrames >= 0 && ++bootFrames > 2) { bootFrames = -1; const b = $('boot'); b.classList.add('done'); setTimeout(() => b.remove(), 600); }
   const dt = Math.min(0.1, (t - last) / 1000); last = t;
+  noviceTick(dt);
   if (online) {
     if (!S.ended) E.advanceVisual(dt * serverSpeed);
     if (youInfo) youInfo.cp = Math.min(youInfo.cpMax, youInfo.cp + dt * serverSpeed / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
