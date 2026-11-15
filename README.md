@@ -38,6 +38,7 @@ The map is the real world with three changes:
 | **Fog of war** | You see enemy garrisons and convoys only near your own network. The server sends each faction only its own view. |
 | **Abilities** | Fortify, sabotage, airdrop, blockade, fleets, rally points, signals, three convoy types (standard, fast, heavy). |
 | **Drones, EW, blackouts** | Drone kill zones bleed enemy convoys on a city's routes; EW domes jam drones and strikes; long-range drone strikes black out a region and halve its production. |
+| **Eras** | Every two real weeks the whole world enters a new era (Drone Age, Cold War, Age of Storms, Iron Road, Age of Alliances, Total Mobilisation) that bends a few rules and makes some world events likelier. |
 | **Fundraisers, deepfakes, corruption** | Players chip CP into a drone fund that launches a swarm when full; a deepfake order lures enemy bots into your strongest city until a spy exposes it; a faction far ahead suffers daily corruption scandals. |
 | **Intel** | Satellites lift the fog over a wide area; spies reveal an enemy city and its plans, and are caught one time in four. |
 | **Canals and straits** | Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca: hold the controlling city and their sea lanes close to the enemy. |

@@ -12,7 +12,7 @@ import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
 import webpush from 'web-push';
-import { createEngine, K, FN, REGIONS, GEVENTS, SCENARIOS, rankOf } from '../game/engine.js';
+import { createEngine, K, FN, REGIONS, GEVENTS, SCENARIOS, ERAS, rankOf } from '../game/engine.js';
 import { createWire } from './wire.mjs';
 import { createOps } from './ops.mjs';
 
@@ -307,7 +307,7 @@ function worldState() {
   return {
     season, t: E.S.simT, seasonLen: K.SEASON, ended: E.S.ended, restartIn: restartAt ? Math.max(0, restartAt - Date.now()) : 0,
     pts: sc.pts, cities: sc.cities, owner: Array.from(E.S.owner), rad: Array.from(E.S.rad).map((v, i) => v ? i : -1).filter(i => i >= 0),
-    regionHeld: E.S.regionHeld, strikes: E.S.strikes, winter: E.S.winter, gev: E.S.gev && E.ge(E.S.gev.k) ? E.S.gev.k : null,
+    regionHeld: E.S.regionHeld, strikes: E.S.strikes, winter: E.S.winter, gev: E.S.gev && E.ge(E.S.gev.k) ? E.S.gev.k : null, era: E.S.era && ERAS[E.S.era.k] ? { k: E.S.era.k, end: E.S.era.end, name: ERAS[E.S.era.k].name, icon: ERAS[E.S.era.k].icon, text: ERAS[E.S.era.k].text } : null,
     online: humansOnline(), chief, board: E.leaderboard().slice(0, 10).map(h => ({ name: h.name, f: h.f, caps: h.caps, rank: h.rank || null })),
     squads: [...sq.values()].sort((a, b) => b.caps - a.caps).slice(0, 5), log: wlog.slice(0, 20),
     campaign: campaignInfo(), history: (E.S.history || []).slice(-80), seasons: archive.slice(-6).reverse().map(a => ({ season: a.season, winner: a.winner, winter: a.winter, pts: a.pts, endedAt: a.endedAt })),

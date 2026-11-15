@@ -226,6 +226,7 @@ function render(s) {
   const lead = s.pts[0] === s.pts[1] ? 'Dead even' : `${FN[s.pts[0] > s.pts[1] ? 0 : 1]} leads by ${Math.abs(s.pts[0] - s.pts[1])}`;
   $('mid').innerHTML = `<b>${lead}</b>${s.cities[0] + s.cities[1]} of ${cities.length} cities taken`;
   const chips = [];
+  if (s.era) { const l = Math.max(1, Math.ceil((s.era.end - Date.now()) / 864e5)); chips.push(`<span class="chip" title="${esc(s.era.text)}">Era: ${s.era.icon} ${esc(s.era.name)} · ${l} ${l === 1 ? 'day' : 'days'} left</span>`); }
   if (s.gev && GEV[s.gev]) chips.push(`<span class="chip warn">World event: ${GEV[s.gev]}</span>`);
   if (s.strikes) chips.push(`<span class="chip bad">☢ ${s.strikes} nuclear ${s.strikes === 1 ? 'strike' : 'strikes'} this season</span>`);
   if (s.winter) chips.push('<span class="chip bad">Nuclear winter</span>');
