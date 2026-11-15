@@ -274,6 +274,7 @@ body.replay .lbl .n{display:none}
 body.replay #rpCap{display:block} #rpCap{display:none}
 @media (max-width:700px){ #rpCap span{font-size:18px} .rpHint{display:none} #replayBar .rpDay{display:none} }
 .novHide{display:none!important}
+#bottom.tight .ab .lb{display:none}
 #corner .langBtn{font:800 11px/1 var(--disp);letter-spacing:.04em;width:auto;padding:0 10px}
 .ab.newab{animation:newab 1.2s ease-in-out 4}
 @keyframes newab{50%{box-shadow:inset 0 0 0 2px var(--cp);color:var(--cp)}}
@@ -399,7 +400,20 @@ input[type=range]{accent-color:var(--ink)}
 .ab.nuke{color:#d7e66a} .ab.nuke .cost{color:#d7e66a}
 .ab.nuke.ready{animation:nukeGlow 1.2s ease-in-out infinite}
 @keyframes nukeGlow{50%{background:rgba(215,230,106,.18)}}
-#nukeDock{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:5}
+#nukeDock{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:22px}
+#genBadge{display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;width:70px;height:70px;border-radius:50%;border:2px solid var(--cp);background:radial-gradient(circle at 50% 35%,#2a2210,#120f08 70%);color:var(--cp);cursor:pointer;box-shadow:0 0 0 4px rgba(255,194,61,.12),0 6px 20px rgba(0,0,0,.5)}
+#genBadge.on{display:flex} #genBadge:hover{box-shadow:0 0 0 6px rgba(255,194,61,.2),0 6px 20px rgba(0,0,0,.5)}
+#genBadge svg{width:34px;height:12px;fill:var(--cp)} #genBadge span{font:800 8.5px/1 var(--disp);letter-spacing:.08em}
+#genBadge.fresh{animation:genPulse 1.6s ease-in-out 4}
+@keyframes genPulse{50%{box-shadow:0 0 0 10px rgba(255,194,61,.25),0 6px 20px rgba(0,0,0,.5)}}
+#genPop{position:fixed;right:98px;top:50%;transform:translateY(-50%) translateY(-60px);z-index:8;width:min(340px,calc(100% - 120px));background:var(--plate);border:1px solid rgba(255,194,61,.5);border-radius:10px;padding:14px 16px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6);font-size:12.5px;line-height:1.45;color:var(--dim)}
+#genPop.open{display:block}
+#genPop .gpH{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px} #genPop .gpH b{font:800 14px/1.2 var(--disp);color:var(--cp);letter-spacing:.02em}
+#genPop .gpH button{background:none;border:0;color:var(--mut);font-size:20px;cursor:pointer;line-height:1}
+#genPop p{margin:0 0 8px} #genPop ul{margin:0 0 10px;padding-left:16px} #genPop li{margin:3px 0} #genPop b{color:var(--ink)}
+#genPop .gpB{display:flex;gap:8px} #genPop .gpB button{flex:1;padding:8px;border-radius:6px;border:1px solid var(--edge);background:#18222e;color:var(--ink);font:700 10px/1.2 var(--disp);letter-spacing:.04em;cursor:pointer}
+#genPop .gpB button:hover{border-color:var(--cp);color:var(--cp)}
+@media (max-width:700px){ #genBadge{width:56px;height:56px} #genPop{left:14px;right:14px;width:auto;top:auto;bottom:170px;transform:none} }
 #nukeDock .ab.nuke{position:relative;width:70px;height:70px;padding:0;border-radius:50%;border:0;background:radial-gradient(circle,#141a12 58%,transparent 59%),conic-gradient(#d7e66a var(--p,0deg),#26301a 0);box-shadow:0 6px 20px rgba(0,0,0,.5);flex:none;gap:2px;overflow:visible}
 #nukeDock .ab.nuke svg{width:22px;height:22px}
 #nukeDock .ab.nuke .lb{display:none!important}
@@ -408,7 +422,7 @@ input[type=range]{accent-color:var(--ink)}
 #nukeDock .ab.nuke:hover{filter:brightness(1.2)}
 #nukeDock .ab.nuke.used{opacity:.45}
 @media (max-width:700px){ #nukeDock{right:10px;top:44%} #nukeDock .ab.nuke{width:58px;height:58px} #nukeDock .ab.nuke svg{width:18px;height:18px} #nukePanel{left:14px;right:14px;width:auto;top:auto;bottom:170px;transform:none} }
-body.intro #nukeDock{opacity:0;pointer-events:none} body.replay #nukeDock{display:none}
+body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.replay #nukeDock,body.replay #genPop{display:none}
 #nukePanel{position:fixed;right:98px;top:50%;transform:translateY(-50%);width:min(420px,calc(100% - 28px));z-index:8;background:var(--plate);border:1px solid #4a5222;border-radius:10px;padding:14px 16px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 #nukePanel.open{display:block}
 #nukePanel h3{margin:0 0 10px;font:800 13px/1 var(--disp);letter-spacing:.12em;color:#d7e66a;display:flex;justify-content:space-between}
@@ -595,7 +609,18 @@ body.online #simCtl,body.online #speedBtn{display:none}
   </div>
 </div>
 
-<div id="nukeDock"></div>
+<div id="nukeDock"><button id="genBadge" title="You are the general of your faction"><svg viewBox="0 0 39 13"><path transform="translate(0 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(13 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(26 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/></svg><span>GENERAL</span></button></div>
+<div id="genPop">
+  <div class="gpH"><b>You are the general</b><button id="gpX" title="Close">×</button></div>
+  <p>Your faction chose you: players online vote, and with no votes the most experienced player leads. You stay general while you are online and keep the votes.</p>
+  <ul>
+    <li><b>⚔ Attack mark</b> on a city you want: your faction gets +15% attacking it, and bots push there.</li>
+    <li><b>🛡 Hold mark</b> on your own city: it defends +20%.</li>
+    <li>Up to <b>3 marks</b> at once; each lasts a game day. Everyone on your side sees them on the map.</li>
+    <li>On day 1 you also pick the <b>doctrine</b>: how your faction fights this season.</li>
+  </ul>
+  <div class="gpB"><button id="gpAtk">⚔ ATTACK MARK</button><button id="gpDef">🛡 HOLD MARK</button></div>
+</div>
 <div id="corner">
   <button class="ic notr langBtn" id="langBtn" title="Мова / Language">UA</button>
   <button class="ic rwBtn" id="realBtn" title="Are you sure you are ready for a real war?">REAL WAR</button>
@@ -1570,6 +1595,7 @@ const nov = { stage: 3, big: false, used: false, t: 0 };
 // players who were here before this step-by-step start (they finished the tutorial) keep the full game
 try { const saved = localStorage.getItem('sl-stage'); if (localStorage.getItem('sl-allctl') === '1') nov.stage = 3; else if (saved !== null) nov.stage = Math.min(3, +saved); else { nov.stage = localStorage.getItem('sl-tut') ? 3 : 0; localStorage.setItem('sl-stage', String(nov.stage)); } } catch (e) { nov.stage = 3; }
 function applyStage(announce) {
+  requestAnimationFrame(() => typeof fitLabels === 'function' && fitLabels());
   const open = new Set(NOVICE.slice(0, nov.stage + 1).flatMap(x => x.open)), panels = new Set(NOVICE.slice(0, nov.stage + 1).flatMap(x => x.panels || []));
   for (const id of ALL_AB) { const el = $(id); if (!el) continue; const on = open.has(id); el.classList.toggle('novHide', !on); if (on) delete el.dataset.locked; else el.dataset.locked = '1'; }
   for (const id of ALL_PANELS) { const el = $(id); if (el) el.classList.toggle('novHide', !panels.has(id)); }
@@ -2096,8 +2122,21 @@ function volunteerHud() {
   if (el._h === h) return; el._h = h; el.innerHTML = h;
   if ($('volBtn')) $('volBtn').onclick = () => { if (confirm(`Switch to ${FN[to]} for the rest of this season? Your captures, missions and commanded cities this season are reset. You get +30 XP.`)) act({ type: 'volunteer' }, { ok: `You now fight for ${FN[to]}` }); };
 }
+let genSeen = false; try { genSeen = localStorage.getItem('sl-gen-seen') === '1'; } catch (e) {}
+function genBadgeHud(mine) {
+  const b = $('genBadge'), was = b.classList.contains('on'); b.classList.toggle('on', mine);
+  if (mine && !was) b.classList.add('fresh');
+  // explain the role once, after the tutorial (never on top of it)
+  let inTut = true; try { inTut = !!tut; } catch (e) {}
+  if (mine && !genSeen && running && !inTut) { genSeen = true; try { localStorage.setItem('sl-gen-seen', '1'); } catch (e) {} setTimeout(() => $('genPop').classList.add('open'), 900); }
+  if (!mine) $('genPop').classList.remove('open');
+}
+$('genBadge').onclick = () => { $('genBadge').classList.remove('fresh'); $('nukePanel').classList.remove('open'); $('genPop').classList.toggle('open'); };
+$('gpX').onclick = () => $('genPop').classList.remove('open');
+$('gpAtk').onclick = () => { $('genPop').classList.remove('open'); setMode('markA'); };
+$('gpDef').onclick = () => { $('genPop').classList.remove('open'); setMode('markD'); };
 function genHud() {
-  volunteerHud();
+  volunteerHud(); genBadgeHud(amChief());
   const c = chiefInfo(me), mine = amChief(), st = myStats();
   $('gen').classList.toggle('me', mine);
   const h = c ? `${insignia(c.rank) || '★'} ${c.name}${mine ? ' (you)' : ''} <small>· ${c.rank} · ${c.votes} ${c.votes === 1 ? 'vote' : 'votes'}</small>` : '<small>No general: nobody from your faction is online</small>';
@@ -2162,6 +2201,13 @@ function initFolds() {
     box.querySelector('.cap.fold').addEventListener('click', e => { if (e.target.closest('button')) return; box.classList.toggle('folded'); saved[id] = box.classList.contains('folded'); try { localStorage.setItem('sl-folds', JSON.stringify(saved)); } catch (e2) {} });
   }
 }
+// ability names show only when every one of them fits its button; otherwise icon, key and price stay
+function fitLabels() {
+  const b = $('bottom'); if (!b) return; b.classList.remove('tight');
+  const tight = [...b.querySelectorAll('.ab:not(.novHide) .lb')].some(l => l.offsetParent && l.scrollWidth > l.parentElement.clientWidth - 6);
+  b.classList.toggle('tight', tight);
+}
+addEventListener('resize', () => requestAnimationFrame(fitLabels)); document.addEventListener('sl-lang', () => requestAnimationFrame(fitLabels));
 function fitCorner() { const w = Math.round($('corner').getBoundingClientRect().width); if (w && w !== fitCorner.w) { fitCorner.w = w; document.documentElement.style.setProperty('--cw', w + 'px'); } }
 function fitLeftcol() {
   fitCorner();
@@ -2319,7 +2365,7 @@ function renderNukePanel() {
   const a = $('nkAbort'); if (a) a.onclick = () => act({ type: 'nuke_abort' }, { ok: 'Launch aborted' });
 }
 $('nukeDock').appendChild($('abNuke'));
-$('abNuke').onclick = () => { if (mode === 'nuke') return setMode('convoy'); $('nukePanel').classList.toggle('open'); $('nukePanel')._h = ''; renderNukePanel(); };
+$('abNuke').onclick = () => { $('genPop').classList.remove('open'); if (mode === 'nuke') return setMode('convoy'); $('nukePanel').classList.toggle('open'); $('nukePanel')._h = ''; renderNukePanel(); };
 addEventListener('keydown', e => { if (e.code === 'KeyN' && e.target.tagName !== 'INPUT') $('abNuke').click(); if (e.code === 'Escape') $('nukePanel').classList.remove('open'); });
 function updateNukeHud() {
   updateRaid();
@@ -2635,7 +2681,7 @@ function frame(t) {
     }
   }
   // neutral trade ships: small pale dots crawling along the sea lanes
-  for (const sh of S.ships || []) { if (n > MAXP - 2) break; const e = E.edges[sh.e]; if (!e) continue; const pts = edgePts(e), u = (sh.fwd ? sh.t : 1 - sh.t) * SEG, i0 = Math.min(SEG - 1, Math.floor(u)), a = pts[i0], b = pts[i0 + 1], w = u - i0;
+  for (const sh of S.ships || []) { if (n > MAXP - 2) break; const e = E.edges[sh.e]; if (!e) continue; const pts = edgePts(e), u = Math.max(0, Math.min(1, sh.fwd ? sh.t : 1 - sh.t)) * SEG, i0 = Math.min(SEG - 1, Math.floor(u)), a = pts[i0], b = pts[i0 + 1], w = u - i0;
     P[n * 3] = a.x + (b.x - a.x) * w; P[n * 3 + 1] = a.y + (b.y - a.y) * w; P[n * 3 + 2] = a.z + (b.z - a.z) * w; Cc[n * 3] = 0.85; Cc[n * 3 + 1] = 0.88; Cc[n * 3 + 2] = 0.92; Sz[n] = 0.018; n++; }
   for (const f of fx) { if (n > MAXP - 1) break; f.t += dt; if (f.vel) f.p.addScaledVector(f.vel, dt); const col = FCOL[f.f], s = Math.max(0, 1 - f.t / 0.6);
     P[n * 3] = f.p.x; P[n * 3 + 1] = f.p.y; P[n * 3 + 2] = f.p.z; Cc[n * 3] = s + col.r * (1 - s); Cc[n * 3 + 1] = s + col.g * (1 - s); Cc[n * 3 + 2] = s + col.b * (1 - s); Sz[n] = f.small ? 0.028 * (0.4 + s) : 0.09 * (1 - s * 0.5); n++; }

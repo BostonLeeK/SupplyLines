@@ -3,7 +3,7 @@
 // Language: ?lang=uk|en, then the saved choice, then the browser/timezone. window.slLang.set('en'|'uk') switches live.
 (function () {
   var D = window.SL_I18N || { dict: {}, pat: [] };
-  var dict = D.dict, cache = new Map(), originals = new WeakMap();
+  var dict = D.dict, cache = new Map(), originals = new WeakMap(), missing = new Set();   // texts with no translation yet
   var lang = (function () {
     try { var q = new URLSearchParams(location.search).get('lang'); if (q === 'uk' || q === 'en') { localStorage.setItem('sl-lang', q); return q; } } catch (e) {}
     try { var s = localStorage.getItem('sl-lang'); if (s === 'uk' || s === 'en') return s; } catch (e) {}
@@ -64,7 +64,7 @@
         if (ok) out = m[1] + res + m[3];
       }
     }
-    if (out === null) out = s;
+    if (out === null) { out = s; if (!depth && /[A-Za-z]{3,}/.test(core) && missing.size < 2000) missing.add(core); }
     if (cache.size > 6000) cache.clear(); cache.set(s, out); return out;
   }
 
@@ -116,5 +116,6 @@
     }
     document.dispatchEvent(new CustomEvent('sl-lang', { detail: l }));
   }
-  window.slLang = { get: function () { return lang; }, set: set, tr: function (s) { return tr(s); } };
+  // slLang.missing() lists texts that stayed English: handy for adding translations
+  window.slLang = { get: function () { return lang; }, set: set, tr: function (s) { return tr(s); }, missing: function () { return Array.from(missing); } };
 })();
