@@ -2865,9 +2865,9 @@ function placeAir3D(t) {
     if (!o) {
       const n = cities[st.i].v.clone().normalize(), [t1, t2] = tangents(n), a = Math.random() * Math.PI, dir = t1.clone().multiplyScalar(Math.cos(a)).addScaledVector(t2, Math.sin(a));
       const m = makeSatModel(0.011, false), beam = new THREE.Mesh(SAT_PARTS.cone, new THREE.MeshBasicMaterial({ color: 0x9fe3ff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
-      scene.add(m, beam); o = { n, dir, m, beam, ph: -1.2 }; satPass.set(key, o);
+      scene.add(m, beam); o = { n, dir, m, beam, ph: Math.PI - 0.5 - sec * 0.32 - 1.2 }; satPass.set(key, o);
     }
-    const R = 1.1, th = K.SAT_KM / 6371, phi = ((sec * 0.32 + 1.2 + o.ph) % (Math.PI * 2)) - Math.PI;   // −π..π, 0 = right over the target
+    const R = 1.1, th = K.SAT_KM / 6371, phi = ((((sec * 0.32 + 1.2 + o.ph) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) - Math.PI;   // −π..π, 0 = right over the target
     const p = o.n.clone().multiplyScalar(Math.cos(phi)).addScaledVector(o.dir, Math.sin(phi)).multiplyScalar(R), vel = o.dir.clone().multiplyScalar(Math.cos(phi)).addScaledVector(o.n, -Math.sin(phi));
     faceUp(o.m, p, vel); o.m.visible = p.clone().normalize().dot(camDir) > -0.1;
     const over = Math.max(0, 1 - Math.abs(phi) / (th * 1.4)), fade = Math.min(1, (st.until - simT) / 8);
@@ -3046,6 +3046,7 @@ requestAnimationFrame(frame);
 // test hooks
 window.__g = { get fleets() { return S.fleets; }, placeFleets, tick(n = 1, dt = 0.1) { for (let k = 0; k < n; k++) frame(last + dt * 1000); }, startTutorial, get tut() { return tut; }, paintOverlay, paintRoutes, stepNukeFx, demoNuke, nukeBlast, renderer, nukeFx, camera, controls, scene, renderNukePanel, nukePanelHtml, startReplay, get tension() { return tension; }, get replaying() { return !!replay; }, openShare, openArchive, openSignal, missionsHud, E, act, clickCity, select, setMode, cities, flyTo, hud, placeLabels, placeNations, paintCities, render: () => renderer.render(scene, camera),
   look(i, d = 2.3) { camera.position.copy(cities[i].v).multiplyScalar(d); controls.update(); },
+  get actx() { return actx; }, sfx, raidOn, raidOff, setSpeed, boom, blast, sparks, capturePillar, sunDir, flyToVec, get speed() { return speed; },
   get online() { return online; }, get me() { return me; }, get myId() { return myId; }, get selected() { return selected; }, get you() { return youInfo; }, get mode() { return mode; } };
 </script>
 </body>

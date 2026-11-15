@@ -16,3 +16,6 @@ _archive/
 .DS_Store
 Thumbs.db
 .env
+
+# rendered trailers and other big media
+media/

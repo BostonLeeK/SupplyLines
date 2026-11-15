@@ -114,6 +114,15 @@ npm test          # engine and save/load tests
 npm run balance   # 16 bot-only seasons: are the factions balanced?
 ```
 
+## Trailer
+
+`tools/trailer.js` films a 1:30 English trailer straight from the game: scripted camera, titles, the game's own sound and a synthesized score, recorded at 1920×1080.
+
+1. `node tools/trailer-server.mjs` (serves the script and saves the video to `media/`, which git ignores).
+2. Open `http://localhost:5177/?offline=1&lang=en` in Chrome, press PLAY.
+3. In the console: `(await import('http://127.0.0.1:5199/trailer.js')).run({ record: true, upload: 'http://127.0.0.1:5199/save', name: 'trailer-en.webm' })` and keep the tab in front for ~95 s.
+4. `ffmpeg -i media/trailer-en.webm -vf fps=30,format=yuv420p -c:v libx264 -crf 18 -af loudnorm=I=-14:TP=-1.5 -c:a aac -b:a 192k -movflags +faststart media/trailer-en.mp4`
+
 ## Deploy
 
 See [DEPLOY.md](DEPLOY.md): one `docker compose up` on a VPS, behind the reverse proxy you already run.
