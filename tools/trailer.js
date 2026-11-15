@@ -46,14 +46,27 @@ function drawLabels(alpha) {
     ctx.fillStyle = 'rgba(8,12,18,.85)'; ctx.strokeStyle = col; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.roundRect(bx, y - bh / 2, bw, bh, 7); ctx.fill(); ctx.stroke();
     ctx.fillStyle = '#e9eef5'; ctx.fillText(String(tr), bx + 8, y + 1);
-    if (big || dist < 1.9) { ctx.font = `600 ${big ? 22 : 17}px ${FONT}`; ctx.fillStyle = 'rgba(233,238,245,.92)'; ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 8; ctx.fillText((c.cap >= 0 ? '★ ' : '') + c.name, bx + bw + 8, y + 1); ctx.shadowBlur = 0; }
+    if (big || dist < 1.9) { ctx.font = `600 ${big ? 22 : 17}px ${FONT}`; ctx.fillStyle = 'rgba(233,238,245,.92)'; ctx.shadowColor = 'rgba(0,0,0,.9)'; ctx.shadowBlur = 8; ctx.fillText((c.cap >= 0 ? '★ ' : '') + nm(c.name), bx + bw + 8, y + 1); ctx.shadowBlur = 0; }
   }
   ctx.restore();
 }
 
 // titles: big centred lines that fade in and out
 const titles = [];
-function title(t0, t1, text, opt = {}) { titles.push({ t0, t1, text, ...opt }); }
+const UK = {
+  'TWO FACTIONS.': 'ДВІ ФРАКЦІЇ.', 'ONE PLANET.': 'ОДНА ПЛАНЕТА.', 'EVERY CITY RAISES TROOPS': 'КОЖНЕ МІСТО ДАЄ ВІЙСЬКА',
+  'EVERY WAR RUNS ON\nSUPPLY LINES': 'КОЖНА ВІЙНА ТРИМАЄТЬСЯ\nНА ЛІНІЯХ ПОСТАЧАННЯ', 'SEND THE CONVOYS. BREAK THE FRONT.': 'ВІДПРАВЛЯЙ КОНВОЇ. ПРОРИВАЙ ФРОНТ.',
+  'DRONES': 'ДРОНИ', 'ELECTRONIC WARFARE. BLACKOUTS.': 'РЕБ. БЛЕКАУТИ.', 'SATELLITES. AIRDROPS. FLEETS.': 'СУПУТНИКИ. ДЕСАНТИ. ФЛОТИ.',
+  'SEVEN DAYS. ONE SEASON.': 'СІМ ДНІВ. ОДИН СЕЗОН.', 'TAKE THEIR CAPITAL.\nHOLD IT FOR 12 HOURS.': 'ВІЗЬМИ ЇХНЮ СТОЛИЦЮ.\nУТРИМАЙ ЇЇ 12 ГОДИН.',
+  'OR BURN IT ALL.': 'АБО СПАЛИ ВСЕ.', 'NUCLEAR WINTER.': 'ЯДЕРНА ЗИМА.', 'Two strikes in one season. Everybody loses.': 'Два удари за сезон. Програють усі.',
+  'This is a game.': 'Це гра.', 'In Ukraine, it is not.': 'В Україні — ні.', 'ARE YOU REALLY READY\nFOR A REAL WAR?': 'ВИ СПРАВДІ ГОТОВІ\nДО СПРАВЖНЬОЇ ВІЙНИ?',
+  'SUPPLY LINES  ·  GLOBALWAR.XYZ  ·  FREE, IN YOUR BROWSER': 'SUPPLY LINES  ·  GLOBALWAR.XYZ  ·  БЕЗКОШТОВНО, У БРАУЗЕРІ',
+  'ATLANTICA': 'АТЛАНТИКА', 'PACIFICA': 'ПАЦИФІКА',
+};
+let LANG = 'en';
+const tx = t => LANG === 'uk' ? (UK[t] || t) : t;
+const nm = n => LANG === 'uk' && window.slLang ? slLang.tr(n) : n;
+function title(t0, t1, text, opt = {}) { titles.push({ t0, t1, text: tx(text), ...opt, sub: opt.sub && tx(opt.sub) }); }
 function drawTitles(T) {
   for (const tt of titles) {
     if (T < tt.t0 || T > tt.t1) continue;
@@ -76,7 +89,7 @@ function drawFrame(T) {
   // vignette and letterbox
   const vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.95); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, 54); ctx.fillRect(0, H - 54, W, 54);
-  if (scoreA > 0) { const p = E.scores().pts; ctx.save(); ctx.globalAlpha = scoreA; ctx.font = `700 34px ${FONT}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'right'; ctx.fillStyle = FCOL[0]; ctx.fillText('ATLANTICA  ' + p[0], W / 2 - 24, 100); ctx.textAlign = 'left'; ctx.fillStyle = FCOL[1]; ctx.fillText(p[1] + '  PACIFICA', W / 2 + 24, 100); ctx.fillStyle = '#6b7787'; ctx.textAlign = 'center'; ctx.fillText('—', W / 2, 100); ctx.restore(); }
+  if (scoreA > 0) { const p = E.scores().pts; ctx.save(); ctx.globalAlpha = scoreA; ctx.font = `700 34px ${FONT}`; ctx.textBaseline = 'middle'; ctx.textAlign = 'right'; ctx.fillStyle = FCOL[0]; ctx.fillText(tx('ATLANTICA') + '  ' + p[0], W / 2 - 24, 100); ctx.textAlign = 'left'; ctx.fillStyle = FCOL[1]; ctx.fillText(p[1] + '  ' + tx('PACIFICA'), W / 2 + 24, 100); ctx.fillStyle = '#6b7787'; ctx.textAlign = 'center'; ctx.fillText('—', W / 2, 100); ctx.restore(); }
   if (flash > 0) { ctx.globalAlpha = Math.min(1, flash); ctx.fillStyle = '#fff4dc'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (fade > 0) { ctx.globalAlpha = fade; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   drawTitles(T);
@@ -147,6 +160,8 @@ export async function run(opt = {}) {
   ac = g.actx; if (!ac && opt.record) throw new Error('press PLAY first');
   if (ac) { if (ac.state !== 'running') await ac.resume(); patchAudio(); recDest = ac.createMediaStreamDestination(); window.__slRec = recDest; }
   try { localStorage.setItem('sl-music', 'off'); } catch (e) {}
+  LANG = opt.lang || 'en';
+  await Promise.all(['700 96px', '600 22px', '500 36px'].map(f => document.fonts.load(f + ' "IBM Plex Sans Condensed"', 'АБВГҐДЄЇабвгґдєї ABC')));
   setupCanvas();
   const s = S(); fillCp();
   // warm the war up to the middle of day 3 so the fronts are alive
