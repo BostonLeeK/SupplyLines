@@ -291,5 +291,18 @@
  "Storms form three times as often at sea, up to five at once.": "Шторми на морі виникають утричі частіше, до п'яти одночасно.",
  "Command points regenerate twice as fast for everyone.": "Очки дій відновлюються вдвічі швидше для всіх.",
  "Nuclear programs are frozen and no launch can be prepared today.": "Ядерні програми заморожено, сьогодні жоден пуск підготувати не можна.",
- "The faction that is behind finds new resolve: +25% troop production.": "Фракція, що відстає, знаходить нові сили: +25% до виробництва військ."
+ "The faction that is behind finds new resolve: +25% troop production.": "Фракція, що відстає, знаходить нові сили: +25% до виробництва військ.",
+ "Modern war": "Сучасна війна",
+ "A kill zone over your city or one bordering your network. Enemy convoys on its routes lose 20%, and you see the area. Three quadcopters circle over it. Half a day, up to 3 zones.": "Зона ураження над твоїм містом або сусіднім із твоєю мережею. Ворожі конвої на його маршрутах втрачають 20%, а ти бачиш околиці. Над зоною кружляють три квадрокоптери. Пів доби, до 3 зон.",
+ "A translucent dome over your city. Enemy drones within 900 km stop working, and long-range strikes into it are jammed. One day.": "Прозорий купол над твоїм містом. Ворожі дрони в радіусі 900 км не працюють, а далекі удари по ньому глушаться. Одна доба.",
+ "Hit a large enemy city or megahub within 3,000 km of your cities. Air defence shoots down half; EW jams them all.": "Удар по великому ворожому місту чи мегахабу до 3000 км від твоїх міст. ППО збиває половину дронів, РЕБ глушить усі.",
+ "half a day": "пів доби",
+ "A region hit by a strike goes dark: city lights go out, its glow on the map shrinks, and the enemy makes half the troops there. Sparking transformers mean the grid is still down. A new strike restarts the clock.": "Регіон після удару лишається без світла: вогні міст гаснуть, його сяйво на мапі зменшується, а ворог виробляє там удвічі менше військ. Іскри на трансформаторах означають, що мережу ще не відновили. Новий удар запускає відлік заново.",
+ "Air defence": "ППО",
+ "1,500 km": "1500 км",
+ "Every megahub covers 1,500 km around it. It shoots down 40% of enemy airdrops (half as many at night) and half the drone strikes.": "Кожен мегахаб прикриває 1500 км навколо. Він збиває 40% ворожих десантів (уночі вдвічі менше) і половину ударних дронів.",
+ "How to answer": "Як відповідати",
+ "Enemy drones on your front: raise an EW dome next to them. Strikes on your megahubs: cover them with EW. A dark region still holds: garrisons stay, only production drops.": "Ворожі дрони на твоєму фронті — постав поруч купол РЕБ. Удари по твоїх мегахабах — накрий їх РЕБом. Регіон без світла все одно тримається: гарнізони лишаються, падає лише виробництво.",
+ "Lifts the fog within 2,200 km for about 17 hours. The satellite passes over the area and scans it with a beam. Up to 2 per faction at once.": "Розвіює туман у радіусі 2200 км приблизно на 17 годин. Супутник пролітає над районом і сканує його променем. До 2 одночасно на фракцію.",
+ "From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. A transport plane flies the arc and parachutes open over the target. Enemy megahubs shoot down 40% nearby.": "З твого мегахабу на будь-яке місто до 3500 км, без маршрутів. До 30 бійців. Транспортний літак летить дугою, над ціллю розкриваються парашути. Ворожі мегахаби поблизу збивають 40%."
 }
