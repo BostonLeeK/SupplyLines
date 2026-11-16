@@ -1799,8 +1799,9 @@ function event(html, f, city) {
   d.innerHTML = `<span class="t">D${dd} ${hh}</span>${html}`;
   feedEl.prepend(d); while (feedEl.children.length > (PHONE() ? 30 : 5)) feedEl.lastChild.remove();
   if (PHONE() && !document.body.classList.contains('feedOpen')) setUnread(unread + 1);
+  // phones keep notifications in the sheet until they are read; elsewhere they fade out
   const life = f === 'alarm' ? 11000 : 6500;
-  setTimeout(() => d.classList.add('old'), life); setTimeout(() => d.remove(), life + 700);
+  if (!PHONE()) { setTimeout(() => d.classList.add('old'), life); setTimeout(() => d.remove(), life + 700); }
 }
 const pipsEl = $('pips');
 function renderPips() {
