@@ -1,5 +1,13 @@
 [
  [
+  "^The drone fundraiser is full: a swarm takes off over (\\d+) enemy front cities(.*)$",
+  "Збір на дрони закрито: рій злітає над ворожими прифронтовими містами ($1){2}"
+ ],
+ [
+  "^\\+(\\d+) CP$",
+  "+$1 ОД"
+ ],
+ [
   "^(\\d+) DAYS? LEFT$",
   "ЛИШИЛОСЬ ДНІВ: $1"
  ],
@@ -346,5 +354,37 @@
  [
   "^(.+) \\(you\\)$",
   "{1} (ти)"
+ ],
+ [
+  "^(Atlantica|Pacifica): (\\d+)$",
+  "{1}: $2"
+ ],
+ [
+  "^(Atlantica|Pacifica) \\+(\\d+)%$",
+  "{1} +$2%"
+ ],
+ [
+  "^Season (\\d+) · day (\\d) of 7$",
+  "Сезон $1 · день $2 з 7"
+ ],
+ [
+  "^(\\d+) players? online · (Atlantica|Pacifica)$",
+  "{2}: гравців онлайн — $1"
+ ],
+ [
+  "^(\\d+) online · (Atlantica|Pacifica)$",
+  "{2}: онлайн — $1"
+ ],
+ [
+  "^A season lasts 7 game days\\. The faction with more points at the end wins, or at once the one that holds the enemy capital for 12 hours\\. Your rank and XP stay with you\\. Real time left: about (\\d+) (min|h)\\.$",
+  "Сезон триває 7 ігрових днів. Перемагає фракція з більшою кількістю очок на кінець або одразу та, що втримає ворожу столицю 12 годин. Твоє звання й XP лишаються з тобою. До кінця в реальному часі: близько $1 {2}."
+ ],
+ [
+  "^min$",
+  "хв"
+ ],
+ [
+  "^h$",
+  "год"
  ]
 ]

@@ -73,6 +73,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .tug .track{height:10px;width:100%;background:#18222e;border-radius:2px;overflow:hidden;display:flex}
 .tug .track i{display:block;height:100%;transition:width .5s}
 .tug .mid{position:absolute;left:50%;top:6px;bottom:6px;width:2px;background:#000;opacity:.6}
+.mBtn{display:none;pointer-events:auto} #top [data-k],#top .side{pointer-events:auto;cursor:pointer} #top [data-k]:hover,#top .side:hover{filter:brightness(1.25)}
 #meta{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--dim);font-weight:600;padding:0 2px}
 #meta b{color:var(--ink);font-weight:700}
 #season{height:2px;background:#18222e;margin-top:6px;border-radius:2px;overflow:hidden}
@@ -427,7 +428,7 @@ input[type=range]{accent-color:var(--ink)}
 #genPop p{margin:0 0 8px} #genPop ul{margin:0 0 10px;padding-left:16px} #genPop li{margin:3px 0} #genPop b{color:var(--ink)}
 #genPop .gpB{display:flex;gap:8px} #genPop .gpB button{flex:1;padding:8px;border-radius:6px;border:1px solid var(--edge);background:#18222e;color:var(--ink);font:700 10px/1.2 var(--disp);letter-spacing:.04em;cursor:pointer}
 #genPop .gpB button:hover{border-color:var(--cp);color:var(--cp)}
-@media (max-width:700px){ #genBadge{width:56px;height:56px} #genPop{left:14px;right:14px;width:auto;top:auto;bottom:170px;transform:none} }
+@media (max-width:700px){ #genBadge{width:56px;height:56px} #genPop{left:14px;right:14px;width:auto;top:auto;bottom:calc(var(--botH, 200px) + 10px);max-height:calc(100% - var(--topArea, 200px) - var(--botH, 200px) - 20px);overflow-y:auto;transform:none} }
 #nukeDock .ab.nuke{position:relative;width:70px;height:70px;padding:0;border-radius:50%;border:0;background:radial-gradient(circle,#141a12 58%,transparent 59%),conic-gradient(#d7e66a var(--p,0deg),#26301a 0);box-shadow:0 6px 20px rgba(0,0,0,.5);flex:none;gap:2px;overflow:visible}
 #nukeDock .ab.nuke svg{width:22px;height:22px}
 #nukeDock .ab.nuke .lb{display:none!important}
@@ -435,10 +436,11 @@ input[type=range]{accent-color:var(--ink)}
 #nukeDock .ab.nuke .hk{top:auto;bottom:-16px;right:50%;transform:translateX(50%);color:var(--mut)}
 #nukeDock .ab.nuke:hover{filter:brightness(1.2)}
 #nukeDock .ab.nuke.used{opacity:.45}
-@media (max-width:700px){ #nukeDock{right:10px;top:44%} #nukeDock .ab.nuke{width:58px;height:58px} #nukeDock .ab.nuke svg{width:18px;height:18px} #nukePanel{left:14px;right:14px;width:auto;top:auto;bottom:170px;transform:none} }
+@media (max-width:700px){ #nukeDock{right:10px;top:44%} #nukeDock .ab.nuke{width:58px;height:58px} #nukeDock .ab.nuke svg{width:18px;height:18px} #nukePanel{left:14px;right:14px;width:auto;top:calc(var(--topArea, 200px) + 10px);bottom:auto;max-height:calc(100% - var(--topArea, 200px) - var(--botH, 200px) - 20px);overflow-y:auto;transform:none;z-index:12} }
 body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.replay #nukeDock,body.replay #genPop{display:none}
 #nukePanel{position:fixed;right:98px;top:50%;transform:translateY(-50%);width:min(420px,calc(100% - 28px));z-index:8;background:var(--plate);border:1px solid #4a5222;border-radius:10px;padding:14px 16px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 #nukePanel.open{display:block}
+#nukePanel .nkTop{display:flex;align-items:center;gap:10px} #nukePanel .nkX{background:none;border:0;color:var(--dim);font:700 16px/1 var(--body);padding:2px 4px;cursor:pointer} #nukePanel .nkX:hover{color:var(--ink)}
 #nukePanel h3{margin:0 0 10px;font:800 13px/1 var(--disp);letter-spacing:.12em;color:#d7e66a;display:flex;justify-content:space-between}
 #nukePanel .bar2{height:10px;background:#18222e;border-radius:3px;overflow:hidden;margin:6px 0 4px} #nukePanel .bar2 i{display:block;height:100%;background:#d7e66a}
 #nukePanel .bar2.enemy i{background:var(--bad)}
@@ -546,6 +548,21 @@ body.intro #top,body.intro #feed,body.intro #bottom,body.intro #corner,body.intr
 #top,#feed,#bottom,#corner,#labels,#leftcol{transition:opacity .5s}
 body.online #simCtl,body.online #speedBtn{display:none}
 @media (max-width:1500px){
+  #cmd{overflow:visible}
+  .abil{display:none}
+  .abcats{display:flex;flex:1 1 auto;min-width:0;border-left:1px solid var(--edge)}
+  .abil.open{display:grid;position:fixed;width:min(400px,calc(100vw - 24px));z-index:30;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px;background:rgba(11,17,24,.97);border:1px solid var(--edge);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+  .abil.open .ab{display:none;min-height:74px;gap:6px;border:1px solid var(--edge);border-radius:9px;font-size:10.5px;letter-spacing:.04em;white-space:normal;text-align:center;line-height:1.15}
+  .abil.open .ab+.ab{border-left:1px solid var(--edge)}
+  .abil.open .ab svg{width:24px;height:24px} .abil.open .ab .lb{display:block} .abil.open .ab .cost{font-size:10px}
+  .abil.open[data-cat="army"] .ab[data-cat="army"],.abil.open[data-cat="navy"] .ab[data-cat="navy"],.abil.open[data-cat="drones"] .ab[data-cat="drones"],.abil.open[data-cat="intel"] .ab[data-cat="intel"]{display:flex}
+  body.catOpen #hint{visibility:hidden}
+  .abil .shHead{display:none} .abil.open .shHead{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;font:700 11px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:2px 2px 4px}
+  .abil.open .shHead button{background:none;border:0;color:var(--dim);font:700 18px/1 var(--body);padding:4px 8px;cursor:pointer}
+  .abcats button{flex:1 1 0;min-width:56px;width:auto;min-height:0}
+  .abil.open .ab .hk{top:6px;right:8px}
+}
+@media (max-width:1500px){
   #bottom{left:264px;transform:none;width:calc(100% - 264px - var(--cw, 330px) - 30px)}
   .ab .lb{display:none} .ab{padding:6px 2px;gap:3px} .ab svg{width:19px;height:19px}
 }
@@ -554,14 +571,14 @@ body.online #simCtl,body.online #speedBtn{display:none}
   #gen,#squad,#missions,#regions{padding:8px 10px}
   #genTools .mk{padding:5px 4px}
 }
-@media (max-width:1100px){ #leftcol{display:none} #bottom{width:calc(100% - 238px);left:14px;transform:none} }
+@media (max-width:1100px){ #leftcol{display:none} #bottom{width:calc(100% - var(--cw, 312px) - 44px);left:14px;transform:none} .abcats button{font-size:9px} #feed{top:calc(var(--topBar, 100px) + 10px)} }
 @media (max-width:760px){
   #intro .foot{position:sticky;bottom:-16px;background:linear-gradient(180deg,rgba(5,8,13,0),#05080d 30%);padding:22px 0 16px;margin-top:10px}
   #intro .sheet .lead{font-size:13px;margin-bottom:14px}
   .steps{grid-template-columns:1fr!important} .step{display:grid;grid-template-columns:90px 1fr;gap:4px 10px;align-items:center;padding:10px} .step .no{display:none} .step svg{grid-row:span 2;height:40px;margin:0}
   #oA,#oB{display:none} #meta{justify-content:center}
   #card{display:none!important}
-  #feed{top:auto;bottom:170px;width:240px} .ev:nth-child(n+4){display:none}
+  #feed{top:auto;bottom:calc(var(--botH, 200px) + 8px);width:min(300px,calc(100% - 90px))} .ev:nth-child(n+4){display:none}
   .side{padding:0 9px;height:38px} .side .pts{font-size:17px} .side .nm{display:none}
   #bottom{width:calc(100% - 28px);bottom:12px}
   #cmd{flex-wrap:wrap} #cmd .blk{padding:8px 10px}
@@ -576,20 +593,38 @@ body.online #simCtl,body.online #speedBtn{display:none}
   #cmd .blk:nth-child(2) .chips button{flex:1 1 0;min-width:0;height:36px;padding:0 2px;font-size:12px}
   #cmd .blk:nth-child(2) .chips.kinds button{font-size:11px;letter-spacing:.02em}
   .abil{flex-basis:100%;border-top:1px solid var(--edge)} .ab{min-width:0}
-  #corner{bottom:auto;top:118px} #drawer{bottom:auto;top:166px}
+  #corner{bottom:auto;top:calc(var(--topBar, 118px) + 8px)} #drawer{bottom:auto;top:calc(var(--topBar, 118px) + 56px)}
   #corner .rwBtn{bottom:auto;top:calc(100% + 8px);height:30px;padding:0 12px;font-size:11px}
-  #gevCard,#rwNote,#capBar{top:206px}
+  #gevCard,#rwNote,#capBar{top:calc(var(--topArea, 200px) + 10px)}
+  /* two-row top: score, then day + icon chips + feed/menu buttons */
+  #resRow{display:none}
+  #meta{justify-content:flex-start;align-items:center;gap:6px;flex-wrap:nowrap}
+  #clock{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow:hidden;white-space:nowrap}
+  #clock .eraChip,#clock .gevChip,#clock .docChip:not(.txt){font-size:0;padding:3px 5px;line-height:0;cursor:pointer}
+  #clock .eraChip svg,#clock .gevChip svg,#clock .docChip svg{width:15px;height:15px;vertical-align:middle}
+  #clock .docChip:not(.txt) span:not(.eiw){display:none}
+  #clock .docChip.txt{font-size:10px;padding:2px 5px}
+  .mBtn{display:grid;place-items:center;flex:0 0 auto;width:34px;height:30px;border-radius:7px;background:var(--plate);border:1px solid var(--edge);color:var(--dim);position:relative;cursor:pointer}
+  .mBtn svg{width:17px;height:17px} .mBtn.on{color:var(--ink);border-color:var(--dim)}
+  #feedBtn.has::after{content:attr(data-n);position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;padding:0 3px;border-radius:8px;background:var(--cp);color:#1a1405;font:800 10px/16px var(--body);text-align:center}
+  #menuBtn.live::after{content:'';position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#ff6b5b;animation:rwBlink 1.2s ease-in-out infinite}
+  /* the icon row and REAL WAR live in the menu sheet */
+  #corner{display:none!important}
+  body.menuOpen #corner{display:grid!important;position:fixed;left:12px;right:12px;top:calc(var(--topBar, 100px) + 8px);bottom:auto;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px;background:rgba(11,17,24,.97);border:1px solid var(--edge);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.6);z-index:20}
+  body.menuOpen #corner .ic{width:100%;height:46px}
+  body.menuOpen #corner .rwBtn{position:static;grid-column:1/-1;order:-1;width:100%;height:42px}
+  #drawer{top:calc(var(--topBar, 100px) + 8px)!important}
+  /* notifications wait in a sheet */
+  #feed{display:none}
+  body.feedOpen #feed{display:flex;position:fixed;left:12px;right:12px;top:calc(var(--topBar, 100px) + 8px);bottom:auto;width:auto;max-height:calc(100% - var(--topBar, 100px) - var(--botH, 200px) - 24px);overflow-y:auto;padding:10px;gap:6px;background:rgba(11,17,24,.97);border:1px solid var(--edge);border-radius:12px;box-shadow:0 14px 40px rgba(0,0,0,.6);z-index:20;pointer-events:auto}
+  body.feedOpen #feed .ev{display:block!important;opacity:1!important;font-size:12.5px}
+  body.feedOpen #feed:empty::before{content:attr(data-empty);color:var(--mut);font-size:12px;padding:6px}
+  .toast{white-space:normal;max-width:calc(100vw - 28px);text-align:center;font-size:12.5px}
   #cmd{overflow:visible}
-  .abil{display:none}
-  .abcats{display:flex;flex-basis:100%;border-top:1px solid var(--edge)}
-  .abil.open{display:grid;position:fixed;left:12px;right:12px;z-index:30;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px;background:rgba(11,17,24,.97);border:1px solid var(--edge);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
-  .abil.open .ab{display:none;min-height:74px;gap:6px;border:1px solid var(--edge);border-radius:9px;font-size:10.5px;letter-spacing:.04em;white-space:normal;text-align:center;line-height:1.15}
-  .abil.open .ab+.ab{border-left:1px solid var(--edge)}
-  .abil.open .ab svg{width:24px;height:24px} .abil.open .ab .lb{display:block} .abil.open .ab .hk{display:none} .abil.open .ab .cost{font-size:10px}
-  .abil.open[data-cat="army"] .ab[data-cat="army"],.abil.open[data-cat="navy"] .ab[data-cat="navy"],.abil.open[data-cat="drones"] .ab[data-cat="drones"],.abil.open[data-cat="intel"] .ab[data-cat="intel"]{display:flex}
-  body.catOpen #hint{visibility:hidden}
-  .abil .shHead{display:none} .abil.open .shHead{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;font:700 11px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:2px 2px 4px}
-  .abil.open .shHead button{background:none;border:0;color:var(--dim);font:700 18px/1 var(--body);padding:4px 8px;cursor:pointer}
+  .abcats{flex-basis:100%;border-top:1px solid var(--edge);border-left:0!important}
+  .abcats button{min-height:54px}
+  .abil.open{left:12px!important;right:12px;width:auto!important}
+  .abil.open .ab .hk{display:none}
   .steps,.abilities{grid-template-columns:1fr 1fr} .step svg{height:46px}
 }
 #boot{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:var(--bg);transition:opacity .5s}
@@ -736,7 +771,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div id="rwNote"><span>This siren was a game. In Kyiv the real one has sounded for <b>2,822 hours</b> since 2022. Are you sure you are ready for a real war?</span><button id="rwNoteGo">SEE THE REAL NUMBERS</button><button id="rwNoteX" title="Close">×</button></div>
 <div id="docCard"><div class="dh"><div class="dk">Choose the doctrine<small>As general you set how your faction fights this season. It cannot be changed later.</small></div></div><div class="dg" id="docGrid"></div><div class="df"><span>If you do not choose, HQ picks one at the end of day 1</span><button type="button" id="docHide">LATER</button></div></div>
 <div id="capBar"><span class="ci" id="capIcon"></span><span id="capTxt"></span><button id="capExile" type="button" title="Move the government to your largest city: the countdown runs at half speed, production −15% until the capital is back">MOVE GOVERNMENT · 5 CP</button><span class="cd" id="capCd"></span></div>
-<div id="gevCard"><div class="gk"><span id="gevKind">WORLD EVENT</span> · <span id="gevDay"></span></div><div class="gi" id="gevIcon"></div><div class="gn" id="gevName"></div><div class="gt" id="gevText"></div></div>
+<div id="gevCard"><div class="gk"><span id="gevKind">WORLD EVENT</span><span id="gevSep"> · </span><span id="gevDay"></span></div><div class="gi" id="gevIcon"></div><div class="gn" id="gevName"></div><div class="gt" id="gevText"></div></div>
 <div id="conn" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:8;background:#3c0e0a;border:1px solid var(--bad);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700">Connection lost. Reconnecting…</div>
 <svg id="dragFx"><path id="dfPath"/><circle class="rg" id="dfRing" r="14"/><circle class="hd" id="dfHead" r="4"/><circle class="rg" id="dfSrc" r="16"/></svg>
 <div id="tip"></div>
@@ -1203,12 +1238,13 @@ const pending = new Map();
 function toast(html, kind = 'info', city = -1) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.innerHTML = html;
   const c = city >= 0 ? cities[city] : null, p = c && c.vis ? [c.sx, c.sy - 16] : [mouse[0], mouse[1] - 12];
-  d.style.left = Math.max(120, Math.min(innerWidth - 120, p[0])) + 'px'; d.style.top = Math.max(60, p[1]) + 'px';
+  layoutVars(); const cs = getComputedStyle(document.documentElement), topLim = Math.max(110, (parseFloat(cs.getPropertyValue('--topArea')) || 60) + 24), botLim = innerHeight - (parseFloat(cs.getPropertyValue('--botH')) || 0) - 24;
+  d.style.left = Math.max(120, Math.min(innerWidth - 120, p[0])) + 'px'; d.style.top = Math.min(botLim, Math.max(innerWidth <= 760 ? topLim : 60, p[1])) + 'px';
   document.body.appendChild(d); { const w = d.offsetWidth / 2 + 10; d.style.left = Math.max(w, Math.min(innerWidth - w, parseFloat(d.style.left))) + 'px'; }
   // two notices over the same spot (a spy is sent and reports back at once): stack the new one above the old
   { const x = parseFloat(d.style.left), y0 = parseFloat(d.style.top), others = [...document.querySelectorAll('.toast')].filter(o => o !== d);
-    const free = y => y >= 50 && !others.some(o => Math.abs(parseFloat(o.style.left) - x) < (o.offsetWidth + d.offsetWidth) / 2 && Math.abs(parseFloat(o.style.top) - y) < 30);
-    const y = [0, -32, -64, -96, 32, 64, 96].map(dy => y0 + dy).find(free); if (y !== undefined) d.style.top = y + 'px'; }
+    const free = y => y >= (innerWidth <= 760 ? topLim : 50) && y <= botLim && !others.some(o => Math.abs(parseFloat(o.style.left) - x) < (o.offsetWidth + d.offsetWidth) / 2 && Math.abs(parseFloat(o.style.top) - y) < (o.offsetHeight + d.offsetHeight) / 2 + 3);
+    const step = d.offsetHeight + 4, y = [0, -1, -2, -3, 1, 2, 3, 4, 5].map(k => y0 + k * step).find(free); if (y !== undefined) d.style.top = y + 'px'; }
   setTimeout(() => d.remove(), 2500);
   if (kind === 'bad') { const h = $('hint'); h.classList.add('flash'); clearTimeout(h._t); h._t = setTimeout(() => h.classList.remove('flash'), 1600); }
 }
@@ -1277,14 +1313,14 @@ function onGameEvent(ev) {
     case 'sat': refreshVis(); if (ev.f === me) event(`🛰 Satellite over ${cname(ev.city)}: fog lifted for ~${Math.round(K.SAT_TIME * GMIN / 60)} h${ev.who === myId ? '' : ' (' + ev.by + ')'}`, me, ev.city); break;
     case 'spy': refreshVis(); if (ev.f === me) { const o = ev.order >= 0 ? cname(ev.order) : 'none'; event(`🕵 Agent in ${cname(ev.city)}: garrison ${ev.troops}, enemy army ${ev.army.toLocaleString('en-US')}, rally point ${o}, nuclear program ${ev.ready ? 'READY' : ev.nuke + '%'}${ev.arm >= 0 ? ', LAUNCH BEING PREPARED at ' + cname(ev.arm) : ''}`, me, ev.city); if (ev.who === myId) toast('Report received', 'good', ev.city); } break;
     case 'spy_caught': if (ev.f === me) { event(`🕵 Our agent was caught in ${cname(ev.city)}`, 'warn', ev.city); if (ev.who === myId) toast('Agent caught', 'bad', ev.city); } else event(`🕵 Enemy spy caught in ${cname(ev.city)}`, me, ev.city); break;
-    case 'era': { const er = ERAS[ev.era]; if (!er) break; event(`${er.icon} A new era begins: <b>${er.name}</b>. ${er.text}`, 'warn'); setTimeout(() => showEra(true), 2500); break; }
+    case 'era': { const er = ERAS[ev.era]; if (!er) break; event(`${er.icon} A new era begins: <b>${er.name}</b>. ${er.text}`, 'warn'); if (!PHONE()) setTimeout(() => showEra(true), 2500); break; }
     case 'gevent': {
       const g = GEVENTS[ev.ev]; if (!g) break; let extra = '';
       if (ev.ev === 'rally') extra = ev.f < 0 ? ' Scores are level: nobody gets it.' : ev.f === me ? ' <b>That is your faction.</b>' : ` <b>${FN[ev.f]} gets it.</b>`;
       if (ev.ev === 'oil' && !E.resHeld(me).o) extra = ' <b>You hold no oil: take an oil field ⛽.</b>';
       if (ev.ev === 'crop' && !E.resHeld(me).g) extra = ' <b>You hold no grain: take a grain field 🌾.</b>';
-      $('gevKind').textContent = 'WORLD EVENT'; $('gevDay').textContent = 'DAY ' + (ev.until ? Math.round(ev.until / (K.SEASON / 7)) : gameTime()[0]); $('gevIcon').textContent = g.icon; $('gevName').textContent = g.name; $('gevText').innerHTML = g.text + extra;
-      const c = $('gevCard'); c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), 9000); c.onclick = () => c.classList.remove('on');
+      $('gevSep').style.display = ''; $('gevKind').textContent = 'WORLD EVENT'; $('gevDay').textContent = 'DAY ' + (ev.until ? Math.round(ev.until / (K.SEASON / 7)) : gameTime()[0]); $('gevIcon').textContent = g.icon; $('gevName').textContent = g.name; $('gevText').innerHTML = g.text + extra;
+      const c = $('gevCard'); if (!PHONE()) { c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), 9000); } c.onclick = () => c.classList.remove('on');
       event(`${g.icon} World event: ${g.name} until midnight`, 'warn'); sfx('fort'); break;
     }
     case 'storm': event('A storm is building at sea: routes through it run at 40% speed', undefined, ll2v(ev.lat, ev.lng)); break;
@@ -1440,7 +1476,7 @@ function clickCity(i) {
   if (mode === 'fake') { setMode('convoy'); return act({ type: 'fake', city: i }, { city: i }); }
   if (mode === 'sat') { setMode('convoy'); return act({ type: 'satellite', city: i }, { city: i, ok: `Satellite over ${cities[i].name}` }); }
   if (mode === 'spy') { if (owner[i] !== 1 - me) return toast('Spies go to enemy cities', 'bad', i); setMode('convoy'); return act({ type: 'spy', city: i }, { city: i, ok: `Agent sent to ${cities[i].name}` }); }
-  if (mode === 'envoy') { setMode('convoy'); const n = cities[i].nation; return act({ type: 'envoy', city: i }, { city: i, ok: `Envoy sent to ${NATIONS[n][0]}` }); }
+  if (mode === 'envoy') { const n = cities[i].nation; if (n < 0 || !NATIONS[n]) return toast('Envoys go to free nations bordering your network', 'bad', i); setMode('convoy'); return act({ type: 'envoy', city: i }, { city: i, ok: `Envoy sent to ${NATIONS[n][0]}` }); }
   if (mode === 'sail') { const id = selFleet; setMode('convoy'); selFleet = null; return act({ type: 'fleet_sail', fleet: id, city: i }, { city: i, ok: `Fleet sailing to ${cities[i].name}` }); }
   if (mode === 'nuke') { setMode('convoy'); return act({ type: 'nuke_arm', city: i }, { city: i, ok: 'Launch armed: the second key is needed' }); }
   if (mode === 'build') { const src = selected; setMode('convoy'); select(src);
@@ -1756,12 +1792,13 @@ const feedEl = $('feed');
 function gameTime() { const gm = Math.min(S.simT * GMIN, 7 * 1440 - 1), d = Math.min(7, Math.floor(gm / 1440) + 1); return [d, `${String(Math.floor(gm % 1440 / 60)).padStart(2, '0')}:${String(Math.floor(gm % 60)).padStart(2, '0')}`]; }
 function event(html, f, city) {
   // local mistakes show next to the action; news about your cities stays in the feed
-  if (f === 'warn' && !/sabotaged|blockaded|repelled|shot down/.test(html)) return toast(html, 'bad', typeof city === 'number' ? city : -1);
+  if (f === 'warn' && !/sabotaged|blockaded|repelled|shot down/.test(html) && !PHONE()) return toast(html, 'bad', typeof city === 'number' ? city : -1);
   const d = document.createElement('div'); const [dd, hh] = gameTime();
   d.className = 'ev' + (f === 'warn' ? ' warn' : f === 'alarm' ? ' alarm' : f !== undefined ? ' f' + f : '') + (city !== undefined ? ' click' : '');
   if (city !== undefined) d.onclick = () => typeof city === 'object' ? flyToVec(city) : flyTo(city);
   d.innerHTML = `<span class="t">D${dd} ${hh}</span>${html}`;
-  feedEl.prepend(d); while (feedEl.children.length > 5) feedEl.lastChild.remove();
+  feedEl.prepend(d); while (feedEl.children.length > (PHONE() ? 30 : 5)) feedEl.lastChild.remove();
+  if (PHONE() && !document.body.classList.contains('feedOpen')) setUnread(unread + 1);
   const life = f === 'alarm' ? 11000 : 6500;
   setTimeout(() => d.classList.add('old'), life); setTimeout(() => d.remove(), life + 700);
 }
@@ -1823,7 +1860,8 @@ const AB_CAT_NAME = { army: 'ARMY', navy: 'NAVY', drones: 'DRONES', intel: 'INTE
 function openCat(c) {
   const abil = document.querySelector('.abil');
   abil.classList.toggle('open', !!c); if (c) abil.dataset.cat = c; document.body.classList.toggle('catOpen', !!c);
-  if (c) { $('shTitle').textContent = AB_CAT_NAME[c]; const r = $('abCats').getBoundingClientRect(); abil.style.bottom = Math.max(8, innerHeight - r.top + 8) + 'px'; }
+  if (c) { $('shTitle').textContent = AB_CAT_NAME[c]; const r = $('abCats').getBoundingClientRect(); abil.style.bottom = Math.max(8, innerHeight - r.top + 8) + 'px';
+    if (innerWidth > 760) { const tab = $('abCats').querySelector(`[data-cat="${c}"]`).getBoundingClientRect(), w = abil.offsetWidth || 400; abil.style.left = Math.max(12, Math.min(innerWidth - w - 12, tab.left + tab.width / 2 - w / 2)) + 'px'; } else abil.style.left = ''; }
   refreshCats();
 }
 function refreshCats() {
@@ -1853,6 +1891,55 @@ $('abFleet').onclick = () => {
 $('abBlock').onclick = () => setMode(mode === 'blockade' ? 'convoy' : 'blockade');
 $('abBuild').onclick = () => { if (mode === 'build') return setMode('convoy'); if (selected < 0 || owner[selected] !== me) return toast('Select one of your cities first: then click a neighbour for a railway, or the city itself for an airfield', 'bad'); setMode('build'); };
 // on narrow screens the left column is hidden: its general, squad and missions panels move into the drawer
+const PHONE = () => innerWidth <= 760;
+let unread = 0;
+function setUnread(n) { unread = n; const b = $('feedBtn'); if (!b) return; b.dataset.n = n > 9 ? '9+' : n; b.classList.toggle('has', n > 0); }
+function sheet(which) {   // 'feed' | 'menu' | null
+  document.body.classList.toggle('feedOpen', which === 'feed'); document.body.classList.toggle('menuOpen', which === 'menu');
+  $('feedBtn').classList.toggle('on', which === 'feed'); $('menuBtn').classList.toggle('on', which === 'menu');
+  if (which === 'feed') { setUnread(0); $('feed').dataset.empty = window.slLang ? slLang.tr('Nothing new yet') : 'Nothing new yet'; }
+}
+{
+  const m = $('meta'), mk = (id, title, svg) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.className = 'mBtn'; b.title = title; b.innerHTML = svg; m.appendChild(b); return b; };
+  const fb = mk('feedBtn', 'Notifications', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>');
+  const mb = mk('menuBtn', 'Menu', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>');
+  fb.onclick = e => { e.stopPropagation(); sheet(document.body.classList.contains('feedOpen') ? null : 'feed'); };
+  mb.onclick = e => { e.stopPropagation(); sheet(document.body.classList.contains('menuOpen') ? null : 'menu'); };
+  // a tap on the map, or on a button inside the menu, closes the sheet
+  addEventListener('pointerdown', e => { if (!PHONE()) return; if (!e.target.closest('#feed,#corner,#feedBtn,#menuBtn,#drawer')) sheet(null); });
+  $('corner').addEventListener('click', e => { if (PHONE() && e.target.closest('.ic') && !e.target.closest('#speedBtn,#musicBtn,#muteBtn,#langBtn')) setTimeout(() => sheet(null), 0); });
+  $('feed').addEventListener('click', e => { if (PHONE() && e.target.closest('.ev.click')) setTimeout(() => sheet(null), 0); });
+  // the menu button shows the red dot while there is an air-raid alert in Ukraine
+  new MutationObserver(() => mb.classList.toggle('live', $('realBtn').classList.contains('live'))).observe($('realBtn'), { attributes: true, attributeFilter: ['class'] });
+}
+// a tap on a status chip explains it
+function showInfo(kind, icon, name, text) {
+  $('gevKind').textContent = kind; $('gevDay').textContent = ''; $('gevSep').style.display = 'none'; $('gevIcon').innerHTML = icon; $('gevName').textContent = name; $('gevText').innerHTML = text;
+  const c = $('gevCard'); c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), 7000); c.onclick = () => c.classList.remove('on');
+}
+$('top').addEventListener('click', e => {
+  const side = e.target.closest('.side');
+  if (side) { const f = side.id === 'sideA' ? 0 : 1, p = E.scores().pts[f]; return showInfo('POINTS', window.slIcons ? slIcons.svg('trophy') : '', `${FN[f]}: ${p}`, 'Points come from cities (bigger ones are worth more), whole regions (+8 each), a held enemy capital (+10), canals and straits (+2), wonders (+3), operations and trade. The faction with more points when the season ends wins.'); }
+  const ch = e.target.closest('[data-k]'); if (!ch) return; const k = ch.dataset.k;
+  if (k === 'season') { const left = Math.max(0, K.SEASON - simT) / (online ? serverSpeed : Math.max(1, speed)) / 60, t = left >= 90 ? `about ${Math.round(left / 60)} h` : `about ${Math.max(1, Math.round(left))} min`;
+    return showInfo('SEASON', window.slIcons ? slIcons.svg('calendar') : '', `Season ${seasonNo} · day ${gameTime()[0]} of 7`, `A season lasts 7 game days. The faction with more points at the end wins, or at once the one that holds the enemy capital for 12 hours. Your rank and XP stay with you. Real time left: ${t}.`); }
+  if (k.startsWith('mob:')) { const f = +k.slice(4); return showInfo('MOBILISATION', window.slIcons ? slIcons.svg('fist') : '', `${FN[f]} +${Math.round((mobil[f] - 1) * 100)}%`, 'The faction that is behind on points produces up to 30% more troops, so no war is lost on day one. The boost fades as the gap closes.'); }
+  if (k.startsWith('on:')) { const f = +k.slice(3); return showInfo('ONLINE', window.slIcons ? slIcons.svg('users') : '', (online ? `${netOnline[f]} ${netOnline[f] === 1 ? 'player' : 'players'} online` : `${Math.round(E.bots[f] * E.online(f))} online`) + ' · ' + FN[f], 'Players of this faction in the war right now. When few people play, bots hold the line for them, and new players join the side with fewer people online.'); }
+  if (k === 'night') return showInfo('NIGHT', window.slIcons ? slIcons.svg('moon') : '', 'Night', 'Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.');
+  if (k === 'era') return;   // handled by showEra
+  if (k === 'gev' && S.gev && GEVENTS[S.gev.k]) { const g = GEVENTS[S.gev.k]; return showInfo('WORLD EVENT', g.icon, g.name, g.text); }
+  if (k === 'doc' && S.doctrine && S.doctrine[me]) { const d = DOCTRINES[S.doctrine[me]]; return showInfo('DOCTRINE', docIcon(S.doctrine[me]), d.name, d.text); }
+  if (k === 'scn' && SCENARIOS[S.scenario]) { const sc = SCENARIOS[S.scenario]; return showInfo('SCENARIO', '', sc.name, sc.text); }
+  if (k.startsWith('wx:') && WEATHER[k.slice(3)]) { const w = WEATHER[k.slice(3)]; return showInfo('WEATHER', w.icon, w.name, w.text); }
+});
+function layoutVars() {
+  const st = document.documentElement.style, px = v => Math.round(v) + 'px';
+  st.setProperty('--topBar', px($('top').getBoundingClientRect().bottom));
+  const c = $('corner').getBoundingClientRect(), rw = document.querySelector('#corner .rwBtn'), rb = rw && rw.offsetParent ? rw.getBoundingClientRect().bottom : 0;
+  st.setProperty('--topArea', px(Math.max($('top').getBoundingClientRect().bottom, c.bottom, rb)));
+  st.setProperty('--botH', px(Math.max(0, innerHeight - $('bottom').getBoundingClientRect().top)));
+}
+{ const ro = new ResizeObserver(() => requestAnimationFrame(layoutVars)); ro.observe($('top')); ro.observe($('bottom')); addEventListener('resize', layoutVars); requestAnimationFrame(layoutVars); }
 function placePanels() {
   const narrow = innerWidth <= 1100, dst = narrow ? $('drawerPanels') : $('leftcol');
   for (const id of ['opPanel', 'gen', 'squad', 'missions']) { const el = $(id); if (el && el.parentElement !== dst) narrow ? dst.appendChild(el) : dst.insertBefore(el, $('regions')); }
@@ -2166,7 +2253,7 @@ const daysLeft = end => Math.max(1, Math.ceil((end - Date.now()) / 864e5));
 function showEra(fresh) {
   const now = S.era || eraAt(Date.now()), er = ERAS[now.k]; if (!er) return;
   const nx = eraAt(now.end + 1000), ne = ERAS[nx.k], left = daysLeft(now.end);
-  $('gevKind').textContent = fresh ? 'NEW ERA' : 'ERA'; $('gevDay').textContent = `${left} ${left === 1 ? 'DAY' : 'DAYS'} LEFT`;
+  $('gevSep').style.display = ''; $('gevKind').textContent = fresh ? 'NEW ERA' : 'ERA'; $('gevDay').textContent = `${left} ${left === 1 ? 'DAY' : 'DAYS'} LEFT`;
   $('gevIcon').textContent = er.icon; $('gevName').textContent = er.name;
   $('gevText').innerHTML = er.text + `<br><span style="opacity:.7">Eras change every two weeks for the whole world. Next: ${ne.icon} ${ne.name}.</span>`;
   const c = $('gevCard'); c.classList.add('on'); clearTimeout(c._t); c._t = setTimeout(() => c.classList.remove('on'), fresh ? 11000 : 8000); c.onclick = () => c.classList.remove('on');
@@ -2185,17 +2272,18 @@ function hud() {
   const dc = S.doctrine && S.doctrine[me] ? DOCTRINES[S.doctrine[me]] : null;
   const sc = S.scenario && S.scenario !== 'classic' ? SCENARIOS[S.scenario] : null;
   const er = S.era && ERAS[S.era.k];
-  const clk = `<b>Day ${d} of 7</b> · ${hh} UTC${er ? ` · <span class="eraChip" title="${er.text}">${er.icon} ${er.name}</span>` : ''}${sc ? ` · <span class="docChip" title="${sc.text}">${sc.name}</span>` : ''}${dc ? ` · <span class="docChip" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? ` · <span class="gevChip" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => ` · <span class="docChip" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
+  const SEP = PHONE() ? ' ' : ' · ';
+  const clk = `<span data-k="season"><b>Day ${d} of 7</b>${PHONE() ? ' ' + hh : ' · ' + hh + ' UTC'}</span>${PHONE() ? ' ' : ''}${er ? `${SEP}<span class="eraChip" data-k="era" title="${er.text}">${er.icon} ${er.name}</span>` : ''}${sc ? `${SEP}<span class="docChip txt" data-k="scn" title="${sc.text}">${sc.name}</span>` : ''}${dc ? `${SEP}<span class="docChip" data-k="doc" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? `${SEP}<span class="gevChip" data-k="gev" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => `${SEP}<span class="docChip" data-k="wx:${w}" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
   if ($('clock')._h !== clk) { $('clock')._h = clk; $('clock').innerHTML = clk; }
   $('eTxt').textContent = `${Math.floor(energyNow())}/${cpMax()}`; renderPips();
   const s = E.scores(), tot = NET.cities.reduce((a, c) => a + K.VALUE[c[3]], 0) + K.REGION_BONUS * REGIONS.length;
   $('pA').textContent = s.pts[0]; $('pB').textContent = s.pts[1];
   $('barA').style.width = s.pts[0] / tot * 100 + '%'; $('barB').style.width = s.pts[1] / tot * 100 + '%'; $('barN').style.width = (tot - s.pts[0] - s.pts[1]) / tot * 100 + '%';
   const night = f => { const h = E.localHour(f); return h < 6 || h >= 22; };
-  const mob = f => mobil[f] > 1.02 ? ` · <b style="color:var(--good)" title="Behind on points: production boosted">mobilised +${Math.round((mobil[f] - 1) * 100)}%</b>` : '';
+  const mob = f => mobil[f] > 1.02 ? ` · <b data-k="mob:${f}" style="color:var(--good)" title="Behind on points: production boosted">mobilised +${Math.round((mobil[f] - 1) * 100)}%</b>` : '';
   const who = f => online ? `${netOnline[f]} ${netOnline[f] === 1 ? 'player' : 'players'}` : `${Math.round(E.bots[f] * E.online(f))} online`;
-  $('oA').innerHTML = `<span style="color:var(--a)">●</span> ${who(0)}${night(0) ? ' · night' : ''}${mob(0)}`;
-  $('oB').innerHTML = `${mob(1).replace(' · ', '')}${mobil[1] > 1.02 ? ' · ' : ''}${night(1) ? 'night · ' : ''}${who(1)} <span style="color:var(--b)">●</span>`;
+  { const ha = `<span data-k="on:0"><span style="color:var(--a)">●</span> ${who(0)}</span>${night(0) ? ' · <span data-k="night">night</span>' : ''}${mob(0)}`, hb = `${mob(1).replace(' · ', '')}${mobil[1] > 1.02 ? ' · ' : ''}${night(1) ? '<span data-k="night">night</span> · ' : ''}<span data-k="on:1">${who(1)} <span style="color:var(--b)">●</span></span>`;
+    if ($('oA')._h !== ha) { $('oA')._h = ha; $('oA').innerHTML = ha; } if ($('oB')._h !== hb) { $('oB')._h = hb; $('oB').innerHTML = hb; } }
   $('seasonFill').style.width = Math.min(100, S.simT / K.SEASON * 100) + '%';
   const st = myStats();
   $('myStats').innerHTML = `Your convoys: <b>${st.sent || 0}</b> · captures: <b>${st.caps || 0}</b> · clashes: <b>${st.clashes || 0}</b><br>Fortified: <b>${st.forts || 0}</b> · sabotaged: <b>${st.sabs || 0}</b> · airdrops: <b>${st.drops || 0}</b> · blockades: <b>${st.blocks || 0}</b><br>◆ Cities you command: <b>${online ? (st.commands || 0) : S.cmdr.filter(x => x === 'me').length}</b>`;
@@ -2505,7 +2593,7 @@ function nukePanelHtml() {
   else if (hubs < K.NUKE_HUBS) status = `Program stalled: hold <b>${K.NUKE_HUBS} megahubs</b> at once (you hold ${hubs}). Progress decays meanwhile.`;
   else status = `Building. Your faction's players and HQ feed it. Your contribution: <b>${Math.round((myStats().nukeCp || 0) * 10) / 10} CP</b>.`;
   const armedByMe = nk.arm && !nk.arm.hidden && armName(nk.arm) === myName();
-  return `<h3><span>☢ STRATEGIC PROGRAM</span><span>${Math.round((nk.prog || 0) * 100)}%</span></h3>
+  return `<h3><span>☢ STRATEGIC PROGRAM</span><span class="nkTop">${Math.round((nk.prog || 0) * 100)}%<button type="button" class="nkX" id="nkX" aria-label="Close">✕</button></span></h3>
     <div class="bar2"><i style="width:${(nk.prog || 0) * 100}%"></i></div><div class="st">${status}</div>
     <div class="row2">
       ${canFund ? `<button class="n2" data-fund="1" ${en2 < 1 ? 'disabled' : ''}>+1 CP</button><button class="n2" data-fund="5" ${en2 < 5 ? 'disabled' : ''}>+5 CP</button>` : ''}
@@ -2521,6 +2609,7 @@ function renderNukePanel() {
   const p = $('nukePanel'); if (!p.classList.contains('open')) return;
   const html = nukePanelHtml(); if (p._h === html) return; p._h = html; p.innerHTML = html;
   p.querySelectorAll('[data-fund]').forEach(b => b.onclick = () => act({ type: 'nuke_fund', amount: +b.dataset.fund }, { ok: `+${b.dataset.fund} CP to the warhead` }));
+  const x = $('nkX'); if (x) x.onclick = () => p.classList.remove('open');
   const t = $('nkTarget'); if (t) t.onclick = () => { p.classList.remove('open'); setMode('nuke'); };
   const c = $('nkConfirm'); if (c) c.onclick = () => act({ type: 'nuke_confirm' }, { ok: 'Second key turned' });
   const a = $('nkAbort'); if (a) a.onclick = () => act({ type: 'nuke_abort' }, { ok: 'Launch aborted' });
