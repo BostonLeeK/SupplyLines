@@ -970,6 +970,12 @@ body{font-stretch:85%}
 #instBar #instX{grid-area:x;align-self:start;width:28px;height:28px;margin:-6px -4px 0 0;border:0;border-radius:8px;background:none;color:#8fa6c8;font-size:22px;line-height:1;cursor:pointer}
 #instBar.ios{grid-template-areas:'em t x'}
 @media (min-width:560px){#instBar{left:50%;right:auto;width:440px;margin-left:-220px}}
+#whiteout{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#fffef6 0%,#fff3d6 45%,#ffd9a0 100%)}
+#tvCap{position:fixed;left:50%;bottom:calc(48px + env(safe-area-inset-bottom));transform:translate(-50%,12px);z-index:7;max-width:min(680px,calc(100% - 32px));padding:12px 22px;border-radius:12px;background:rgba(6,12,24,.82);border:1px solid #2b4a78;border-top:2px solid #ffc23d;color:#fff;font:800 clamp(16px,2.4vw,24px)/1.2 var(--disp);font-stretch:100%;letter-spacing:.02em;text-align:center;opacity:0;transition:opacity .5s,transform .5s;pointer-events:none}
+#tvCap.on{opacity:1;transform:translate(-50%,0)}
+body.tv #top,body.tv #feed,body.tv #bottom,body.tv #leftcol,body.tv #regions,body.tv #card,body.tv #tip,body.tv #drawer,body.tv #nukeDock,body.tv #genPop,body.tv #capBar,body.tv #gevCard,body.tv #docCard,body.tv #coach,body.tv #coachRing,body.tv #coachDrag,body.tv #sigMenu{display:none!important}
+body.tv #corner .ic:not(#tvBtn){display:none}
+#tvBtn.on{color:#2a1800;background:#ffc23d;border-color:#ffc23d}
 #clock .hh{display:inline-block;width:4.6ch;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
@@ -1042,6 +1048,7 @@ body{font-stretch:85%}
   <button class="ic" id="bellBtn" title="Alerts when you are away: attacks on your cities, launches, season end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 20a1.9 1.9 0 003.4 0"/></svg></button>
   <button class="ic" id="musicBtn" title="Music"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button>
   <button class="ic" id="muteBtn" title="Sound effects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg></button>
+  <button class="ic" id="tvBtn" data-tv title="TV mode: the camera flies to wherever the war is hottest (any key or click to stop)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 3l4 4 4-4"/></svg></button>
   <button class="ic" id="helpBtn" title="How to play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.7-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg></button>
 </div>
 <div id="drawer">
@@ -1212,6 +1219,8 @@ body{font-stretch:85%}
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { createSound } from './sound.js';
+import { createFeel } from './feel.js';
 import { createEngine, K, FN, REGIONS, RESOURCES, CONVOY, GEVENTS, TRAILS, RANKS, DOCTRINES, WEATHER, WONDERS, SCENARIOS, ERAS, ERA_ORDER, eraAt } from './game/engine.js';
 
 // ================= engine: local (offline practice) or mirror of the server (online) =================
@@ -1258,7 +1267,7 @@ renderer.setPixelRatio(Math.min(2, devicePixelRatio)); renderer.setSize(innerWid
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.01, 200);
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.minDistance = 1.3; controls.maxDistance = 5;
+controls.enableDamping = true; controls.dampingFactor = 0.08; controls.enablePan = false; controls.minDistance = 1.2; controls.maxDistance = 5;
 addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 scene.add(new THREE.AmbientLight(0xbcd0ff, 0.9));
 const sun = new THREE.DirectionalLight(0xfff3e0, 2.4); scene.add(sun);
@@ -1306,17 +1315,33 @@ const maskCv = document.createElement('canvas'); maskCv.width = 2048; maskCv.hei
 const maskTex = new THREE.CanvasTexture(maskCv);
 const oceanMat = new THREE.ShaderMaterial({
   transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-  uniforms: { uMask: { value: maskTex }, uSun: { value: new THREE.Vector3(1, 0, 0) }, uTime: { value: 0 } },
+  uniforms: { uMask: { value: maskTex }, uSun: { value: new THREE.Vector3(1, 0, 0) }, uTime: { value: 0 }, uNear: { value: 0 } },
   vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vW; void main(){ vUv=uv; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
-  fragmentShader: `uniform sampler2D uMask; uniform vec3 uSun; uniform float uTime; varying vec2 vUv; varying vec3 vN; varying vec3 vW;
+  fragmentShader: `uniform sampler2D uMask; uniform vec3 uSun; uniform float uTime; uniform float uNear; varying vec2 vUv; varying vec3 vN; varying vec3 vW;
     void main(){ float sea=1.-smoothstep(0.2,0.8,texture2D(uMask,vUv).r); if(sea<=0.) discard;
       vec3 N=normalize(vN); vec3 V=normalize(cameraPosition-vW);
       float w1=sin(vUv.x*420.+uTime*0.9+sin(vUv.y*260.+uTime*0.3)*2.5), w2=sin(vUv.y*330.-uTime*0.7+sin(vUv.x*170.)*2.);
-      vec3 P=normalize(N+0.018*vec3(w1,w2,w1*w2));
+      // up close the water gets a slow, broad swell: it only bends the surface, so the sun's reflection breaks into
+      // glitter and the sea shifts gently between darker and lighter blue (white strokes looked like rain)
+      float lat=(vUv.y-.5)*3.14159; vec2 q=vec2(vUv.x*2.*cos(lat),vUv.y)*1800.;
+      float s1=0., s2=0.;
+      if(uNear>0.01){ s1=sin(q.x*.31+q.y*.12+uTime*.9+1.4*sin(q.y*.05+uTime*.12)); s2=sin(-q.x*.14+q.y*.27+uTime*.65+1.1*sin(q.x*.06-uTime*.1)); }
+      vec3 P=normalize(N+0.018*vec3(w1,w2,w1*w2)+uNear*.06*vec3(s1,s2,s1*s2));
       float day=smoothstep(-0.05,0.25,dot(N,uSun));
       float spec=pow(max(dot(P,normalize(V+uSun)),0.),160.)*0.55;
       float fres=pow(1.-max(dot(N,V),0.),3.);
       vec3 col=(vec3(1.,.9,.72)*spec*day + vec3(.18,.42,.8)*fres*.22*day)*sea;
+      // up close only: the swell's sheen, and bands of foam rolling in to the shore
+      if(uNear>0.01){
+        col+=vec3(.08,.2,.42)*(.5+.5*s1*s2)*.07*uNear*(.25+.75*day)*sea;
+        vec2 px=vec2(1./2048.,1./1024.);
+        float n1=(texture2D(uMask,vUv+vec2(px.x*2.,0.)).r+texture2D(uMask,vUv-vec2(px.x*2.,0.)).r+texture2D(uMask,vUv+vec2(0.,px.y*2.)).r+texture2D(uMask,vUv-vec2(0.,px.y*2.)).r)*.25;
+        float n2=(texture2D(uMask,vUv+vec2(px.x*5.,0.)).r+texture2D(uMask,vUv-vec2(px.x*5.,0.)).r+texture2D(uMask,vUv+vec2(0.,px.y*5.)).r+texture2D(uMask,vUv-vec2(0.,px.y*5.)).r)*.25;
+        float coast=clamp(max(n1,n2*.7),0.,1.);
+        float bands=smoothstep(.55,1.,sin(coast*16.-uTime*1.3))*coast;
+        float foam=bands*.75*uNear*sea;
+        col+=vec3(.72,.86,1.)*foam*(.18+.82*day);
+      }
       gl_FragColor=vec4(col,1.); }`,
 });
 scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.0006, 160, 120), oceanMat));
@@ -1610,10 +1635,8 @@ function nukeBlast(target, hit) {
   wave.position.copy(c.v).multiplyScalar(1.005); wave.lookAt(c.v.clone().multiplyScalar(2)); scene.add(wave);
   nukeFx.push({ flash, wave, glow, mu, t: 0 });
   for (const i of hit) sparks(i, 0, 18);
-  if (c.vis) shake = 0.7;
   boom();
 }
-let shake = 0;
 function stepNukeFx(dt) {
   for (let k = nukeFx.length - 1; k >= 0; k--) { const b = nukeFx[k]; b.t += dt;
     b.flash.scale.setScalar(0.01 + Math.min(1, b.t / 0.5) * 0.075); b.flash.material.opacity = Math.max(0, 1 - b.t / 1.6);
@@ -1678,16 +1701,59 @@ function onResult(res, meta) {
   refreshUI();
 }
 
+// ================= the feel of the war (feel.js) and sound in space (sound.js) =================
+let snd = null;
+// a quiet tick under every button press; the first press anywhere also wakes the sound up (browsers only allow it
+// after a tap or click), so the landing and the mode screen tick too
+addEventListener('pointerdown', e => {
+  const b = e.target.closest && e.target.closest('button, .ic, [role="button"], .gmLink, .mode, label, select, summary');
+  if (!b || b.disabled) return;
+  try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (!snd) { snd = createSound(actx); snd.setMuted(muted); } if (actx.state === 'suspended') actx.resume(); } catch (err) { return; }
+  snd.play('click', { steady: true, dist: 0, delay: 0, gap: 0.03, gain: 0.2 });
+}, { capture: true, passive: true });
+// a sound at a place on the globe: quieter, darker and later the farther it is from the camera, muffled behind the planet
+function sndAt(name, pos, o = {}) {
+  if (!snd || !pos) return false;
+  let dist = camera.position.distanceTo(pos); if (pos.clone().normalize().dot(camera.position.clone().normalize()) < 0.05) dist += 1.2;
+  if (dist > 1.8 && (name === 'blast' || name === 'gun')) name = 'far';
+  const v = pos.clone().project(camera);
+  return snd.play(name, { ...o, dist, pan: Math.max(-1, Math.min(1, v.x)) * 0.85 });
+}
+const feel = createFeel({ THREE, scene, camera, controls, cities, E, FCOL, FIRE, edgePts, SEG, RAD_KM, K, landMask, ll2v,
+  phone: () => innerWidth <= 760, muted: () => muted, myId: () => myId, cvVisible: cv => convoyVisible(cv),
+  st: () => ({ owner, heat, S, simT, me, replay, convoys }), sndAt, ambience: lv => snd && snd.ambience(lv),
+  onTv: on => { $('tvBtn').classList.toggle('on', on); if (on) { select(-1); closeSignal(); } } });
+// one line for the TV mode caption: "place: what happened", so the Ukrainian version never has to decline a name
+function describeEv(ev) {
+  const nm = i => cities[i] ? cities[i].name : '';
+  switch (ev.k) {
+    case 'capture': return `${nm(ev.city)}: captured by ${FN[ev.f]}`;
+    case 'repel': return `${nm(ev.city)}: the attack was repelled`;
+    case 'blackout': return `${REGIONS[ev.r] || nm(ev.city)}: blackout`;
+    case 'naval': return `${nm(ev.city)}: naval battle`;
+    case 'aa': return `${nm(ev.city)}: air defence at work`;
+    case 'drones': return `${nm(ev.city)}: drones overhead`;
+    case 'ally': return NATIONS[ev.nation] ? `${FN[ev.f]}: ${NATIONS[ev.nation][0]} joins the war` : '';
+    case 'cap_hold': return `${nm(ev.city)}: the capital has fallen`;
+    case 'nuke_launch': return `${nm(ev.target)}: a nuclear missile is on its way`;
+    case 'nuke_hit': return `${nm(ev.target)}: destroyed by a nuclear strike`;
+  }
+  return '';
+}
+
 // ================= events from the engine/server → feed, effects, sound =================
 const cname = i => `<b>${cities[i].name}</b>`;
 function onGameEvent(ev) {
+  try { feel.event(ev, describeEv); } catch (e) { console.error(e); }
   const c = ev.city >= 0 ? cities[ev.city] : null, mine = ev.who === myId;
   switch (ev.k) {
     case 'start': feedEl.innerHTML = ''; $('end').classList.add('hidden'); select(-1); event(`Season ${ev.season || ''} started. ${FN[0]} holds ${cities[CAPS[0]].name}, ${FN[1]} holds ${cities[CAPS[1]].name}.`); break;
     case 'capture': if (ev.who === myId && cities[ev.city] && cities[ev.city].tier >= 2) nov.big = true;
       if (tut && ev.who === myId) tut.captured = true;
       blast(ev.city, ev.f, true); sparks(ev.city, ev.f); capturePillar(ev.city, ev.f);
-      if (mine) sfx('win'); else if (ev.prev === me && c.tier >= 2) sfx('lose');
+      // a city you took gets a bugle call, a big city of yours lost gets a low horn (the old beeps until the sounds are built)
+      if (mine) { if (!(snd && snd.play('fanfare', { steady: true, gain: 0.55, delay: 0.15, gap: 0.5 }))) sfx('win'); }
+      else if (ev.prev === me && c.tier >= 2) { if (!(snd && snd.play('lament', { steady: true, gain: 0.45, delay: 0.2, gap: 2 }))) sfx('lose'); }
       if (c.tier >= 2 || c.cap >= 0 || mine || ev.prev === me) event(`${mine ? '<b>Your convoy</b> took' : FN[ev.f] + (ev.drop ? ' airdropped into' : ' took')} ${cname(ev.city)}${c.cap >= 0 ? ', a capital!' : ''}${mine ? '. ◆ You command it now: +15% defence while you are online' : ''}`, ev.f, ev.city);
       break;
     case 'repel': blast(ev.city, ev.f, false); sparks(ev.city, ev.f, 6); if (mine) event(`Attack on ${cname(ev.city)} was repelled`, 'warn', ev.city); break;
@@ -2087,23 +2153,26 @@ const tmpV = new THREE.Vector3();
 const HUD_IDS = ['top', 'feed', 'leftcol', 'bottom', 'corner', 'drawer', 'card'];
 let hudRects = [], hudRectT = 0;
 function underHud(x, y) { return hudRects.some(r => x > r.left - 8 && x < r.right + 8 && y > r.top - 10 && y < r.bottom + 10); }
+// a point of the planet's surface (unit vector) is in sight only above the camera's horizon: from close up and leaning
+// over the land, the far side of the near hemisphere already lies behind the curve of the Earth
+const overHorizon = v => v.dot(camera.position) - 1;
 function placeLabels() {
-  const camDir = camera.position.clone().normalize();
+  const camDir = camera.position.clone().normalize(), lift = Math.max(0.02, (camera.position.length() - 1) * 0.12);
   if (performance.now() - hudRectT > 300) { hudRectT = performance.now(); hudRects = HUD_IDS.map(id => document.getElementById(id)).filter(e => e && e.offsetParent !== null && e.childElementCount).map(e => e.getBoundingClientRect()).filter(r => r.width > 0 && r.height > 0); }
   for (const c of cities) {
-    const facing = c.v.dot(camDir);
-    if (facing < 0.2) { if (c.vis !== false || c.el.style.display !== 'none') { c.el.style.display = 'none'; c.vis = false; } c.sx = -999; continue; }
+    const facing = c.v.dot(camDir), hz = overHorizon(c.v);
+    if (facing < 0.2 || hz <= 0) { if (c.vis !== false || c.el.style.display !== 'none') { c.el.style.display = 'none'; c.vis = false; } c.sx = -999; continue; }
     if (!c.vis) { c.el.style.display = 'flex'; c.vis = true; }
     tmpV.copy(c.v).multiplyScalar(1.004).project(camera);
     c.sx = (tmpV.x + 1) / 2 * innerWidth; c.sy = (1 - tmpV.y) / 2 * innerHeight;
-    c.el.style.transform = `translate(${(c.sx + 6) | 0}px,${c.sy | 0}px)`; c.el.style.opacity = underHud(c.sx, c.sy) || c.sx < 16 || c.sy < 16 || c.sx > innerWidth - 40 || c.sy > innerHeight - 16 ? 0 : Math.min(1, (facing - 0.2) * 5);
+    c.el.style.transform = `translate(${(c.sx + 6) | 0}px,${c.sy | 0}px)`; c.el.style.opacity = underHud(c.sx, c.sy) || c.sx < 16 || c.sy < 16 || c.sx > innerWidth - 40 || c.sy > innerHeight - 16 ? 0 : Math.min(1, (facing - 0.2) * 5, hz / lift);
   }
 }
 function placeNations() {
   const camDir = camera.position.clone().normalize(), far = camera.position.length() > 3.4, boxes = [];
   for (const c of cities) if (c.vis) { const w = c.cls.includes(' nn') ? 34 : 40 + c.name.length * 7; boxes.push([c.sx - 6, c.sy - 11, c.sx + 6 + w, c.sy + 11]); }
   for (const n of natEls) {
-    const f = n.v.dot(camDir); let vis = f > 0.3 && !far, x = 0, y = 0;
+    const f = n.v.dot(camDir); let vis = f > 0.3 && !far && overHorizon(n.v) > 0.01, x = 0, y = 0;
     if (vis) {
       tmpV.copy(n.v).project(camera); x = (tmpV.x + 1) / 2 * innerWidth; y = (1 - tmpV.y) / 2 * innerHeight;
       const b = [x - n.w / 2, y - 9, x + n.w / 2, y + 9];
@@ -2657,10 +2726,13 @@ let flyTarget = null;
 function flyTo(i) { flyToVec(cities[i].v); }
 function flyToVec(v) { flyTarget = v.clone().multiplyScalar(Math.max(1.9, Math.min(2.6, camera.position.length()))); }
 let muted = false, actx = null;
-$('muteBtn').onclick = () => { muted = !muted; $('muteBtn').classList.toggle('off', muted); setMusicGain(); };
+$('tvBtn').onclick = () => { if (feel.tv) feel.tvStop(); else feel.tvStart(); };
+$('muteBtn').onclick = () => { muted = !muted; $('muteBtn').classList.toggle('off', muted); setMusicGain(); if (snd) snd.setMuted(muted); };
 function sfx(kind) {
   if (window.__sfxLog) window.__sfxLog('sfx', kind);
   if (muted || !actx) return;
+  if ((kind === 'boom' || kind === 'pop') && snd && snd.ready) return;
+  if (kind === 'alarm' && snd) snd.play('radio', { steady: true, gain: 0.3, delay: 0, gap: 1.5 });
   const t0 = actx.currentTime, tone = (f, d, at = 0, type = 'sine', vol = 0.06) => { const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t0 + at); g.gain.setValueAtTime(vol, t0 + at); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + d); o.connect(g).connect(actx.destination); o.start(t0 + at); o.stop(t0 + at + d + 0.02); };
   if (kind === 'send') tone(660, 0.08, 0, 'triangle', 0.05);
   if (kind === 'win') { tone(520, 0.12); tone(780, 0.18, 0.1); }
@@ -2717,7 +2789,7 @@ function updateRaid() {
   if (soon && performance.now() > raidHold) raidOn(); else if (!ms.length && raid) raidOff();
   if (raid) raid.out.gain.setTargetAtTime(muted ? 0 : 0.06, actx.currentTime, 0.3);
 }
-function boom() { if (window.__sfxLog) window.__sfxLog('boom'); if (muted || !actx) return; const len = actx.sampleRate * 2.5, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+function boom() { if (window.__sfxLog) window.__sfxLog('boom'); if (muted || !actx || (snd && snd.ready)) return; const len = actx.sampleRate * 2.5, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
   const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain(); src.buffer = buf; f.type = 'lowpass'; f.frequency.value = 220; g.gain.value = 0.6; src.connect(f).connect(g).connect(actx.destination); src.start();
 }
 // ================= adaptive music: slow minor pads, a pulse joins when fighting is close =================
@@ -3310,7 +3382,7 @@ const FLEET_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 function fleetScreen(fl) {
   if (!fl.moving) { const c = cities[fl.at]; if (!c || !c.vis) return null; const k = (S.fleets || []).filter(x => !x.moving && x.at === fl.at).indexOf(fl); return [c.sx - 18 - k * 34, c.sy + 16]; }
   const m = fl.moving, e = m.es[m.hop], fwd = e.a === m.nodes[m.hop], u = (fwd ? m.t : 1 - m.t) * SEG, i0 = Math.min(SEG - 1, Math.floor(u)), pts = edgePts(e), p = pts[i0].clone().lerp(pts[i0 + 1], u - i0);
-  if (p.clone().normalize().dot(camera.position.clone().normalize()) < 0.2) return null;
+  if (p.clone().normalize().dot(camera.position.clone().normalize()) < 0.2 || overHorizon(p.clone().normalize()) <= 0) return null;
   p.project(camera); return [(p.x + 1) / 2 * innerWidth, (1 - p.y) / 2 * innerHeight];
 }
 function placeFleets() {
@@ -3503,7 +3575,7 @@ async function demoNuke() {
   while ((S.missiles || []).length && S.missiles[0].t < 0.8) await wait();
   setSpeed(1); camera.position.copy(t.v).multiplyScalar(1.55).add(new THREE.Vector3(0, 0.25, 0)); controls.update(); flyTarget = null;
 }
-$('go').onclick = () => { if (!window.__played) { window.__played = 1; window.slStat && slStat('play'); } try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (musicOn) startMusic(); } catch (e) {} document.body.classList.remove('intro'); $('intro').classList.add('hidden'); running = true; focusT = 0; if (qp.get('demo') === 'nuke') setTimeout(demoNuke, 1800); else if (!tutDone() || qp.get('tutorial')) { tutQueued = true; setTimeout(startTutorial, 1700); } };
+$('go').onclick = () => { if (!window.__played) { window.__played = 1; window.slStat && slStat('play'); } try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (!snd) { snd = createSound(actx); snd.setMuted(muted); } if (musicOn) startMusic(); } catch (e) {} document.body.classList.remove('intro'); $('intro').classList.add('hidden'); running = true; focusT = 0; if (qp.get('tv')) setTimeout(() => feel.tvStart(), 1500); else if (qp.get('demo') === 'nuke') setTimeout(demoNuke, 1800); else if (!tutDone() || qp.get('tutorial')) { tutQueued = true; setTimeout(startTutorial, 1700); } };
 
 let last = performance.now(), hudT = 0, labT = 0, ovT = 0, rtT = 0;
 const satRings = new Map();
@@ -3751,7 +3823,22 @@ function placeWarRings(t) {
   const dark = new Set((S.blackout || []).filter(b => b.until > simT).map(b => b.f + ':' + b.r));
   for (const c of cities) { const on = owner[c.i] >= 0 && dark.has(owner[c.i] + ':' + c.region); if (c.el.classList.contains('dark') !== on) c.el.classList.toggle('dark', on); const gr = E.graftAt(c.i); if (c.el.classList.contains('graft') !== gr) c.el.classList.toggle('graft', gr); }
 }
+// a satellite passing close to the camera beeps like in the films: short pips, louder and brighter the closer it is,
+// a touch higher in pitch while it comes toward you and lower as it goes away
+let satBeepT = 0, satLastD = 9;
+function satBeeps(dt) {
+  satBeepT -= dt; if (!snd || replay) return;
+  let best = null, bd = 0.42;
+  for (const a of ambientSats) if (a.m.visible) { const d = a.m.position.distanceTo(camera.position); if (d < bd) { bd = d; best = a.m; } }
+  for (const [, o] of satPass) if (o.m.visible) { const d = o.m.position.distanceTo(camera.position); if (d < bd) { bd = d; best = o.m; } }
+  const closing = satLastD - bd; satLastD = best ? bd : 9;
+  if (!best || satBeepT > 0) return; satBeepT = 0.62;
+  // in front of the camera, on screen or just past its edge (you hear it a moment before and after you see it)
+  const v = best.position.clone().project(camera); if (v.z > 1 || Math.abs(v.x) > 2.5 || Math.abs(v.y) > 2.5) return;
+  snd.play('sat', { steady: true, dist: bd * 1.6, gain: 0.5, delay: 0, gap: 0.3, pan: Math.max(-1, Math.min(1, v.x)), rate: closing > 0 ? 1.03 : 0.97 });
+}
 function placeSats(t) {
+  satBeeps(Math.min(0.1, (t - (placeSats.last || t)) / 1000));
   placeWarRings(t); placeWar3D(t); placeAir3D(t); placeVehicles3D(t, Math.min(0.1, (t - (placeSats.last || t)) / 1000)); placeSats.last = t;
   const live = new Set();
   for (const st of S.sats || []) {
@@ -3786,10 +3873,18 @@ function frame(t) {
   if (flyTarget) { camera.position.lerp(flyTarget, Math.min(1, dt * 3)); if (camera.position.distanceTo(flyTarget) < 0.01) flyTarget = null; }
   if (focusT >= 0) { focusT += dt; camera.position.lerp(cities[CAPS[me]].v.clone().multiplyScalar(2.3), Math.min(1, dt * 2.5)); if (focusT > 1.6) focusT = -1; }
   if (!running) camera.position.applyQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dt * 0.04));
+  feel.camStep(dt);
   controls.rotateSpeed = Math.max(0.12, (camera.position.length() - 1) * 0.35);
   controls.update();
+  // close to the ground the camera leans back over the spot you look at: it stays in the middle of the screen, and the
+  // land runs off to the horizon and the glowing sky edge above it. The orbit position is put back after the frame,
+  // so dragging and zooming work on the plain orbit as before.
+  let tiltSave = null;
+  { const cd = camera.position.length(), tl = Math.max(0, Math.min(1, (1.75 - cd) / 0.55));
+    if (tl > 0) { tiltSave = camera.position.clone(); const n = tiltSave.clone().normalize(), up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion), fwd = up.sub(n.clone().multiplyScalar(up.dot(n))).normalize(), a = tl * tl * 0.95, h = (cd - 1) * 1.12;
+      camera.position.copy(n).addScaledVector(n, Math.cos(a) * h).addScaledVector(fwd, -Math.sin(a) * h); camera.lookAt(n); camera.updateMatrixWorld(); } }
   sun.position.copy(sunDir()).multiplyScalar(10);
-  { const sd = sunDir(); oceanMat.uniforms.uSun.value.copy(sd); nightMat.uniforms.uSun.value.copy(sd); oceanMat.uniforms.uTime.value = t / 1000; }
+  { const sd = sunDir(); oceanMat.uniforms.uSun.value.copy(sd); nightMat.uniforms.uSun.value.copy(sd); oceanMat.uniforms.uTime.value = t / 1000; oceanMat.uniforms.uNear.value = Math.max(0, Math.min(1, (1.85 - camera.position.length()) / 0.55)); }
   clouds.rotation.y += dt * 0.004;
   if (cloudsReady) cloudMat.opacity += (Math.max(0.12, Math.min(0.75, (camera.position.length() - 1.5) / 1.6)) - cloudMat.opacity) * Math.min(1, dt * 2);
 
@@ -3831,7 +3926,7 @@ function frame(t) {
     cvGeo.setDrawRange(0, n); }
   // blast effects
   stepNukeFx(dt);
-  if (shake > 0) { shake -= dt; camera.position.add(new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).multiplyScalar(0.012 * shake)); }
+  feel.update(dt, t);
   // blast radius preview while picking a nuclear target
   if (mode === 'nuke' && hoverCity >= 0) { const c = cities[hoverCity]; blastPreview.visible = true; blastPreview.position.copy(c.v).multiplyScalar(1.004); blastPreview.lookAt(c.v.clone().multiplyScalar(2)); blastPreview.scale.setScalar(K.NUKE_BLAST / 6371); } else blastPreview.visible = false;
   for (const c of cities) { c.hex.material.opacity = fort[c.i] > simT ? 0.85 : 0; c.sab.material.opacity = sab[c.i] > simT ? 0.5 + 0.4 * Math.sin(t / 200) : 0; }
@@ -3843,12 +3938,13 @@ function frame(t) {
   placeLabels(); placeSats(t); placeNations(); placePings(t); placeFleets(); if (tut) refreshCoach();
   labT += dt; if (labT > 0.12) { labT = 0; paintCities(); }
   hudT += dt; if (hudT > 0.25) { hudT = 0; hud(); if (hoverCity >= 0 || dragging) showTip(mouse[0], mouse[1]); }
-  renderer.render(scene, camera);
+  feel.beforeRender(); renderer.render(scene, camera); feel.afterRender();
+  if (tiltSave) { camera.position.copy(tiltSave); camera.lookAt(controls.target); camera.updateMatrixWorld(); }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 // test hooks
-window.__g = { get fleets() { return S.fleets; }, placeFleets, tick(n = 1, dt = 0.1) { for (let k = 0; k < n; k++) frame(last + dt * 1000); }, startTutorial, get tut() { return tut; }, paintOverlay, paintRoutes, stepNukeFx, demoNuke, nukeBlast, renderer, nukeFx, camera, controls, scene, renderNukePanel, nukePanelHtml, startReplay, get tension() { return tension; }, get replaying() { return !!replay; }, openShare, openArchive, openSignal, missionsHud, E, act, clickCity, select, setMode, cities, flyTo, hud, placeLabels, placeNations, paintCities, render: () => renderer.render(scene, camera),
+window.__g = { feel, get snd() { return snd; }, get owner() { return owner; }, get heat() { return heat; }, get fleets() { return S.fleets; }, placeFleets, tick(n = 1, dt = 0.1) { for (let k = 0; k < n; k++) frame(last + dt * 1000); }, startTutorial, get tut() { return tut; }, paintOverlay, paintRoutes, stepNukeFx, demoNuke, nukeBlast, renderer, nukeFx, camera, controls, scene, renderNukePanel, nukePanelHtml, startReplay, get tension() { return tension; }, get replaying() { return !!replay; }, openShare, openArchive, openSignal, missionsHud, E, act, clickCity, select, setMode, cities, flyTo, hud, placeLabels, placeNations, paintCities, render: () => renderer.render(scene, camera),
   look(i, d = 2.3) { camera.position.copy(cities[i].v).multiplyScalar(d); controls.update(); },
   get actx() { return actx; }, sfx, siren, raidOn, raidOff, setSpeed, boom, blast, sparks, capturePillar, sunDir, flyToVec, get speed() { return speed; },
   get online() { return online; }, get me() { return me; }, get myId() { return myId; }, get selected() { return selected; }, get you() { return youInfo; }, get mode() { return mode; } };
