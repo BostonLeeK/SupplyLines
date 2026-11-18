@@ -4,7 +4,8 @@
 // (daily random salt + IP + user agent); the salt lives only in memory and changes every day.
 // GET /stats shows the numbers: open it from the server itself, or set STATS_KEY and use /stats?key=...
 // POST /api/contact takes a message from the contact form: it goes to messages.jsonl in the data folder and the /stats
-// page; with CONTACT_TG_TOKEN and CONTACT_TG_CHAT set, a Telegram bot also forwards it.
+// page. With CONTACT_DISCORD_WEBHOOK set it also arrives in a Discord channel, and with CONTACT_TG_TOKEN and
+// CONTACT_TG_CHAT set, in Telegram; either, both or neither.
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -18,6 +19,8 @@ export function createOps({ DATA, getHealth }) {
   const STATS_KEY = process.env.STATS_KEY || '';
   const statsFile = path.join(DATA, 'stats.json'), errFile = path.join(DATA, 'errors.log'), msgFile = path.join(DATA, 'messages.jsonl');
   const TG_TOKEN = process.env.CONTACT_TG_TOKEN || '', TG_CHAT = process.env.CONTACT_TG_CHAT || '';
+  const DISCORD = process.env.CONTACT_DISCORD_WEBHOOK || '';
+  if (DISCORD && !/^https:\/\/(discord\.com|discordapp\.com|ptb\.discord\.com|canary\.discord\.com)\/api\/webhooks\//.test(DISCORD)) console.warn('CONTACT_DISCORD_WEBHOOK does not look like a Discord webhook address; messages may not arrive');
   let stats = {}; try { stats = JSON.parse(fs.readFileSync(statsFile, 'utf8')); } catch {}
   let dirty = false, salt = '', saltDay = '', seen = new Set();
   const started = Date.now();
@@ -52,9 +55,20 @@ export function createOps({ DATA, getHealth }) {
   function saveMessage(m) {
     try { fs.appendFileSync(msgFile, JSON.stringify(m) + '\n'); } catch (e) { console.error('message save failed', e.message); return false; }
     bump('messages'); console.log('contact message:', m.topic, m.from || '(no address)');
+    if (DISCORD) toDiscord(m);
     if (TG_TOKEN && TG_CHAT) fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', { method: 'POST', headers: { 'content-type': 'application/json' }, signal: AbortSignal.timeout(8000),
       body: JSON.stringify({ chat_id: TG_CHAT, text: 'Supply Lines · ' + m.topic + (m.name ? ' · ' + m.name : '') + (m.from ? ' · ' + m.from : '') + '\n\n' + m.text }) }).catch(e => console.error('telegram', e.message));
     return true;
+  }
+  // a card in a Discord channel: the topic as its title and colour, the sender in fields. allowed_mentions stays empty,
+  // so "@everyone" or a role written in a message cannot ping anyone.
+  const TOPIC_CARD = { idea: ['Idea', 0x4aa3ff], bug: ['Bug', 0xff6b5b], player: ['Player report', 0xffad33], privacy: ['Privacy request', 0xb48cff], other: ['Message', 0x8fa6c8] };
+  function toDiscord(m) {
+    const [title, color] = TOPIC_CARD[m.topic] || TOPIC_CARD.other;
+    const fields = [m.name && { name: 'Name', value: m.name, inline: true }, m.from && { name: 'Email', value: m.from, inline: true }, { name: 'Language', value: m.lang === 'uk' ? 'Ukrainian' : 'English', inline: true }].filter(Boolean);
+    fetch(DISCORD + (DISCORD.includes('?') ? '&' : '?') + 'wait=true', { method: 'POST', headers: { 'content-type': 'application/json' }, signal: AbortSignal.timeout(8000),
+      body: JSON.stringify({ username: 'Supply Lines', allowed_mentions: { parse: [] }, embeds: [{ title, color, description: m.text, fields, timestamp: m.at, footer: { text: 'Contact form' } }] }) })
+      .then(r => { if (!r.ok) console.error('discord: HTTP', r.status); }).catch(e => console.error('discord', e.message));
   }
 
   // ---------- daily backups inside the data volume ----------
