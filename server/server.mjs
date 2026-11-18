@@ -61,14 +61,50 @@ function mergeInto(dst, src) {
   if (!dst.squad && src.squad) dst.squad = src.squad;
   if (!dst.push && src.push) dst.push = src.push;
 }
+// ---------- callsigns: signed-in players may pick their own name, once per season ----------
+// Only letters, digits, spaces and - _ . so a name is safe anywhere the client builds HTML. A name may not be a
+// word the Ukrainian dictionary translates (it would turn into another word on screen), copy a reserved word, or
+// look like another player's name (case and Latin/Cyrillic look-alikes ignored).
+const UK_WORDS = (() => { try { const t = fs.readFileSync(path.join(ROOT, 'i18n-uk.js'), 'utf8'); const j = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); return new Set(Object.keys(j.dict || {}).map(k => k.toLowerCase())); } catch { return new Set(); } })();
+const LOOKALIKE = { а: 'a', в: 'b', е: 'e', є: 'e', ё: 'e', і: 'i', ї: 'i', й: 'i', к: 'k', м: 'm', н: 'h', о: 'o', р: 'p', с: 'c', т: 't', у: 'y', х: 'x', '0': 'o', '1': 'l', '3': 'e', '_': '', '-': '', '.': '', ' ': '' };
+const nickKey = n => [...n.toLowerCase()].map(ch => LOOKALIKE[ch] ?? ch).join('');
+const NICK_BAD = ['fuck', 'shit', 'cunt', 'nigg', 'fag', 'whore', 'hitler', 'nazi', 'kurwa', 'хуй', 'хуя', 'хує', 'хуе', 'пизд', 'бля', 'їба', 'еба', 'ёба', 'йоба', 'сука', 'суки', 'залуп', 'мудак', 'мудил', 'підор', 'пидор', 'підар', 'пидар', 'гандон', 'дроч', 'шлюх', 'курва'];
+const NICK_RESERVED = ['admin', 'administrator', 'moderator', 'support', 'system', 'server', 'supplylines', 'globalwar', 'atlantica', 'pacifica', 'атлантика', 'пацифіка', 'hq', 'штаб', 'general', 'генерал', 'anthropic', 'claude'].map(nickKey);
+const NICK_GRACE = 10 * 60 * 1000;
+function checkNick(raw, p) {
+  const n = String(raw || '').normalize('NFC').replace(/\s+/g, ' ').trim();
+  if (n.length < 3 || n.length > 20) return { msg: 'A callsign is 3 to 20 characters long' };
+  if (!/^[\p{L}\d _.\-]+$/u.test(n)) return { msg: 'Use only letters, digits, spaces and - _ .' };
+  if ((n.match(/\p{L}/gu) || []).length < 2) return { msg: 'A callsign needs at least two letters' };
+  const key = nickKey(n), low = n.toLowerCase();
+  if (NICK_BAD.some(w => low.includes(w) || key.includes(nickKey(w)))) return { msg: 'This callsign is not allowed' };
+  if (NICK_RESERVED.includes(key) || UK_WORDS.has(low)) return { msg: 'This callsign is reserved. Pick another one' };
+  for (const o of E.players.values()) if (o !== p && nickKey(o.name || '') === key) return { msg: 'This callsign is taken' };
+  for (const h of E.leaderboard()) if (!h.id && nickKey(h.name || '') === key) return { msg: 'This callsign is taken' };
+  return { name: n };
+}
+function setNick(p, raw) {
+  if (!p.linked) return { ok: false, msg: 'Sign in with Google to choose a callsign' };
+  // once per season, with 10 minutes to fix a typo
+  const grace = Date.now() - (p.nameAt || 0) < NICK_GRACE;
+  if (p.nameSeason === season && !grace) return { ok: false, msg: 'You can change your callsign once per season' };
+  const c = checkNick(raw, p); if (!c.name) return { ok: false, msg: c.msg };
+  if (c.name === p.name) return { ok: true, name: p.name };
+  const old = p.name; p.name = c.name; if (p.nameSeason !== season) p.nameAt = Date.now(); p.nameSeason = season;
+  // what the map already shows under that name follows the new one
+  for (const arr of [E.S.gov, E.S.capBy]) if (arr) for (let i = 0; i < arr.length; i++) if (arr[i] === old) arr[i] = c.name;
+  for (const x of [...(E.S.marks || []), ...(E.S.sats || [])]) if (x.by === old) x.by = c.name;
+  for (const nk of E.S.nuke || []) if (nk && nk.arm && nk.arm.byName === old) nk.arm.byName = c.name;
+  savePlayersSoon(); return { ok: true, name: c.name };
+}
 for (const [code, sq] of Object.entries(readJson('squads.json', {}))) E.squads.set(code, sq);
 const saveSquads = () => writeJson('squads.json', Object.fromEntries([...E.squads].filter(([code]) => E.squadMembers(code).length || [...E.players.values()].some(p => p.pendingSquad === code))));
-const loadSavedPlayers = () => { for (const [pid, p] of Object.entries(saved)) { if (!E.players.has(pid)) { const pl = E.addPlayer(pid, p.f ?? 0, p.name, p.pub, p.xp || 0); pl.online = false; if (p.squad) pl.squad = p.squad; if (p.trail) pl.trail = p.trail; if (p.linked) pl.linked = true; if (p.pendingSquad) pl.pendingSquad = p.pendingSquad; } if (p.push && !E.players.get(pid).push) E.players.get(pid).push = p.push; } };
+const loadSavedPlayers = () => { for (const [pid, p] of Object.entries(saved)) { if (!E.players.has(pid)) { const pl = E.addPlayer(pid, p.f ?? 0, p.name, p.pub, p.xp || 0); pl.online = false; if (p.squad) pl.squad = p.squad; if (p.trail) pl.trail = p.trail; if (p.linked) pl.linked = true; if (p.pendingSquad) pl.pendingSquad = p.pendingSquad;} if (p.push && !E.players.get(pid).push) E.players.get(pid).push = p.push; if (p.nameSeason) E.players.get(pid).nameSeason = p.nameSeason; } };
 loadSavedPlayers();
 // resume the running season if the server restarted mid-way
 const world = readJson('world.json', null);
-if (!(world && E.load(world))) { prepareSeason(); E.reset(); }
-if (world && E.S.simT > 0) loadSavedPlayers(), console.log(`Resumed season at day ${Math.floor(E.S.simT / K.SEASON * 7) + 1} with ${E.players.size} players`);
+const freshWorld = !(world && E.load(world)); // a brand-new world starts below, once the season counter exists
+if (!freshWorld && E.S.simT > 0) loadSavedPlayers(), console.log(`Resumed season at day ${Math.floor(E.S.simT / K.SEASON * 7) + 1} with ${E.players.size} players`);
 const saveWorld = () => writeJson('world.json', E.save());
 setInterval(saveWorld, 15000);
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { saveWorld(); savePlayers(); ops.saveStats(); process.exit(0); });
@@ -131,8 +167,9 @@ function prepareSeason() { // the next season's theme, and the cities still glow
   E.nextScenario = E.scenarioFor(season);
   const last = archive[archive.length - 1]; E.nextScars = last && campaignOf(last.season) === campaignOf(season) && last.rad ? last.rad : [];
 }
+if (freshWorld) { prepareSeason(); E.reset(); }
 function savePlayers() { saveSquads(); savePlayersInner(); }
-function savePlayersInner() { const o = {}; for (const p of E.players.values()) o[p.id] = { pub: p.pub, name: p.name, xp: p.xp, f: p.f, push: p.push, squad: p.squad, pendingSquad: p.pendingSquad, trail: p.trail, linked: p.linked || undefined }; writeJson('players.json', o); }
+function savePlayersInner() { const o = {}; for (const p of E.players.values()) o[p.id] = { pub: p.pub, name: p.name, xp: p.xp, f: p.f, push: p.push, squad: p.squad, pendingSquad: p.pendingSquad, trail: p.trail, linked: p.linked || undefined, nameSeason: p.nameSeason || undefined }; writeJson('players.json', o); }
 setInterval(savePlayers, 30000);
 let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { savePlayers(); saveWorld(); }, 1000); };
 
@@ -258,6 +295,9 @@ wss.on('connection', (ws, req) => {
       // the account keeps its player; this browser starts again as a fresh anonymous player
       ws.send(JSON.stringify({ type: 'google_res', ok: true, signedOut: true })); return;
     }
+    if (m.type === 'nick') {
+      const r = setNick(E.players.get(s.pid), m.name); ws.send(JSON.stringify({ type: 'nick_res', ...r })); return;
+    }
     if (m.type === 'squad') {
       const p = E.players.get(s.pid); let r;
       if (m.act === 'create') r = E.createSquad(s.pid);
@@ -277,7 +317,7 @@ wss.on('connection', (ws, req) => {
     rebalanceBots();
   });
 });
-const you = p => E.publicPlayer(p);
+const you = p => ({ ...E.publicPlayer(p), nickFree: !!p.linked && (p.nameSeason !== season || Date.now() - (p.nameAt || 0) < NICK_GRACE) });
 
 // ---------- simulation loop ----------
 const SIGNALS = new Set(['attack', 'defend', 'troops', 'thanks']);

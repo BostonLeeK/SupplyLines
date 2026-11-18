@@ -61,7 +61,7 @@ The map is the real world with three changes:
 | **Squads** | Create a squad, share the invite link: friends land on your side, and coordinated hits get a combo bonus. |
 | **Ranks and cosmetics** | Eight ranks with insignia; each unlocks a convoy trail every player can see. |
 | **World report** | A public page with the live map, score, chronicle and leaders, made for sharing. |
-| **Optional Google sign-in** | Play anonymously, or sign in to keep your rank, XP and trail on every device. Only a salted hash of the account id is stored. |
+| **Optional Google sign-in** | Play anonymously, or sign in to keep your rank, XP and trail on every device and pick your own callsign (once per season; letters, digits, spaces and - _ . only, no taken, reserved or look-alike names). Only a salted hash of the account id is stored. |
 | **Ukrainian / English** | The whole interface in Ukrainian or English, picked from the browser and switchable at any time (UA/EN button). |
 | **Season replay** | Watch any past season: key moments as captions, a camera that follows the fighting, a score timeline you can scrub. |
 | **Push alerts** | Optional browser notifications when your cities are attacked or a launch is detected (PWA). |

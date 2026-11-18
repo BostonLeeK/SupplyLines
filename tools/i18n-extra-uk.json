@@ -612,5 +612,22 @@
  "Points come from cities (bigger ones are worth more), whole regions (+8 each), a held enemy capital (+10), canals and straits (+2), wonders (+3), operations and trade. The faction with more points when the season ends wins.": "Очки дають міста (більші коштують більше), цілі регіони (+8 за кожен), утримувана ворожа столиця (+10), канали й протоки (+2), дива (+3), операції й торгівля. Перемагає фракція, що має більше очок на кінець сезону.",
  "The faction that is behind on points produces up to 30% more troops, so no war is lost on day one. The boost fades as the gap closes.": "Фракція, що відстає за очками, виробляє до 30% більше військ, тож війну не можна програти в перший же день. Що менший розрив, то менша надбавка.",
  "Players of this faction in the war right now. When few people play, bots hold the line for them, and new players join the side with fewer people online.": "Гравці цієї фракції, які воюють просто зараз. Коли людей мало, фронт за них тримають боти, а нові гравці потрапляють у фракцію, де менше людей онлайн.",
- "Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.": "Уночі міста видно лише зблизька. ППО там удвічі слабша, агентів рідко ловлять, а диверсії тривають довше."
+ "Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.": "Уночі міста видно лише зблизька. ППО там удвічі слабша, агентів рідко ловлять, а диверсії тривають довше.",
+ "Callsign": "Позивний",
+ "SAVE": "ЗБЕРЕГТИ",
+ "Letters, digits, spaces and - _ . Once per season.": "Літери, цифри, пробіли та - _ . Змінити можна раз на сезон.",
+ "You can change it again next season.": "Змінити знову можна в наступному сезоні.",
+ "✓ Callsign saved": "✓ Позивний збережено",
+ "Callsign saved": "Позивний збережено",
+ "A callsign is 3 to 20 characters long": "Позивний має бути від 3 до 20 символів",
+ "Use only letters, digits, spaces and - _ .": "Можна лише літери, цифри, пробіли та - _ .",
+ "A callsign needs at least two letters": "У позивному мають бути щонайменше дві літери",
+ "This callsign is not allowed": "Такий позивний заборонений",
+ "This callsign is reserved. Pick another one": "Цей позивний зарезервований. Обери інший",
+ "This callsign is taken": "Цей позивний уже зайнятий",
+ "Sign in with Google to choose a callsign": "Увійди через Google, щоб обрати позивний",
+ "You can change your callsign once per season": "Позивний можна змінювати раз на сезон",
+ "Optional: keep your rank, XP and trail on every device and pick your own callsign. We store no email or name.": "Необов'язково: збережи звання, досвід і слід на всіх пристроях і обери власний позивний. Ми не зберігаємо ні пошту, ні ім'я.",
+ "Sign in with Google on the start screen or in the Locker and pick your own callsign instead of a random one. It can change once per season.": "Увійди через Google на стартовому екрані або в «Нагородах» й обери власний позивний замість випадкового. Змінювати його можна раз на сезон.",
+ "sign-in": "вхід"
 }
