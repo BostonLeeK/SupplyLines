@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESC}}">
+<link rel="canonical" href="https://globalwar.xyz{{PATH}}{{Q}}">
+<link rel="alternate" hreflang="en" href="https://globalwar.xyz{{PATH}}">
+<link rel="alternate" hreflang="uk" href="https://globalwar.xyz{{PATH}}?lang=uk">
+<link rel="alternate" hreflang="x-default" href="https://globalwar.xyz{{PATH}}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Supply Lines">
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{DESC}}">
+<meta property="og:url" content="https://globalwar.xyz{{PATH}}{{Q}}">
+<meta property="og:image" content="https://globalwar.xyz/og.jpg">
+<meta name="theme-color" content="#05080d">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tektur:wdth,wght@75..100,400..900&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="icons.js"></script>
+<script src="i18n-uk.js"></script>
+<script src="i18n.js"></script>
+<style>
+:root{
+  --bg:#05080d; --ink:#e9eef5; --dim:#8a9ab0; --mut:#5d6b7c;
+  --plate:#0c1628; --plate2:#13243d; --edge:#22385c; --gold:#ffc23d;
+  --disp:"Tektur","Roboto Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--body);-webkit-font-smoothing:antialiased}
+body{background-image:radial-gradient(rgba(140,190,255,.16) 1px,transparent 1.4px);background-size:34px 34px;min-height:100vh}
+a{color:#9fc3ef}
+.wrap{max-width:860px;margin:0 auto;padding:22px 20px 70px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo svg{width:40px;height:40px}
+.logo b{font:900 22px/1 var(--disp);letter-spacing:.02em}
+.logo small{display:block;font:700 10px/1 var(--disp);letter-spacing:.18em;color:var(--dim);margin-top:5px}
+.cta{margin-left:auto;text-decoration:none;font:800 13px/1 var(--disp);letter-spacing:.08em;padding:13px 20px;border-radius:10px;color:#2a1800;background:linear-gradient(180deg,#ffe27a,#ffc23d 55%,#f39b12);box-shadow:0 3px 0 #a5650a,0 8px 18px rgba(0,0,0,.4)}
+.cta:hover{filter:brightness(1.06)}
+nav{display:flex;gap:6px;margin:26px 0 0;padding:5px;background:var(--plate);border:1px solid var(--edge);border-radius:12px;width:max-content;max-width:100%;overflow-x:auto}
+nav a{font:800 13px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--dim);padding:11px 16px;border-radius:8px;white-space:nowrap}
+nav a:hover{color:var(--ink)}
+nav a.on{color:var(--ink);background:var(--plate2);box-shadow:inset 0 -2px 0 var(--gold)}
+.page{display:none;margin-top:22px;background:linear-gradient(180deg,rgba(19,36,61,.92),rgba(10,19,34,.92));border:1px solid var(--edge);border-radius:16px;padding:28px 30px 30px}
+.page.on{display:block}
+h1{margin:0;font:900 clamp(30px,6vw,46px)/1 var(--disp);letter-spacing:.01em}
+.upd{color:var(--mut);font-size:13px;margin:10px 0 0}
+.lead{font-size:16.5px;color:#cfdcee;margin:18px 0 0}
+h2{font:800 17px/1.25 var(--disp);letter-spacing:.03em;margin:28px 0 6px;color:#fff}
+h2::before{content:"";display:inline-block;width:8px;height:8px;margin:0 10px 2px 0;background:var(--gold);transform:rotate(45deg)}
+p,li{color:#c2d0e3}
+p{margin:8px 0}
+ul{margin:8px 0;padding-left:20px}
+li{margin:5px 0}
+b,strong{color:var(--ink)}
+html[lang="uk"] [data-l="en"],html[lang="en"] [data-l="uk"]{display:none}
+/* contact form */
+form{margin-top:22px;display:grid;gap:16px}
+label{display:grid;gap:7px;font:700 12px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+label small{font:500 12.5px/1.3 var(--body);letter-spacing:0;text-transform:none;color:var(--mut)}
+input,select,textarea{width:100%;font:15px/1.4 var(--body);color:var(--ink);background:#081122;border:1px solid var(--edge);border-radius:10px;padding:12px 14px;outline:none}
+textarea{min-height:170px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:#4aa3ff;box-shadow:0 0 0 3px rgba(74,163,255,.18)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.topics{display:flex;flex-wrap:wrap;gap:8px}
+.topics input{position:absolute;opacity:0;width:1px;height:1px}
+.topics span{display:inline-block;font:700 13px/1 var(--disp);letter-spacing:.04em;text-transform:none;color:#c2d0e3;padding:10px 14px;border:1px solid var(--edge);border-radius:999px;background:#081122;cursor:pointer}
+.topics input:checked+span{color:#2a1800;background:var(--gold);border-color:var(--gold)}
+.topics input:focus-visible+span{box-shadow:0 0 0 3px rgba(74,163,255,.35)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.send{justify-self:start;border:0;cursor:pointer;font:900 15px/1 var(--disp);letter-spacing:.08em;padding:15px 28px;border-radius:12px;color:#2a1800;background:linear-gradient(180deg,#ffe27a,#ffc23d 55%,#f39b12);box-shadow:0 3px 0 #a5650a,0 8px 18px rgba(0,0,0,.4)}
+.send[disabled]{opacity:.6;cursor:default}
+.note{min-height:1.4em;font-size:14px;margin:0}
+.note.ok{color:#5be08a} .note.err{color:#ff8a7a}
+.done{display:none;text-align:left;padding:8px 0 4px}
+.done b{display:block;font:900 24px/1.1 var(--disp);margin-bottom:6px}
+.sent form{display:none} .sent .done{display:block}
+.other{margin-top:26px;padding-top:18px;border-top:1px solid #1d3050;display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px}
+footer{margin-top:26px;color:var(--mut);font-size:13px;display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--dim)}
+@media (max-width:620px){
+  .wrap{padding:16px 16px 50px}
+  .cta{padding:11px 14px;font-size:12px}
+  .page{padding:22px 18px 24px;border-radius:14px}
+  .two{grid-template-columns:1fr}
+  nav{width:100%} nav a{flex:1;text-align:center;padding:11px 8px}
+  .send{justify-self:stretch}
+}
+</style>
+</head>
+<body data-page="{{PAGE}}">
+<div class="wrap">
+  <header>
+    <a class="logo" href="./"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><span><b class="notr">SUPPLY LINES</b><small>WAR OF LOGISTICS</small></span></a>
+    <a class="cta" href="./">PLAY</a>
+  </header>
+
+  <nav aria-label="Pages"><a href="privacy" data-p="privacy">Privacy</a><a href="terms" data-p="terms">Terms</a><a href="contact" data-p="contact">Contact</a></nav>
+
+  <!-- ======================= PRIVACY ======================= -->
+  <article class="page" id="privacy">
+    <div data-l="en" class="notr">
+      <h1>Privacy</h1>
+      <p class="upd">Last updated 18 November 2026</p>
+      <p class="lead">Supply Lines is a free browser game. It has no ads, no tracking cookies, and we don't sell or share anything about you. You can play without an account. Below is everything the game keeps and why.</p>
+
+      <h2>In your browser</h2>
+      <p>The game remembers you through a random player ID kept in your browser's local storage, together with your settings: language, sound, tutorial progress, which panels you folded. These are not cookies, and nothing here is sent to anyone else. Clear the site data and the browser forgets you.</p>
+
+      <h2>On our server</h2>
+      <ul>
+        <li><b>Your player record</b>, tied to that random ID: callsign, faction, experience, squad, what you did this season. Callsigns, scores and season results are public: other players see them in the game and on the World report.</li>
+        <li><b>Google sign-in, if you use it.</b> Google sends us a token, we check it and keep only a one-way salted hash of your Google account ID, so your progress follows you to another device. We don't receive or store your name, email address or photo.</li>
+        <li><b>Alerts, if you turn them on.</b> Your browser gives us a push address and keys so we can tell you when your cities are attacked or a season ends. Turn alerts off and the address is deleted.</li>
+        <li><b>Visit counts.</b> Per day we count page loads, presses of PLAY, sessions longer than five minutes and returns. To count unique visitors we hash your IP address and browser name with a random value that changes every day and is never written to disk. No IP address is saved.</li>
+        <li><b>Error reports.</b> When the page breaks, it sends the error text, the file and line, the page and your browser name, so we can fix the bug.</li>
+        <li><b>Messages</b> you send through the contact form: the text, the name and email if you gave them, and your browser name. We use them only to read and answer.</li>
+      </ul>
+      <p>The server sees your IP address while you are connected: it needs it to talk to you and to stop one address from opening too many connections or sending too many messages. The game does not write it to its files. The web server in front of the game may keep it in short-lived access logs for security.</p>
+
+      <h2>Other services the page loads</h2>
+      <ul>
+        <li>Google Fonts serves the fonts, and jsDelivr serves the 3D engine (three.js).</li>
+        <li>Google Identity Services loads only when you press the Google sign-in button.</li>
+        <li>Your browser's push service (Google, Mozilla, Apple or another) delivers alerts if you turn them on.</li>
+        <li>The real-war panel reads public air-raid alert data and published loss figures through our server; your browser does not contact those sites.</li>
+      </ul>
+      <p>When your browser loads something from these services they see your IP address and browser, under their own privacy policies.</p>
+
+      <h2>How long we keep it</h2>
+      <p>Player records stay while the game runs, so your experience and callsign carry over between seasons. The server keeps daily backups for 14 days. Error reports and messages are kept until we have dealt with them, and old error logs are rotated out.</p>
+
+      <h2>Your choices</h2>
+      <p>You can ask for a copy of your data or for it to be deleted. Write through the <a href="contact" data-p="contact">contact form</a>, pick "Privacy" and tell us your callsign, or which Google account you signed in with. If you are in the EU or the UK, the GDPR gives you these rights along with the right to object and to complain to your data protection authority.</p>
+
+      <h2>Children</h2>
+      <p>The game is about war and is not made for children under 13. Google sign-in follows Google's own age rules.</p>
+
+      <h2>Changes</h2>
+      <p>If this page changes, the date at the top changes with it. Big changes will be announced in the game.</p>
+    </div>
+
+    <div data-l="uk" class="notr">
+      <h1>Конфіденційність</h1>
+      <p class="upd">Оновлено 18 листопада 2026</p>
+      <p class="lead">Supply Lines — безкоштовна браузерна гра. У ній немає реклами й cookie для стеження, і ми нікому не продаємо та не передаємо дані про тебе. Грати можна без акаунта. Нижче все, що гра зберігає, і навіщо.</p>
+
+      <h2>У твоєму браузері</h2>
+      <p>Гра впізнає тебе за випадковим ідентифікатором гравця в локальному сховищі браузера. Там же лежать налаштування: мова, звук, прогрес навчання, які панелі ти згорнув. Це не cookie, і звідси нічого нікуди не надсилається. Очисти дані сайту, і браузер тебе забуде.</p>
+
+      <h2>На нашому сервері</h2>
+      <ul>
+        <li><b>Запис гравця</b>, прив'язаний до цього ідентифікатора: позивний, фракція, досвід, загін, що ти зробив за сезон. Позивні, очки й підсумки сезонів публічні: їх бачать інші гравці в грі та у Звіті зі світу.</li>
+        <li><b>Вхід через Google, якщо ти ним користуєшся.</b> Google надсилає нам токен, ми його перевіряємо й зберігаємо лише односторонній хеш із сіллю від ідентифікатора твого акаунта, щоб прогрес переходив з тобою на інший пристрій. Ім'я, пошту чи фото ми не отримуємо й не зберігаємо.</li>
+        <li><b>Сповіщення, якщо ти їх увімкнув.</b> Браузер дає нам адресу для push і ключі, щоб ми могли написати, коли на твої міста напали або закінчився сезон. Вимкнеш сповіщення, і адресу буде видалено.</li>
+        <li><b>Лічильники відвідувань.</b> Щодня ми рахуємо завантаження сторінки, натискання «ГРАТИ», сесії довші за п'ять хвилин і повернення. Щоб порахувати унікальних відвідувачів, ми хешуємо IP-адресу й назву браузера разом із випадковим значенням, яке міняється щодня й ніколи не пишеться на диск. Жодна IP-адреса не зберігається.</li>
+        <li><b>Звіти про помилки.</b> Коли сторінка ламається, вона надсилає текст помилки, файл і рядок, сторінку й назву браузера, щоб ми могли це виправити.</li>
+        <li><b>Повідомлення</b> з форми зв'язку: текст, ім'я й пошта, якщо ти їх вказав, і назва браузера. Ми використовуємо їх лише щоб прочитати й відповісти.</li>
+      </ul>
+      <p>Поки ти на зв'язку, сервер бачить твою IP-адресу: без неї він не зможе тобі відповідати, а ще так він не дає одній адресі відкрити забагато з'єднань чи надіслати забагато повідомлень. Гра не записує її у свої файли. Вебсервер перед грою може тримати її в журналах доступу недовго, з міркувань безпеки.</p>
+
+      <h2>Інші сервіси, які завантажує сторінка</h2>
+      <ul>
+        <li>Google Fonts віддає шрифти, jsDelivr віддає 3D-рушій (three.js).</li>
+        <li>Google Identity Services завантажується, лише коли ти натискаєш кнопку входу через Google.</li>
+        <li>Push-сервіс твого браузера (Google, Mozilla, Apple чи інший) доставляє сповіщення, якщо ти їх увімкнув.</li>
+        <li>Панель про справжню війну бере відкриті дані про повітряні тривоги й опубліковані цифри втрат через наш сервер. Твій браузер до цих сайтів не звертається.</li>
+      </ul>
+      <p>Коли браузер щось завантажує з цих сервісів, вони бачать твою IP-адресу й браузер і діють за власними правилами конфіденційності.</p>
+
+      <h2>Скільки ми це зберігаємо</h2>
+      <p>Записи гравців живуть, поки працює гра, щоб досвід і позивний переходили із сезону в сезон. Щоденні резервні копії сервер тримає 14 днів. Звіти про помилки й повідомлення лежать, доки ми їх не розберемо, а старі журнали помилок поступово стираються.</p>
+
+      <h2>Що ти можеш зробити</h2>
+      <p>Можеш попросити копію своїх даних або їх видалення. Напиши через <a href="contact" data-p="contact">форму зв'язку</a>, вибери «Конфіденційність» і вкажи свій позивний або акаунт Google, з яким входив. Якщо ти в ЄС чи Великій Британії, GDPR дає тобі ці права, а ще право заперечити проти обробки й поскаржитися до органу із захисту даних.</p>
+
+      <h2>Діти</h2>
+      <p>Гра про війну, і вона не для дітей до 13 років. Вхід через Google працює за віковими правилами самого Google.</p>
+
+      <h2>Зміни</h2>
+      <p>Якщо ця сторінка зміниться, зміниться й дата вгорі. Про великі зміни розкажемо в грі.</p>
+    </div>
+  </article>
+
+  <!-- ======================= TERMS ======================= -->
+  <article class="page" id="terms">
+    <div data-l="en" class="notr">
+      <h1>Terms of play</h1>
+      <p class="upd">Last updated 18 November 2026</p>
+      <p class="lead">By playing Supply Lines you agree to these terms. They are short, because the deal is simple: the game is free, play fair, and be decent to the other side.</p>
+
+      <h2>The game</h2>
+      <p>Supply Lines is free and in active development. Rules, balance and features change, the map resets every season by design, and the server can be down for updates or by accident. The game is provided as it is, without any promise that it will always be available or free of bugs.</p>
+
+      <h2>Play fair</h2>
+      <ul>
+        <li>No cheats, bots, scripts or automation that play for you.</li>
+        <li>Found a bug that gives an edge? Report it, don't farm it.</li>
+        <li>Don't flood the server, open crowds of connections or try to break into it.</li>
+        <li>Don't harass other players, in the game or outside it.</li>
+      </ul>
+
+      <h2>Names</h2>
+      <p>Callsigns and squad names must not contain hate, slurs, threats, adverts or someone else's identity. We can rename or remove a name, reset a player or block access when these rules are broken.</p>
+
+      <h2>Your account</h2>
+      <p>An account is optional. If you sign in with Google, keeping that Google account safe is up to you. You can ask us to delete your data at any time, see the <a href="privacy" data-p="privacy">privacy page</a>.</p>
+
+      <h2>Fiction and real data</h2>
+      <p>Atlantica, Pacifica and everything that happens between them are fiction. The real-war panel shows public data from open sources (air-raid alerts, published loss figures) for information only. It can be late or inaccurate, and it is not a source of official warnings: for alerts, use your official alert apps.</p>
+
+      <h2>Code and content</h2>
+      <p>The source code is open on <a href="https://github.com/BostonLeeK/SupplyLines" rel="noopener">GitHub</a> under the GNU GPL v3. The Supply Lines name and logo identify this game, so please don't use them to present another project as this one.</p>
+
+      <h2>Liability</h2>
+      <p>As far as the law allows, we are not responsible for lost progress, downtime or any damage that comes from playing or not being able to play. Nothing here limits rights you have under consumer law that cannot be waived.</p>
+
+      <h2>Changes and contact</h2>
+      <p>We may update these terms; the date at the top shows the latest version. Questions go through the <a href="contact" data-p="contact">contact form</a>.</p>
+    </div>
+
+    <div data-l="uk" class="notr">
+      <h1>Умови гри</h1>
+      <p class="upd">Оновлено 18 листопада 2026</p>
+      <p class="lead">Граючи в Supply Lines, ти погоджуєшся з цими умовами. Вони короткі, бо домовленість проста: гра безкоштовна, грай чесно й поводься гідно з іншою стороною.</p>
+
+      <h2>Гра</h2>
+      <p>Supply Lines безкоштовна й активно розвивається. Правила, баланс і можливості змінюються, мапа щосезону скидається, так задумано, а сервер може не працювати через оновлення чи випадково. Гра надається як є, без обіцянок, що вона завжди буде доступна чи без помилок.</p>
+
+      <h2>Грай чесно</h2>
+      <ul>
+        <li>Жодних читів, ботів, скриптів чи автоматизації, що грають замість тебе.</li>
+        <li>Знайшов помилку, яка дає перевагу? Повідом про неї, а не фарми.</li>
+        <li>Не засмічуй сервер, не відкривай натовп з'єднань і не намагайся його зламати.</li>
+        <li>Не цькуй інших гравців ні в грі, ні поза нею.</li>
+      </ul>
+
+      <h2>Імена</h2>
+      <p>У позивних і назвах загонів не має бути ненависті, образ, погроз, реклами чи чужої особи. Ми можемо перейменувати чи прибрати ім'я, скинути гравця або закрити доступ, якщо ці правила порушено.</p>
+
+      <h2>Твій акаунт</h2>
+      <p>Акаунт не обов'язковий. Якщо входиш через Google, за безпеку цього акаунта Google відповідаєш ти. Видалити свої дані можна будь-коли, дивись <a href="privacy" data-p="privacy">сторінку про конфіденційність</a>.</p>
+
+      <h2>Вигадка й справжні дані</h2>
+      <p>Атлантика, Пацифіка й усе, що між ними відбувається, вигадані. Панель про справжню війну показує відкриті дані (повітряні тривоги, опубліковані цифри втрат) лише для інформації. Вони можуть запізнюватися чи бути неточними, і це не джерело офіційних попереджень: про тривоги дізнавайся з офіційних застосунків.</p>
+
+      <h2>Код і матеріали</h2>
+      <p>Вихідний код відкритий на <a href="https://github.com/BostonLeeK/SupplyLines" rel="noopener">GitHub</a> під ліцензією GNU GPL v3. Назва й логотип Supply Lines позначають саме цю гру, тож не видавай за неї інший проєкт.</p>
+
+      <h2>Відповідальність</h2>
+      <p>Наскільки дозволяє закон, ми не відповідаємо за втрачений прогрес, перерви в роботі чи будь-яку шкоду від гри або від того, що пограти не вдалося. Ніщо тут не обмежує прав споживача, від яких не можна відмовитися.</p>
+
+      <h2>Зміни й зв'язок</h2>
+      <p>Ми можемо оновлювати ці умови, а дата вгорі показує останню версію. Питання пиши через <a href="contact" data-p="contact">форму зв'язку</a>.</p>
+    </div>
+  </article>
+
+  <!-- ======================= CONTACT ======================= -->
+  <article class="page" id="contact">
+    <h1>Write to us</h1>
+    <p class="lead">Found a bug, have an idea, want to report a player or just say something about the game? Write here: every message gets read.</p>
+    <form id="cf" novalidate>
+      <div class="topics" role="radiogroup" aria-label="Topic">
+        <label><input type="radio" name="topic" value="idea" checked><span>Idea</span></label>
+        <label><input type="radio" name="topic" value="bug"><span>Bug</span></label>
+        <label><input type="radio" name="topic" value="player"><span>Report a player</span></label>
+        <label><input type="radio" name="topic" value="privacy"><span>Privacy</span></label>
+        <label><input type="radio" name="topic" value="other"><span>Something else</span></label>
+      </div>
+      <label>Message<textarea name="text" maxlength="4000" required placeholder="What happened, or what would make the game better?"></textarea></label>
+      <div class="two">
+        <label>Name or callsign <small>optional</small><input name="name" maxlength="60" autocomplete="nickname"></label>
+        <label>Email <small>only if you want a reply</small><input name="from" type="email" maxlength="120" autocomplete="email"></label>
+      </div>
+      <div class="hp" aria-hidden="true"><label>Leave empty<input name="hp" tabindex="-1" autocomplete="off"></label></div>
+      <button class="send" type="submit">SEND</button>
+      <p class="note" id="cfNote" role="status"></p>
+    </form>
+    <div class="done" role="status"><b>Message sent</b><p>Thank you. If you left an email, the answer will come there.</p><p><a href="./">Back to the game</a></p></div>
+    <div class="other"><span>Also here:</span><a href="https://www.youtube.com/@SupplyLines-WOL" rel="noopener">YouTube</a><a href="https://github.com/BostonLeeK/SupplyLines/issues" rel="noopener">GitHub issues</a></div>
+  </article>
+
+  <footer><span>Supply Lines · free, and its code is open</span><a href="privacy" data-p="privacy">Privacy</a><a href="terms" data-p="terms">Terms</a><a href="contact" data-p="contact">Contact</a><a href="world">World report</a></footer>
+</div>
+<script>
+(function () {
+  var pages = ['privacy', 'terms', 'contact'];
+  var titles = { en: { privacy: 'Privacy · Supply Lines', terms: 'Terms of play · Supply Lines', contact: 'Contact · Supply Lines' },
+                 uk: { privacy: 'Конфіденційність · Supply Lines', terms: 'Умови гри · Supply Lines', contact: 'Зв\'язок · Supply Lines' } };
+  var lang = document.documentElement.lang === 'uk' ? 'uk' : 'en';
+  function show(p, push) {
+    if (pages.indexOf(p) < 0) p = 'privacy';
+    pages.forEach(function (x) { document.getElementById(x).classList.toggle('on', x === p); });
+    document.querySelectorAll('nav a').forEach(function (a) { a.classList.toggle('on', a.dataset.p === p); a.setAttribute('aria-current', a.dataset.p === p ? 'page' : 'false'); });
+    document.title = titles[lang][p];
+    if (push) { history.pushState({ p: p }, '', p + location.search); scrollTo(0, 0); }
+  }
+  // links between the three pages switch in place; the address stays a real page for search engines and sharing
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[data-p]'); if (!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault(); show(a.dataset.p, true);
+  });
+  addEventListener('popstate', function () { show(location.pathname.split('/').pop()); });
+  show(document.body.dataset.page || location.pathname.split('/').pop());
+
+  var f = document.getElementById('cf'), el = f.elements, note = document.getElementById('cfNote'), btn = f.querySelector('.send');
+  var T = function (s) { return window.slLang && slLang.tr ? slLang.tr(s) : s; };
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d = { topic: (f.querySelector('input[name=topic]:checked') || {}).value, text: el.text.value.trim(), name: el.name.value.trim(), from: el.from.value.trim(), hp: el.hp.value, lang: lang };
+    note.className = 'note';
+    if (d.text.length < 5) { note.className = 'note err'; note.textContent = T('Write a few words first.'); el.text.focus(); return; }
+    if (d.from && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.from)) { note.className = 'note err'; note.textContent = T('That email address does not look right.'); el.from.focus(); return; }
+    btn.disabled = true; note.textContent = T('Sending…');
+    fetch('api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(d) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }).then(function (j) { j.status = r.status; return j; }); })
+      .then(function (j) {
+        btn.disabled = false;
+        if (j.ok) { note.textContent = ''; document.getElementById('contact').classList.add('sent'); scrollTo(0, 0); return; }
+        note.className = 'note err';
+        note.textContent = T(j.status === 429 ? 'Too many messages at once. Try again in a minute.' : 'Could not send. Try again in a minute.');
+      })
+      .catch(function () { btn.disabled = false; note.className = 'note err'; note.textContent = T('No connection. Check the internet and try again.'); });
+  });
+})();
+</script>
+</body>
+</html>

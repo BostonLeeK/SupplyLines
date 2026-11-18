@@ -186,8 +186,8 @@ setInterval(savePlayers, 30000);
 let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { savePlayers(); saveWorld(); }, 1000); };
 
 // ---------- static files ----------
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json' };
-const PUBLIC = new Set(['/icons.js', '/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png', ...['convoys', 'drones', 'front', 'world', 'phone1', 'phone2', 'phone3'].map(n => '/img/lp-' + n + '.webp')]);
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const PUBLIC = new Set(['/icons.js', '/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png', '/icons/favicon.svg', '/icons/apple-touch-icon.png', ...['convoys', 'drones', 'front', 'world', 'phone1', 'phone2', 'phone3'].map(n => '/img/lp-' + n + '.webp')]);
 // static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
 const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
 function cachedFile(p) {
@@ -207,16 +207,52 @@ function sendPacked(req, res, type, body, extra = {}) {
   if (buf.length > 1024 && /\bgzip\b/.test(ae)) { res.writeHead(200, { ...head, 'content-encoding': 'gzip' }); return res.end(zlib.gzipSync(buf)); }
   res.writeHead(200, head); res.end(buf);
 }
+// the Ukrainian version of a page (?lang=uk) as search engines and link previews should see it:
+// [page title, search description, preview title, preview description, address]
 const OG_UK = {
-  '/index.html': ['Supply Lines: безкоштовна браузерна війна логістики', 'Дві фракції, одна планета, без реєстрації. Веди конвої по 3D-глобусу й захоплюй світ місто за містом.', 'https://globalwar.xyz/?lang=uk'],
-  '/world.html': ['Supply Lines: світ у війні просто зараз', 'Дві фракції, одна планета, без реєстрації. Подивись, хто тримає світ, і стань на лінію фронту.', 'https://globalwar.xyz/world?lang=uk'],
+  '/index.html': ['Supply Lines: безкоштовна браузерна стратегія на 3D-глобусі',
+    'Безкоштовна браузерна стратегія на живому 3D-глобусі. Дві фракції ведуть одну війну логістики: веди конвої, ріж лінії постачання, грай бліц або з друзями. Без реєстрації.',
+    'Supply Lines: безкоштовна браузерна війна логістики', 'Дві фракції, одна планета, без реєстрації. Веди конвої по 3D-глобусу й захоплюй світ місто за містом.', 'https://globalwar.xyz/?lang=uk'],
+  '/world.html': ['Supply Lines · Звіт зі світу',
+    'Живий звіт із Supply Lines, безкоштовної браузерної війни логістики: хто тримає світ просто зараз, найкращі командири й останні битви. Без реєстрації.',
+    'Supply Lines: світ у війні просто зараз', 'Дві фракції, одна планета, без реєстрації. Подивись, хто тримає світ, і стань на лінію фронту.', 'https://globalwar.xyz/world?lang=uk'],
 };
+const attr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 function ukPreview(html, p) {
-  const [title, desc, url] = OG_UK[p];
-  return html.replaceAll('https://globalwar.xyz/og.jpg', 'https://globalwar.xyz/og-uk.jpg')
-    .replace(/(<meta property="og:title" content=")[^"]*/, '$1' + title).replace(/(<meta property="og:description" content=")[^"]*/, '$1' + desc)
-    .replace(/(<meta property="og:url" content=")[^"]*/, '$1' + url).replace('<meta property="og:type"', '<meta property="og:locale" content="uk_UA">\n<meta property="og:type"');
+  const [title, desc, ogTitle, ogDesc, url] = OG_UK[p].map(attr);
+  return html.replace('<html lang="en">', '<html lang="uk">').replaceAll('https://globalwar.xyz/og.jpg', 'https://globalwar.xyz/og-uk.jpg')
+    .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`).replace(/(<meta name="description" content=")[^"]*/, '$1' + desc)
+    .replace(/(<link rel="canonical" href=")[^"]*/, '$1' + url)
+    .replace(/(<meta property="og:title" content=")[^"]*/, '$1' + ogTitle).replace(/(<meta property="og:description" content=")[^"]*/, '$1' + ogDesc)
+    .replace(/(<meta name="twitter:title" content=")[^"]*/, '$1' + ogTitle).replace(/(<meta name="twitter:description" content=")[^"]*/, '$1' + ogDesc)
+    .replace(/(<meta property="og:url" content=")[^"]*/, '$1' + url)
+    .replace('<meta property="og:locale" content="en_US">', '<meta property="og:locale" content="uk_UA">').replace('<meta property="og:locale:alternate" content="uk_UA">', '<meta property="og:locale:alternate" content="en_US">');
 }
+// privacy, terms and contact: one page (legal.html) with its title, description and address filled in per path
+const LEGAL = {
+  '/privacy': { en: ['Privacy · Supply Lines', 'What Supply Lines keeps about players and why: no ads, no tracking cookies, play without an account.'],
+    uk: ['Конфіденційність · Supply Lines', 'Що Supply Lines зберігає про гравців і навіщо: без реклами, без cookie для стеження, грати можна без акаунта.'] },
+  '/terms': { en: ['Terms of play · Supply Lines', 'The terms of Supply Lines, a free browser strategy game: play fair, names, accounts and the real-war data.'],
+    uk: ['Умови гри · Supply Lines', 'Умови Supply Lines, безкоштовної браузерної стратегії: чесна гра, імена, акаунти й дані про справжню війну.'] },
+  '/contact': { en: ['Contact · Supply Lines', 'Write to the Supply Lines team: bugs, ideas, player reports and privacy requests.'],
+    uk: ["Зв'язок · Supply Lines", 'Напиши команді Supply Lines: помилки, ідеї, скарги на гравців і запити щодо даних.'] },
+};
+function legalPage(p, uk) {
+  const [title, desc] = LEGAL[p][uk ? 'uk' : 'en'].map(attr), page = p.slice(1);
+  let h = cachedFile('/legal.html').raw.toString('utf8').replaceAll('{{TITLE}}', title).replaceAll('{{DESC}}', desc).replaceAll('{{PATH}}', p).replaceAll('{{Q}}', uk ? '?lang=uk' : '').replace('{{PAGE}}', page);
+  if (uk) h = h.replace('<html lang="en">', '<html lang="uk">').replaceAll('https://globalwar.xyz/og.jpg', 'https://globalwar.xyz/og-uk.jpg');
+  return ROOM === 'main' ? h : noIndex(h);
+}
+// blitz and private games repeat the main page: keep them out of search results
+const noIndex = html => html.replace('<head>', '<head>\n<meta name="robots" content="noindex">');
+const SITE = (process.env.SITE_URL || 'https://globalwar.xyz').replace(/\/$/, '');
+const ROBOTS = ROOM === 'main' ? `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /r/\nDisallow: /fast/\n\nSitemap: ${SITE}/sitemap.xml\n` : 'User-agent: *\nDisallow: /\n';
+const SITEMAP = (() => {
+  const alt = p => `<xhtml:link rel="alternate" hreflang="en" href="${SITE}${p}"/><xhtml:link rel="alternate" hreflang="uk" href="${SITE}${p}?lang=uk"/><xhtml:link rel="alternate" hreflang="x-default" href="${SITE}${p}"/>`;
+  const url = (p, q, f, pr) => `  <url><loc>${SITE}${p}${q}</loc>${alt(p)}<changefreq>${f}</changefreq><priority>${pr}</priority></url>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`
+    + [url('/', '', 'daily', '1.0'), url('/', '?lang=uk', 'daily', '1.0'), url('/world', '', 'hourly', '0.8'), url('/world', '?lang=uk', 'hourly', '0.8'), ...['/privacy', '/terms', '/contact'].flatMap(p => [url(p, '', 'yearly', '0.3'), url(p, '?lang=uk', 'yearly', '0.3')])].join('\n') + '\n</urlset>\n';
+})();
 // error reports, stats, health check, backups
 const ops = createOps({ DATA, getHealth: () => ({ season, simT: Math.round(E.S.simT), ended: !!E.S.ended, online: humansOnline(), players: E.players.size, uptime: Math.round(process.uptime()) }) });
 const games = PRIVATE_GAMES ? createRooms({ ROOT, PORT, max: PRIVATE_GAMES }) : null;
@@ -233,14 +269,20 @@ const server = http.createServer((req, res) => {
   if (p === '/world.json') return sendPacked(req, res, 'application/json', JSON.stringify(worldState()), { 'cache-control': 'no-cache', 'access-control-allow-origin': '*' });
   // the start screen of the other mode reads this: how long a season is here and how many people play now
   if (p === '/room.json') { const on = humansOnline(); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache', 'access-control-allow-origin': '*' }); return res.end(JSON.stringify({ room: ROOM, code: ROOM_CODE || undefined, minutes: Math.round(K.SEASON / SIM_SPEED / 60), online: on[0] + on[1], season, day: Math.min(7, Math.floor(E.S.simT / K.SEASON * 7) + 1), games: games ? { open: games.count(), max: games.max } : undefined })); }
+  if (p === '/robots.txt') { res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' }); return res.end(ROBOTS); }
+  if (p === '/sitemap.xml') { res.writeHead(200, { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' }); return res.end(SITEMAP); }
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
   if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 15 * 60e3 ? realWar.alerts : null, staff: realWar.staff, status: { alerts: realWar.alertsErr ? 'error: ' + realWar.alertsErr : realWar.alertsAt ? 'ok' : 'loading', staff: realWar.staffErr ? 'error: ' + realWar.staffErr : realWar.staffAt ? 'ok' : 'loading' } })); }
   if (p === '/wire.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(wireLog.slice(0, 30))); }
   if (p === '/archive.json') return sendPacked(req, res, 'application/json', JSON.stringify(archive.slice(-30).reverse()), { 'cache-control': 'no-cache' });
+  if (LEGAL[p]) return sendPacked(req, res, TYPES['.html'], legalPage(p, /[?&]lang=uk(&|$)/.test(req.url)), { 'cache-control': 'no-cache' });
   if (!PUBLIC.has(p)) { res.writeHead(404); return res.end('not found'); }
   let c; try { c = cachedFile(p); } catch { res.writeHead(404); return res.end('not found'); }
   // a shared link with ?lang=uk gets the Ukrainian link preview (the page itself switches language from the same parameter)
-  if ((p === '/index.html' || p === '/world.html') && /[?&]lang=uk(&|$)/.test(req.url)) return sendPacked(req, res, TYPES['.html'], ukPreview(c.raw.toString('utf8'), p), { 'cache-control': 'no-cache' });
+  if (p === '/index.html' || p === '/world.html') {
+    const uk = /[?&]lang=uk(&|$)/.test(req.url);
+    if (uk || ROOM !== 'main') { let h = c.raw.toString('utf8'); if (uk) h = ukPreview(h, p); if (ROOM !== 'main') h = noIndex(h); return sendPacked(req, res, TYPES['.html'], h, { 'cache-control': 'no-cache' }); }
+  }
   const ae = String(req.headers['accept-encoding'] || ''), enc = c.br && /\bbr\b/.test(ae) ? 'br' : c.gz && /\bgzip\b/.test(ae) ? 'gzip' : null;
   const head = { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream', 'cache-control': 'no-cache', etag: c.etag, vary: 'Accept-Encoding' };
   if (req.headers['if-none-match'] === c.etag) { res.writeHead(304, head); return res.end(); }

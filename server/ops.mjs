@@ -3,18 +3,21 @@
 // Stats never store IP addresses or set cookies. A visitor is counted once a day through a hash of
 // (daily random salt + IP + user agent); the salt lives only in memory and changes every day.
 // GET /stats shows the numbers: open it from the server itself, or set STATS_KEY and use /stats?key=...
+// POST /api/contact takes a message from the contact form: it goes to messages.jsonl in the data folder and the /stats
+// page; with CONTACT_TG_TOKEN and CONTACT_TG_CHAT set, a Telegram bot also forwards it.
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
 const EVENTS = ['visit', 'unique', 'play', 'active5', 'return'];
-const BACKUP_FILES = ['world.json', 'players.json', 'squads.json', 'archive.json', 'auth.json', 'stats.json', 'vapid.json'];
-const BACKUP_DAYS = 14, MAX_LOG = 1 << 20, MAX_BODY = 4096;
+const BACKUP_FILES = ['messages.jsonl', 'world.json', 'players.json', 'squads.json', 'archive.json', 'auth.json', 'stats.json', 'vapid.json'];
+const BACKUP_DAYS = 14, MAX_LOG = 1 << 20, MAX_BODY = 8192;
 const today = () => new Date().toISOString().slice(0, 10);
 
 export function createOps({ DATA, getHealth }) {
   const STATS_KEY = process.env.STATS_KEY || '';
-  const statsFile = path.join(DATA, 'stats.json'), errFile = path.join(DATA, 'errors.log');
+  const statsFile = path.join(DATA, 'stats.json'), errFile = path.join(DATA, 'errors.log'), msgFile = path.join(DATA, 'messages.jsonl');
+  const TG_TOKEN = process.env.CONTACT_TG_TOKEN || '', TG_CHAT = process.env.CONTACT_TG_CHAT || '';
   let stats = {}; try { stats = JSON.parse(fs.readFileSync(statsFile, 'utf8')); } catch {}
   let dirty = false, salt = '', saltDay = '', seen = new Set();
   const started = Date.now();
@@ -43,6 +46,17 @@ export function createOps({ DATA, getHealth }) {
     console.warn('client error:', rec.msg, rec.src ? `(${rec.src}:${rec.line})` : '');
   }
 
+  // ---------- messages from the contact form ----------
+  const TOPICS = ['idea', 'bug', 'player', 'privacy', 'other'];
+  const readMessages = () => { try { return fs.readFileSync(msgFile, 'utf8').trim().split('\n').filter(Boolean).map(l => JSON.parse(l)); } catch { return []; } };
+  function saveMessage(m) {
+    try { fs.appendFileSync(msgFile, JSON.stringify(m) + '\n'); } catch (e) { console.error('message save failed', e.message); return false; }
+    bump('messages'); console.log('contact message:', m.topic, m.from || '(no address)');
+    if (TG_TOKEN && TG_CHAT) fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', { method: 'POST', headers: { 'content-type': 'application/json' }, signal: AbortSignal.timeout(8000),
+      body: JSON.stringify({ chat_id: TG_CHAT, text: 'Supply Lines · ' + m.topic + (m.name ? ' · ' + m.name : '') + (m.from ? ' · ' + m.from : '') + '\n\n' + m.text }) }).catch(e => console.error('telegram', e.message));
+    return true;
+  }
+
   // ---------- daily backups inside the data volume ----------
   function backup() {
     try {
@@ -66,6 +80,9 @@ export function createOps({ DATA, getHealth }) {
   const clip = (v, n) => String(v ?? '').slice(0, n);
 
   function statsPage() {
+    const esc = v => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const list = readMessages().slice(-50).reverse();
+    const msgs = '<h1 style="margin-top:28px">Messages</h1><p>From the contact form, newest first (messages.jsonl in the data folder).</p>' + (list.map(m => `<div style="max-width:900px;border:1px solid #1f2a37;border-radius:8px;padding:10px 12px;margin:0 0 10px"><div style="color:#7d8a9a;font-size:12px">${esc(m.at.slice(0, 16).replace('T', ' '))} · ${esc(m.topic)}${m.name ? ' · ' + esc(m.name) : ''}${m.from ? ' · <a style="color:#9fc3ef" href="mailto:' + esc(m.from) + '">' + esc(m.from) + '</a>' : ''}${m.lang ? ' · ' + esc(m.lang) : ''}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.text)}</div></div>`).join('') || '<p>None yet.</p>');
     const days = Object.keys(stats).sort().reverse().slice(0, 30), h = getHealth();
     const row = d => { const s = stats[d] || {}; const conv = (a, b) => s[b] ? Math.round((s[a] || 0) / s[b] * 100) + '%' : '–'; return `<tr><td>${d}</td><td>${s.visit || 0}</td><td>${s.unique || 0}</td><td>${s.play || 0} <small>${conv('play', 'unique')}</small></td><td>${s.active5 || 0} <small>${conv('active5', 'play')}</small></td><td>${s.return || 0}</td><td>${s.errors || 0}</td></tr>`; };
     return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supply Lines stats</title>
@@ -73,7 +90,7 @@ export function createOps({ DATA, getHealth }) {
 table{border-collapse:collapse;width:100%;max-width:900px}th,td{text-align:right;padding:8px 10px;border-bottom:1px solid #1f2a37;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}th{color:#7d8a9a;font-weight:600;font-size:12px}small{color:#5d6b7c}</style>
 <h1>Supply Lines</h1><p>Now: ${h.online ? h.online[0] + h.online[1] : 0} players online · season ${h.season} · up ${Math.round(h.uptime / 3600)} h · ${h.players} known players. Last 30 days (UTC):</p>
 <table><tr><th>Day</th><th>Page loads</th><th>Unique visitors</th><th>Pressed PLAY</th><th>Played 5+ min</th><th>Came back</th><th>JS errors</th></tr>${days.map(row).join('') || '<tr><td colspan="7">No data yet</td></tr>'}</table>
-<p style="margin-top:16px">No cookies, no stored IP addresses. Error details: errors.log in the data folder.</p>`;
+<p style="margin-top:16px">No cookies, no stored IP addresses. Error details: errors.log in the data folder.</p>${msgs}`;
   }
 
   return {
@@ -92,6 +109,20 @@ table{border-collapse:collapse;width:100%;max-width:900px}th,td{text-align:right
         readBody(req, j => {
           if (j && j.msg && allow(ip, 'err', 10)) logError({ at: new Date().toISOString(), msg: clip(j.msg, 300), src: clip(j.src, 120), line: +j.line || 0, col: +j.col || 0, stack: clip(j.stack, 1200), page: clip(j.page, 80), ua: clip(req.headers['user-agent'], 160), v: clip(j.v, 20) });
           res.writeHead(204); res.end();
+        });
+        return true;
+      }
+      if (p === '/api/contact' && req.method === 'POST') {
+        readBody(req, j => {
+          const send = (code, o) => { res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify(o)); };
+          if (!j) return send(400, { ok: false, err: 'bad' });
+          if (j.hp) return send(200, { ok: true });                               // the hidden field: only bots fill it
+          const text = clip(j.text, 4000).trim(), from = clip(j.from, 120).trim(), name = clip(j.name, 60).trim();
+          if (text.length < 5) return send(400, { ok: false, err: 'short' });
+          if (from && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from)) return send(400, { ok: false, err: 'email' });
+          if (!allow(ip, 'msg', 3) || !allow('', 'msgall', 60)) return send(429, { ok: false, err: 'busy' });
+          const ok = saveMessage({ at: new Date().toISOString(), topic: TOPICS.includes(j.topic) ? j.topic : 'other', name, from, text, lang: j.lang === 'uk' ? 'uk' : 'en', ua: clip(req.headers['user-agent'], 200) });
+          send(ok ? 200 : 500, { ok });
         });
         return true;
       }

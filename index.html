@@ -20,22 +20,60 @@
 <script src="i18n-uk.js"></script>
 <script src="i18n.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Supply Lines</title>
+<title>Supply Lines: free browser strategy on a live 3D globe</title>
+<meta name="description" content="Free browser strategy on a live 3D globe. Two factions fight one war of logistics: send convoys, cut supply lines, play blitz or a private game with friends. No sign-up.">
+<link rel="canonical" href="https://globalwar.xyz/">
+<link rel="alternate" hreflang="en" href="https://globalwar.xyz/">
+<link rel="alternate" hreflang="uk" href="https://globalwar.xyz/?lang=uk">
+<link rel="alternate" hreflang="x-default" href="https://globalwar.xyz/">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#05080d">
-<meta name="description" content="A free browser war of logistics. Two factions, one shared planet, no sign-up: open the page and you are on the front line.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Supply Lines">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="uk_UA">
 <meta property="og:title" content="Supply Lines: a free browser war of logistics">
 <meta property="og:description" content="Two factions, one planet, no sign-up. Run convoys across a 3D globe and take the world city by city.">
 <meta property="og:url" content="https://globalwar.xyz/">
 <meta property="og:image" content="https://globalwar.xyz/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Supply Lines: two factions, one planet">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Supply Lines: a free browser war of logistics">
+<meta name="twitter:description" content="Two factions, one planet, no sign-up. Run convoys across a 3D globe and take the world city by city.">
 <meta name="twitter:image" content="https://globalwar.xyz/og.jpg">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Supply Lines",
+  "alternateName": "Supply Lines: War of Logistics",
+  "url": "https://globalwar.xyz/",
+  "image": "https://globalwar.xyz/og.jpg",
+  "description": "A free browser strategy game on a live 3D globe. Two factions, Atlantica and Pacifica, fight one shared war of logistics: convoys, supply lines, drones, fleets and a nuclear button that needs two commanders.",
+  "genre": ["Strategy", "Real-time strategy", "Massively multiplayer"],
+  "gamePlatform": ["Web browser", "Android", "iOS", "Windows", "macOS", "Linux"],
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any, in a web browser",
+  "playMode": ["MultiPlayer", "CoOp"],
+  "inLanguage": ["en", "uk"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+  "sameAs": ["https://www.youtube.com/@SupplyLines-WOL", "https://github.com/BostonLeeK/SupplyLines"],
+  "trailer": {
+    "@type": "VideoObject",
+    "name": "Supply Lines: Official Trailer",
+    "description": "Two factions. One planet. Every war runs on supply lines.",
+    "thumbnailUrl": "https://i.ytimg.com/vi/xOtaGoPp3Mc/hqdefault.jpg",
+    "uploadDate": "2026-11-16",
+    "embedUrl": "https://www.youtube.com/embed/xOtaGoPp3Mc"
+  }
+}
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -496,7 +534,7 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:linear-gradient(180deg,rgba(5,8,13,.35),rgba(5,8,13,.92) 70%)}
 .modal.hidden{display:none}
 .sheet{width:min(800px,100%);max-height:94vh;max-height:calc(100dvh - 32px);overflow:auto;overflow-x:hidden}
-.sheet h1{font:800 clamp(38px,7.5vw,72px)/.95 var(--disp);margin:0;letter-spacing:-.01em}
+.sheet h1,.sheet .sheetH{font:800 clamp(38px,7.5vw,72px)/.95 var(--disp);margin:0;letter-spacing:-.01em}
 .sheet .lead{font-size:15px;color:#b5c1cf;margin:12px 0 22px;max-width:600px}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .step{background:var(--plate);border:1px solid var(--edge);border-radius:8px;padding:14px}
@@ -534,6 +572,7 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .gmBrand{display:flex;align-items:center;gap:10px;font:900 19px/1 var(--gmDisp);letter-spacing:.04em;color:#eaf2ff}
 .gmEmb{width:40px;height:40px;flex:0 0 auto}
 .gmLinks{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+#langIntro .ls{display:none}
 .gmLink{font:700 12.5px/1 'Tektur',var(--disp);letter-spacing:.08em;color:#b7c8e2;text-decoration:none;padding:9px 2px;text-transform:uppercase}
 .gmLink:hover{color:#fff}
 .gmOnline{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:rgba(91,224,138,.1);border:1px solid rgba(91,224,138,.4);color:#8ff0b0;font:700 12px/1 'Tektur',var(--disp);letter-spacing:.06em;text-transform:uppercase}
@@ -562,6 +601,7 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .gmLead{margin:4px 0 0;font-size:18px;line-height:1.55;color:#d0dcec;max-width:620px;text-shadow:0 2px 12px rgba(0,0,0,.8)}
 .gmLead2{margin:0;font-size:14px;line-height:1.5;color:#93a9c6;max-width:560px}
 .gmHeroIn .gmCta.big{margin-top:6px}
+.sheet h1.gmWord{margin:0;font:900 clamp(44px,8vw,120px)/.9 var(--gmDisp);letter-spacing:.01em}
 .gmChips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .gmChips span{font:600 12px/1 'Tektur',var(--disp);letter-spacing:.1em;color:#9fb4d3;padding:8px 13px;border:1px solid #2b4a78;border-radius:8px;background:rgba(10,19,36,.75)}
 .gmSec{padding:72px 0}
@@ -639,6 +679,9 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .gmFinal .gmH{margin:0;font-size:clamp(34px,5.6vw,72px)}
 .gmFinal p{margin:0;color:#c6d4e8;font-size:17px;max-width:560px}
 .gmFoot{background:#040810;border-top:1px solid #172742}
+.gmLegal{display:flex;align-items:center;gap:6px 20px;flex-wrap:wrap}
+.gmLegal a{color:#8fa6c8;text-decoration:none}
+.gmLegal a:hover{color:#fff}
 .gmFoot .gmIn{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:18px;padding-bottom:18px;font:600 12px/1 'Tektur',var(--disp);letter-spacing:.08em;color:#6f86a8;text-transform:uppercase}
 /* the mode screen: three big blocks */
 .pickH{font:800 clamp(28px,4.2vw,44px)/1 var(--disp);letter-spacing:.03em;color:var(--ink);margin:30px 0 18px}
@@ -715,11 +758,14 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 @media (max-width:760px){
   .gmIn{padding:0 16px}
   .gmLinks .gmLink:not(#langIntro){display:none}
-  .gmLinks{gap:10px}
+  .gmLinks{gap:10px;flex-wrap:nowrap;min-width:0}
+  .gmNav .gmIn{flex-wrap:nowrap}
+  #langIntro{min-width:44px;padding:8px 10px;border:1px solid #2b4a78;border-radius:10px}
+  #langIntro .lf{display:none} #langIntro .ls{display:inline}
   .gmBrand span{display:none}
   .gmHero{padding:90px 16px 44px}
   .gmEmblem{width:66px;height:66px}
-  .gmWord{font-size:clamp(32px,10.6vw,52px)}
+  .gmWord,.sheet h1.gmWord{font-size:clamp(32px,10.6vw,52px)}
   .gmRibbon{font-size:11px;letter-spacing:.22em;padding:8px 24px}
   .gmLead{font-size:15.5px} .gmLead2{font-size:13px}
   .gmHeroIn .gmCta.big,.gmFinal .gmCta.big{align-self:stretch;font-size:19px;letter-spacing:.02em;padding:20px 12px;white-space:nowrap}
@@ -735,7 +781,7 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
   .gmCard{flex:0 0 80%;scroll-snap-align:start}
   .gmPhones{display:none}
   .gmTile{min-height:240px;padding:18px} .gmTile b{font-size:24px}
-  .gmRanks{display:flex;overflow-x:auto;padding:18px 12px;scrollbar-width:none} .gmRank{flex:0 0 80px}
+  .gmRanks{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 6px;padding:20px 10px} .gmRank{gap:7px;min-width:0} .gmRank i{width:54px;height:54px;border-radius:13px} .gmRank i svg{width:30px;height:28px} .gmRank b{font-size:11.5px;font-stretch:80%;max-width:100%;overflow-wrap:anywhere} .gmRank>span{font-size:11px}
   .gmFinal{padding:70px 16px}
   #pick{padding:0 16px 24px}
   #intro .mode{min-height:0;padding:18px} #intro .mode b{font-size:24px}
@@ -868,7 +914,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
    navy gradient panels with a blue edge and a faint top highlight, blue game buttons and a gold one for the main
    action, the score in the factions' colours. */
 body{font-stretch:85%}
-#intro,.sheet h1,.sheet h2,#boot{font-stretch:100%}
+#intro,.sheet h1,.sheet h2,.sheet .sheetH,#boot{font-stretch:100%}
 .side,.tug,#gen,#squad,#opPanel,#missions,#regions,#cmd,.ic,#drawer,#card,#tip,#nukePanel,#genPop,#sigMenu,#docCard,#gevCard,#capBar,#replayBar,.mc,.res-grid>div,.chart,.arc,.step,.abilities div{
   background:linear-gradient(180deg,rgba(21,37,64,.95),rgba(9,17,32,.96));border-color:var(--edge);
   box-shadow:inset 0 1px 0 rgba(150,200,255,.12),0 10px 26px rgba(0,0,0,.35)}
@@ -902,7 +948,7 @@ body{font-stretch:85%}
 #coach button{background:linear-gradient(180deg,#ffe27a,#f5a524);color:#2a1600;font-weight:900}
 /* windows: a starry backdrop and Tektur titles */
 #manual,#realwar,#locker,#share,#archive,#end{background-color:rgba(5,10,20,.97);background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.4px),radial-gradient(rgba(140,190,255,.22) 1px,transparent 1.4px);background-size:140px 140px,90px 90px;background-position:0 0,45px 60px}
-.sheet h1{font-weight:900;letter-spacing:0;background:linear-gradient(180deg,#ffffff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #0b1a33)}
+.sheet h1,.sheet .sheetH{font-weight:900;letter-spacing:0;background:linear-gradient(180deg,#ffffff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #0b1a33)}
 .mtabs{border-bottom-color:#22385c}
 .mc{border-radius:10px} .mh b{font-family:var(--disp);font-weight:800;letter-spacing:.02em}
 /* the boot screen gets the emblem */
@@ -911,9 +957,24 @@ body{font-stretch:85%}
 #boot .bt{font:900 clamp(30px,7vw,52px)/1 var(--disp);letter-spacing:.01em;background:linear-gradient(180deg,#ffffff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 #boot .bar i{background:linear-gradient(90deg,#4aa3ff,#ffc23d)}
 #boot .bs{font-family:var(--disp);font-weight:700;letter-spacing:.16em}
+/* the clock ticks every game minute: a fixed box for HH:MM keeps the chips after it from shifting */
+/* phones: the bar that offers to install the game as an app */
+#instBar{position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:14;display:grid;grid-template-columns:52px 1fr 28px;grid-template-areas:'em t x' 'go go go';column-gap:12px;row-gap:14px;align-items:center;padding:16px 14px 14px 16px;border-radius:16px;border:1px solid #2b4a78;border-top:2px solid #ffc23d;background:linear-gradient(180deg,rgba(22,40,70,.98),rgba(9,17,32,.98));box-shadow:0 18px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(150,200,255,.14);color:#eaf2ff;transform:translateY(140%);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);--g1:#ffe27a;--g2:#ffc23d;--g3:#f39b12}
+#instBar[hidden]{display:none}
+#instBar.on{transform:none}
+#instBar .em{grid-area:em;width:52px;height:52px}
+#instBar .t{grid-area:t;min-width:0;display:flex;flex-direction:column;gap:4px}
+#instBar .t b{font:900 17px/1.1 var(--disp);font-stretch:100%;letter-spacing:.01em}
+#instBar .t span{font-size:13px;line-height:1.4;color:#b7c8e2}
+#instBar #instGo{grid-area:go;width:100%;font:900 16px/1 var(--disp);font-stretch:100%;padding:15px 14px;letter-spacing:.08em}
+#instBar #instX{grid-area:x;align-self:start;width:28px;height:28px;margin:-6px -4px 0 0;border:0;border-radius:8px;background:none;color:#8fa6c8;font-size:22px;line-height:1;cursor:pointer}
+#instBar.ios{grid-template-areas:'em t x'}
+@media (min-width:560px){#instBar{left:50%;right:auto;width:440px;margin-left:-220px}}
+#clock .hh{display:inline-block;width:4.6ch;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
 </style>
 </head>
 <body class="intro">
+<div id="instBar" role="dialog" aria-label="Install the game" hidden><svg class="em" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><div class="t"><b>Supply Lines on your phone</b><span id="instTxt">Its own icon, full screen, and a ping when your cities are under attack.</span></div><button id="instGo" class="gmCta sm" type="button">INSTALL</button><button id="instX" type="button" aria-label="Close">×</button></div>
 <div id="boot"><svg class="em" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><div class="bt">SUPPLY LINES</div><div class="bar"><i></i></div><div class="bs" id="bootMsg">Loading the world…</div></div>
 <script>setTimeout(function(){var m=document.getElementById('bootMsg');if(m&&document.getElementById('boot'))m.textContent='Still loading… a slow connection can take a while';},15000);</script>
 <canvas id="c"></canvas>
@@ -954,7 +1015,7 @@ body{font-stretch:85%}
       <button class="ab" id="abEnvoy" title="Send an envoy to a free nation bordering your network: at 100 favour all its free cities join you"><span class="hk">E</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg><span class="lb">ENVOY</span><span class="cost">3 CP</span></button>
       <button class="ab" id="abFleet" title="Build a fleet in the selected sea port (4 CP, 30 troops). Click your fleet to sail it"><span class="hk">V</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 15h18l-2.5 4h-13z"/><path d="M12 3v12M12 4l6 8h-6M12 6l-4 6h4"/></svg><span class="lb">FLEET</span><span class="cost">4 CP</span></button>
       <button class="ab" id="abBuild" title="Build with the selected city: click a neighbouring city of yours to lay a railway (3 CP, convoys ×1.8 on it), or click the city itself to build an airfield in a large city (4 CP, airdrops from it)"><span class="hk">L</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17 17 2"/><path d="m2 14 8 8"/><path d="m5 11 8 8"/><path d="m8 8 8 8"/><path d="m11 5 8 8"/><path d="m14 2 8 8"/><path d="M7 22 22 7"/></svg><span class="lb">BUILD</span><span class="cost">3 CP</span></button>
-      <button class="ab nuke" id="abNuke" title="Strategic program: build a warhead with your faction, then strike (very risky)"><span class="hk">N</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"/><path d="M7.5 4.2c-.3-.5-.9-.7-1.3-.4C3.9 5.5 2.3 8.1 2 11c-.1.5.4 1 1 1h5c0-1.5.8-2.8 2-3.4-1.1-1.9-2.4-4.4-2.5-4.4z"/><path d="M21 12c.6 0 1-.4 1-1-.3-2.9-1.8-5.5-4.1-7.1-.4-.3-1.1-.2-1.3.3-.6.9-1.9 3.3-2.5 4.4 1.2.6 2 1.9 2 3.4h4.9z"/><path d="M7.5 19.8c-.3.5-.1 1.1.4 1.3 2.6 1.2 5.6 1.2 8.2 0 .5-.2.7-.8.4-1.3-.5-.9-1.9-3.3-2.5-4.4-1.2.7-2.8.7-4 0-.6 1.1-2 3.4-2.5 4.4z"/></svg><span class="lb">NUKE</span><span class="cost" id="nukePct">0%</span></button>
+      <button class="ab nuke" id="abNuke" title="Strategic program: build a warhead with your faction, then strike (very risky)"><span class="hk">N</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.8 15.12L17.1 20.83A10.2 10.2 0 0 1 6.9 20.83L10.2 15.12A3.6 3.6 0 0 0 13.8 15.12ZM8.4 12L1.8 12A10.2 10.2 0 0 1 6.9 3.17L10.2 8.88A3.6 3.6 0 0 0 8.4 12ZM13.8 8.88L17.1 3.17A10.2 10.2 0 0 1 22.2 12L15.6 12A3.6 3.6 0 0 0 13.8 8.88Z" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/></svg><span class="lb">NUKE</span><span class="cost" id="nukePct">0%</span></button>
       <button class="ab" id="abRally" title="Propose a shared target for your whole faction. Attacks near it cost half"><span class="hk">R</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><span class="lb">RALLY</span><span class="cost">free</span></button>
     </div>
     <div class="abcats" id="abCats"></div>
@@ -1009,12 +1070,12 @@ body{font-stretch:85%}
 <div id="nukeBanner"></div>
 <div id="sigMenu"><div class="t" id="sigTitle">SIGNAL</div>
   <button data-sig="attack">⚔️ Attack here</button><button data-sig="defend">🛡️ Defend here</button><button data-sig="troops">➕ Need troops here</button><button data-sig="thanks">👍 Well done</button></div>
-<div class="modal hidden" id="share"><div class="sheet"><h1 style="font-size:32px">SHARE YOUR SEASON</h1><div class="lead" style="margin-bottom:12px">Show your friends what you did, and bring them into the war.</div>
+<div class="modal hidden" id="share"><div class="sheet"><h2 class="sheetH" style="font-size:32px">SHARE YOUR SEASON</h2><div class="lead" style="margin-bottom:12px">Show your friends what you did, and bring them into the war.</div>
   <canvas id="shareCv" width="1200" height="630"></canvas>
   <div class="btnrow"><button class="btn2" id="shDl">DOWNLOAD PNG</button><button class="btn2" id="shShare">SHARE</button><button class="btn2" id="shCopy">COPY TEXT</button><span style="flex:1"></span><button class="btn2" id="shClose">CLOSE</button></div></div></div>
-<div class="modal hidden" id="archive"><div class="sheet"><div class="foot" style="margin-top:0"><h1 style="font-size:32px">WAR ARCHIVE</h1><button class="btn2" id="arClose">CLOSE</button></div><div id="arList" class="lead" style="max-width:none"></div></div></div>
+<div class="modal hidden" id="archive"><div class="sheet"><div class="foot" style="margin-top:0"><h2 class="sheetH" style="font-size:32px">WAR ARCHIVE</h2><button class="btn2" id="arClose">CLOSE</button></div><div id="arList" class="lead" style="max-width:none"></div></div></div>
 <div class="modal hidden" id="locker"><div class="sheet">
-  <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">LOCKER</h1><button class="btn2" id="lockClose">CLOSE</button></div>
+  <div class="foot" style="margin-top:0;align-items:center"><h2 class="sheetH" style="font-size:30px;margin:0">LOCKER</h2><button class="btn2" id="lockClose">CLOSE</button></div>
   <div class="lkHead" id="lkHead"></div>
   <div class="track" id="ladder"></div>
   <div class="gAuth" id="gAuthLocker" style="margin-top:14px"></div>
@@ -1022,13 +1083,13 @@ body{font-stretch:85%}
   <div class="trails" id="trails"></div>
 </div></div>
 <div class="modal hidden" id="manual"><div class="sheet manSheet">
-  <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">FIELD MANUAL</h1><button class="btn2" id="manClose">CLOSE</button></div>
+  <div class="foot" style="margin-top:0;align-items:center"><h2 class="sheetH" style="font-size:30px;margin:0">FIELD MANUAL</h2><button class="btn2" id="manClose">CLOSE</button></div>
   <div class="mtabs"><button class="mt on" data-tab="basics">Basics</button><button class="mt" data-tab="abilities">Abilities</button><button class="mt" data-tab="modern">Modern war</button><button class="mt" data-tab="intel">Intel & diplomacy</button><button class="mt" data-tab="world">World</button></div>
   <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C A</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Modes</b><em>2 h · 15 min</em></div><p>Global war: one shared world with 2-hour seasons where ranks count. Blitz: a separate world with 15-minute seasons and its own ranks. With friends: your own world with the season length you pick, shared by an invite link. Pick one after PLAY on the start screen.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. A transport plane flies the arc and parachutes open over the target. Enemy megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="modern"><div class="mc"><div class="mh"><kbd>Q</kbd><b>Drones</b><em>2 CP</em></div><p>A kill zone over your city or one bordering your network. Enemy convoys on its routes lose 20%, and you see the area. Three quadcopters circle over it. Half a day, up to 3 zones.</p></div><div class="mc"><div class="mh"><kbd>W</kbd><b>EW</b><em>3 CP</em></div><p>A translucent dome over your city. Enemy drones within 900 km stop working, and long-range strikes into it are jammed. One day.</p></div><div class="mc"><div class="mh"><kbd>Y</kbd><b>Drone strike</b><em>4 CP</em></div><p>Hit a large enemy city or megahub within 3,000 km of your cities. Air defence shoots down half; EW jams them all.</p></div><div class="mc"><div class="mh"><b>Blackout</b><em>half a day</em></div><p>A region hit by a strike goes dark: city lights go out, its glow on the map shrinks, and the enemy makes half the troops there. Sparking transformers mean the grid is still down. A new strike restarts the clock.</p></div><div class="mc"><div class="mh"><b>Air defence</b><em>1,500 km</em></div><p>Every megahub covers 1,500 km around it. It shoots down 40% of enemy airdrops (half as many at night) and half the drone strikes.</p></div><div class="mc"><div class="mh"><kbd>J</kbd><b>Deepfake</b><em>3 CP</em></div><p>A forged order from the enemy HQ: their bots storm one of your front cities. Pick your strongest. Half a day; an enemy spy in that city exposes it.</p></div><div class="mc"><div class="mh"><b>Drone fundraiser</b><em>15 CP</em></div><p>Anyone can chip in CP in the faction panel, and bots give a little too. When it fills, a swarm takes off over the three strongest enemy front cities and one long-range drone strikes a megahub.</p></div><div class="mc"><div class="mh"><b>Corruption</b><em>daily</em></div><p>When a faction leads by 25% or more, a scandal breaks out every day in one of its large cities: weapons are sold off (−25% troops) and production stops for half a day.</p></div><div class="mc"><div class="mh"><b>How to answer</b></div><p>Enemy drones on your front: raise an EW dome next to them. Strikes on your megahubs: cover them with EW. A dark region still holds: garrisons stay, only production drops.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about 17 hours. The satellite passes over the area and scans it with a beam. Up to 2 per faction at once.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>🗓 Eras</b><em>2 weeks</em></div><p>Every two real weeks the whole world enters a new era that bends a few rules and makes some world events likelier: Drone Age, Cold War, Age of Storms, Iron Road, Age of Alliances, Total Mobilisation. The current era is in the top bar: tap it for details.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Callsign</b><em>sign-in</em></div><p>Sign in with Google on the start screen or in the Locker and pick your own callsign instead of a random one. It can change once per season.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
 </div></div>
 <div class="modal hidden" id="realwar"><div class="sheet rwSheet">
   <div class="rwKick">This is a game. In Ukraine it is not.</div>
-  <h1 style="font-size:34px;line-height:1.1">Are you sure you are ready for a real war?</h1>
+  <h2 class="sheetH" style="font-size:34px;line-height:1.1">Are you sure you are ready for a real war?</h2>
   <div class="lead" style="max-width:none">Russia's full-scale invasion of Ukraine began on 24 February 2022. Today is day <b id="rwDays"></b> of the war. Every number below is people sitting in corridors and metro stations, waiting for the next blast.</div>
   <div id="rwLive" class="rwLive"><div class="rwLiveRow"><span class="dot"></span><b id="rwAlert">Checking air-raid alerts in Ukraine…</b></div><div id="rwAlertList" class="rwList"></div><div id="rwStaff" class="rwStaff"></div></div>
   <div class="rwSub">Milestones</div>
@@ -1063,7 +1124,7 @@ body{font-stretch:85%}
     <div class="gmGlow"></div><div class="gmOrbit"></div><div class="gmOrbit b"></div>
     <div class="gmHeroIn">
       <svg class="gmEmblem" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><path d="M32 8 52 20v24L32 56 12 44V20z" fill="none" stroke="rgba(255,194,61,.35)" stroke-width="1"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40 Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40 Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg>
-      <div class="gmWord">SUPPLY LINES</div>
+      <h1 class="gmWord">SUPPLY LINES</h1>
       <div class="gmRibbon">A GLOBAL WAR OF LOGISTICS</div>
       <p class="gmLead">Two factions share one planet. Move convoys across a 3D globe, cut the enemy's supply lines and take the world city by city.</p>
       <p class="gmLead2">Here Russia is gone: its nations are free, and where Muscovy was there is now a sea.</p>
@@ -1086,7 +1147,7 @@ body{font-stretch:85%}
     <div class="gmCards">
       <div class="gmCard"><div class="gmCardImg"><img src="img/lp-convoys.webp" alt="Convoys crossing Europe; green rings mark cities one convoy can take" loading="lazy"><span class="gmBadge blue"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 17h13l4-4M3 12h9M3 7h6"/><circle cx="7" cy="19" r="1.6"/><circle cx="14" cy="19" r="1.6"/></svg></span></div><b>Convoys and supply</b><span>Move troops by land, sea and air. A city with no road to the capital stops producing.</span></div>
       <div class="gmCard"><div class="gmCardImg"><img src="img/lp-drones.webp" alt="Drones over Riyadh and a blackout across the region" loading="lazy"><span class="gmBadge orange"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/><rect x="10" y="10" width="4" height="4" rx="1"/></svg></span></div><b>Drones, EW, blackouts</b><span>Lay kill zones over the front, hide cities under an EW dome and switch off the enemy's lights across whole regions.</span></div>
-      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-front.webp" alt="The front line between Atlantica and Pacifica" loading="lazy"><span class="gmBadge red"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 10V4a8 8 0 0 1 6.9 4M13.7 13l5.2 3a8 8 0 0 1-6.9 4M10.3 13l-5.2 3A8 8 0 0 1 5.1 8"/></svg></span></div><b>The nuclear button</b><span>Build a warhead together with your faction. A launch needs two commanders, and a second blast in a season means nuclear winter.</span></div>
+      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-front.webp" alt="The front line between Atlantica and Pacifica" loading="lazy"><span class="gmBadge red"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13.8 15.12L17.1 20.83A10.2 10.2 0 0 1 6.9 20.83L10.2 15.12A3.6 3.6 0 0 0 13.8 15.12ZM8.4 12L1.8 12A10.2 10.2 0 0 1 6.9 3.17L10.2 8.88A3.6 3.6 0 0 0 8.4 12ZM13.8 8.88L17.1 3.17A10.2 10.2 0 0 1 22.2 12L15.6 12A3.6 3.6 0 0 0 13.8 8.88Z" fill="#fff" stroke="none"/><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none"/></svg></span></div><b>The nuclear button</b><span>Build a warhead together with your faction. A launch needs two commanders, and a second blast in a season means nuclear winter.</span></div>
       <div class="gmCard"><div class="gmCardImg"><img src="img/lp-world.webp" alt="The whole globe with both factions" loading="lazy"><span class="gmBadge green"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span></div><b>A world that changes</b><span>A new era with its own rules every two weeks, world events every day, real winter and night on the globe.</span></div>
     </div>
   </div></div>
@@ -1121,7 +1182,7 @@ body{font-stretch:85%}
     <p>Your first game starts with a short tutorial, and the rest you will pick up as you play.</p>
     <button class="gmCta big" id="playBtn2" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg><span>PLAY FOR FREE</span></button>
   </div>
-  <footer class="gmFoot"><div class="gmIn"><span>Supply Lines · free, and its code is open</span><button class="gmLink" id="tutAgain" type="button">REPLAY TUTORIAL</button></div></footer>
+  <footer class="gmFoot"><div class="gmIn"><span>Supply Lines · free, and its code is open</span><nav class="gmLegal" aria-label="About the game"><a href="privacy">Privacy</a><a href="terms">Terms</a><a href="contact">Contact</a><button class="gmLink" id="tutAgain" type="button">REPLAY TUTORIAL</button></nav></div></footer>
 </section>
 <section class="pick" id="pick" hidden>
   <div class="pickTop"><button class="gmLink" id="pickBack" type="button">← BACK</button><div class="gmBrand"><svg class="gmEmb" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><path d="M32 8 52 20v24L32 56 12 44V20z" fill="none" stroke="rgba(255,194,61,.35)" stroke-width="1"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40 Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40 Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><span>SUPPLY LINES</span></div></div>
@@ -2790,7 +2851,7 @@ function hud() {
   const sc = S.scenario && S.scenario !== 'classic' ? SCENARIOS[S.scenario] : null;
   const er = S.era && ERAS[S.era.k];
   const SEP = PHONE() ? ' ' : ' · ';
-  const clk = `<span data-k="season"><b>Day ${d} of 7</b>${PHONE() ? ' ' + hh : ' · ' + hh + ' UTC'}</span>${PHONE() ? ' ' : ''}${er ? `${SEP}<span class="eraChip" data-k="era" title="${er.text}">${er.icon} ${er.name}</span>` : ''}${sc ? `${SEP}<span class="docChip txt" data-k="scn" title="${sc.text}">${sc.name}</span>` : ''}${dc ? `${SEP}<span class="docChip" data-k="doc" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? `${SEP}<span class="gevChip" data-k="gev" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => `${SEP}<span class="docChip" data-k="wx:${w}" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
+  const clk = `<span data-k="season"><b>Day ${d} of 7</b>${PHONE() ? ' <span class="hh">' + hh + '</span>' : ' · <span class="hh">' + hh + '</span> UTC'}</span>${PHONE() ? ' ' : ''}${er ? `${SEP}<span class="eraChip" data-k="era" title="${er.text}">${er.icon} ${er.name}</span>` : ''}${sc ? `${SEP}<span class="docChip txt" data-k="scn" title="${sc.text}">${sc.name}</span>` : ''}${dc ? `${SEP}<span class="docChip" data-k="doc" style="color:${DOC_AC[S.doctrine[me]]}" title="Doctrine: ${dc.text}">${docIcon(S.doctrine[me])}<span style="color:var(--ink)">${dc.name}</span></span>` : ''}${gv ? `${SEP}<span class="gevChip" data-k="gev" title="${gv.text}">${gv.icon} ${gv.name}</span>` : ''}${(S.weather || []).map(w => `${SEP}<span class="docChip" data-k="wx:${w}" title="${WEATHER[w].text}">${WEATHER[w].icon} ${WEATHER[w].name}</span>`).join('')}`;
   if ($('clock')._h !== clk) { $('clock')._h = clk; $('clock').innerHTML = clk; }
   $('eTxt').textContent = `${Math.floor(energyNow())}/${cpMax()}`; renderPips();
   const s = E.scores(), tot = NET.cities.reduce((a, c) => a + K.VALUE[c[3]], 0) + K.REGION_BONUS * REGIONS.length;
@@ -2821,7 +2882,7 @@ function showEnd(pts, cit, history, winner, capital) {
   lastPts = pts;
   const winterEnd = S.winter; endStats = JSON.parse(JSON.stringify(myStats())); endSeason = seasonNo; endOwner = Array.from(owner);
   const w = winner !== undefined ? winner : pts[0] === pts[1] ? -1 : pts[0] > pts[1] ? 0 : 1, st = myStats(), byCap = capital >= 0;
-  $('endC').innerHTML = winterEnd ? `<h1 style="color:#d7e66a">NUCLEAR<br>WINTER</h1><div class="lead">Two strikes in one season. The world went dark and nobody won.</div>` : `<h1 style="color:${w < 0 ? 'var(--ink)' : FCSS[w]}">${w < 0 ? 'DRAW' : FN[w].toUpperCase() + '<br>WINS'}</h1>
+  $('endC').innerHTML = winterEnd ? `<h2 class="sheetH" style="color:#d7e66a">NUCLEAR<br>WINTER</h2><div class="lead">Two strikes in one season. The world went dark and nobody won.</div>` : `<h2 class="sheetH" style="color:${w < 0 ? 'var(--ink)' : FCSS[w]}">${w < 0 ? 'DRAW' : FN[w].toUpperCase() + '<br>WINS'}</h2>
     <div class="lead">${byCap ? (w === me ? `We held ${cname(capital)} for 12 hours. The enemy capital is ours and the war is won.` : `${FN[w]} held our capital ${cname(capital)} for 12 hours. The war is lost.`) : w === me ? 'Your faction won the season.' : w < 0 ? 'Neither faction came out on top.' : 'The other faction won this time.'}</div>`;
   $('endC').innerHTML += `
     <div class="res-grid"><div><div class="cap">Atlantica</div><div class="big" style="color:var(--a)">${pts[0]}</div><div class="cap" style="margin-top:6px">${cit[0]} cities</div></div>
@@ -3369,7 +3430,7 @@ function stepReplay(dt) {
 // counts one "played 5+ minutes" per page load, only while the game is visible and running
 { let played = 0; const t = setInterval(() => { if (running && !document.hidden) played += 15; if (played >= 300) { clearInterval(t); window.slStat && slStat('active5'); } }, 15000); }
 // language switch (the translation itself lives in i18n.js)
-function langUi() { const l = window.slLang ? slLang.get() : 'en'; $('langBtn').textContent = l === 'uk' ? 'UA' : 'EN'; $('langBtn').title = l === 'uk' ? 'Мова: українська. Switch to English' : 'Language: English. Перейти на українську'; $('langIntro').textContent = l === 'uk' ? 'ENGLISH' : 'УКРАЇНСЬКА'; }
+function langUi() { const l = window.slLang ? slLang.get() : 'en'; $('langBtn').textContent = l === 'uk' ? 'UA' : 'EN'; $('langBtn').title = l === 'uk' ? 'Мова: українська. Switch to English' : 'Language: English. Перейти на українську'; $('langIntro').innerHTML = l === 'uk' ? '<span class="lf">ENGLISH</span><span class="ls">EN</span>' : '<span class="lf">УКРАЇНСЬКА</span><span class="ls">UA</span>'; $('langIntro').title = l === 'uk' ? 'Switch to English' : 'Перейти на українську'; }
 const flipLang = () => { if (!window.slLang) return; slLang.set(slLang.get() === 'uk' ? 'en' : 'uk'); langUi(); };
 $('langBtn').onclick = flipLang; $('langIntro').onclick = flipLang; langUi();
 // ================= installable app & push alerts =================
@@ -3383,6 +3444,22 @@ else if ('serviceWorker' in navigator && (location.protocol === 'https:' || loca
 }
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('installBtn').style.display = ''; });
 $('installBtn').onclick = async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt = null; $('installBtn').style.display = 'none'; };
+// phones: offer to install the game as an app on the start screen. Android gets the browser's own prompt; an iPhone
+// is told how to add it to the home screen. Closed with ×, it stays away for a week; it leaves once the game starts.
+(() => {
+  const bar = $('instBar'); if (!bar) return;
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent), phone = matchMedia('(pointer:coarse)').matches && Math.min(innerWidth, innerHeight) <= 900;
+  let closed = 0; try { closed = +localStorage.getItem('sl-install-x') || 0; } catch (e) {}
+  if (standalone || !phone || Date.now() - closed < 7 * 864e5) return;
+  const show = () => { if ($('intro').classList.contains('hidden') || !bar.hidden) return; bar.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('on'))); };
+  const hide = remember => { bar.classList.remove('on'); setTimeout(() => { bar.hidden = true; }, 350); if (remember) try { localStorage.setItem('sl-install-x', String(Date.now())); } catch (e) {} };
+  $('instX').onclick = () => hide(true);
+  $('instGo').onclick = async () => { if (!installEvt) return; installEvt.prompt(); const c = await installEvt.userChoice; installEvt = null; $('installBtn').style.display = 'none'; hide(c.outcome !== 'accepted'); };
+  if (ios) { $('instGo').hidden = true; bar.classList.add('ios'); $('instTxt').textContent = 'Tap Share, then "Add to Home Screen": the game opens like an app.'; setTimeout(show, 2500); }
+  addEventListener('beforeinstallprompt', () => setTimeout(show, 1500));
+  $('go').addEventListener('click', () => { if (!bar.hidden) hide(false); });
+})();
 const b64 = s => { const p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, c => c.charCodeAt(0)); };
 async function updateBell() {
   const b = $('bellBtn'); if (!('Notification' in window) || !swReg) { b.style.opacity = .35; b.title = 'Alerts are not supported in this browser'; return; }

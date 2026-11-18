@@ -4,12 +4,12 @@
 (function () {
   var R = function (x) { return Math.round(x * 100) / 100; };
   var pt = function (cx, cy, r, a) { return R(cx + r * Math.cos(a)) + ' ' + R(cy + r * Math.sin(a)); };
-  // radiation trefoil: three blades around a dot
+  // radiation trefoil: the classic sign, three filled blades around a dot (one points down)
   var trefoil = function () {
-    var d = '', k, a0, a1;
-    for (k = 0; k < 3; k++) { a0 = -Math.PI / 2 - Math.PI / 6 + k * 2 * Math.PI / 3; a1 = a0 + Math.PI / 3;
-      d += 'M' + pt(12, 12, 4, a0) + 'L' + pt(12, 12, 9.5, a0) + 'A9.5 9.5 0 0 1 ' + pt(12, 12, 9.5, a1) + 'L' + pt(12, 12, 4, a1) + 'A4 4 0 0 0 ' + pt(12, 12, 4, a0) + 'Z'; }
-    return '<path d="' + d + '"/><circle cx="12" cy="12" r="1.2"/>';
+    var d = '', k, c, a0, a1;
+    for (k = 0; k < 3; k++) { c = Math.PI / 2 + k * 2 * Math.PI / 3; a0 = c - Math.PI / 6; a1 = c + Math.PI / 6;
+      d += 'M' + pt(12, 12, 3.6, a0) + 'L' + pt(12, 12, 10.2, a0) + 'A10.2 10.2 0 0 1 ' + pt(12, 12, 10.2, a1) + 'L' + pt(12, 12, 3.6, a1) + 'A3.6 3.6 0 0 0 ' + pt(12, 12, 3.6, a0) + 'Z'; }
+    return '<path d="' + d + '" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>';
   };
   // explosion: a ragged star
   var burst = function () {
