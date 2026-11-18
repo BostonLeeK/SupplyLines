@@ -55,11 +55,12 @@ STATS_KEY=some-long-random-string
 
 `SIM_SPEED` sets the pace: at `0.125` (the default) a season lasts 2 hours of real time, at `1` 15 minutes, at `0.0104` a full day. `CP_SECONDS` (default `45`) is how many real seconds one command point takes to refill, so a longer season does not starve players of CP.
 
-## Optional: the fast room
+## Optional: blitz mode
 
-`docker compose up` also starts a second world, the **fast room**, on port `5178`: a season there lasts about 30 minutes
-(`FAST_SIM_SPEED=0.5`, one CP every `FAST_CP_SECONDS=15` s). It is for a quick test game, keeps its own players and seasons,
-posts no news and sends no push notifications. Serve it under `/fast/` next to the main game:
+`docker compose up` also starts a second world, **blitz**, on port `5178`: a season there lasts 15 minutes
+(`FAST_SIM_SPEED=1`, one CP every `FAST_CP_SECONDS=6` s, so a player gets about as many CP per season as in the 2-hour war).
+It keeps its own players, ranks, callsigns and seasons, posts no news and sends no push notifications. Serve it under
+`/fast/` next to the main game:
 
 ```nginx
     location = /fast { return 301 /fast/; }
@@ -74,8 +75,24 @@ posts no news and sends no push notifications. Serve it under `/fast/` next to t
     }
 ```
 
-Then add `FAST_URL=/fast/` to `.env` and restart: the main intro screen shows a **QUICK 30-MIN ROOM** button, and the fast room
-links back to the main war. Without `FAST_URL` the button stays hidden. Do not want the fast room at all? `docker compose up -d game`.
+Then add `FAST_URL=/fast/` to `.env` and restart: the mode screen shows **Global war**, **Blitz** and **With friends**,
+with the season length and how many people play in each right now (each server answers `/room.json`). Keep blitz on
+the same site as a path like `/fast/`: picking a mode moves the page's socket to that world without reloading, which
+only works within one site. Without `FAST_URL` the blitz card stays hidden. Do not want blitz at all? `docker compose up -d game`.
+
+Already ran the old 30-minute fast room? Its `.env` overrides (`FAST_SIM_SPEED`, `FAST_CP_SECONDS`) still win; remove them
+to get the 15-minute blitz.
+
+## Private games
+
+Players can start a game for themselves and their friends from the mode screen: they pick the season length (15 minutes
+to 2 hours) and how many bots fill the sides, and get a link like `/r/K7M2QX/` to send. Each game is a separate world:
+the main server starts a child copy of itself on a local port and passes the page and the game socket through, so
+nginx needs nothing new (the `location /` that already proxies `/ws` with the upgrade headers covers `/r/`). A game
+closes by itself ten minutes after the last player leaves, and nothing of it is kept.
+
+`PRIVATE_GAMES` (default `3`) caps how many run at once: each one is a Node process with its own simulation, roughly
+60–100 MB of memory and a share of a CPU core. `PRIVATE_GAMES=0` turns the mode off.
 
 ## Optional: sign in with Google
 

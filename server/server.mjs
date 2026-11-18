@@ -15,6 +15,8 @@ import webpush from 'web-push';
 import { createEngine, K, FN, REGIONS, GEVENTS, SCENARIOS, ERAS, rankOf } from '../game/engine.js';
 import { createWire } from './wire.mjs';
 import { createOps } from './ops.mjs';
+import { createRooms } from './rooms.mjs';
+import { createPrefixProxy } from './proxy.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = +process.env.PORT || 5177;
@@ -23,8 +25,12 @@ const SIM_SPEED = +process.env.SIM_SPEED || 0.125;         // sim-seconds per re
 // The warhead price and bot nuke funding scale with it, so the nuclear program keeps its pace within a season.
 const CP_SECONDS = +process.env.CP_SECONDS || 45;
 { const k = K.CP_REGEN / (CP_SECONDS * SIM_SPEED); K.CP_REGEN = CP_SECONDS * SIM_SPEED; K.NUKE_COST = Math.round(K.NUKE_COST * k); K.NUKE_BOT_RATE *= k; }
-// ROOM=fast runs a side world for quick tests: no news posts, and the main world links to it (FAST_URL) and back (MAIN_URL)
-const ROOM = process.env.ROOM === 'fast' ? 'fast' : 'main', FAST_URL = process.env.FAST_URL || '', MAIN_URL = process.env.MAIN_URL || '';
+// ROOM=fast runs the blitz world: no news posts, and the main world links to it (FAST_URL) and back (MAIN_URL).
+// ROOM=private is a game among friends that the main server started (server/rooms.mjs); it closes itself once nobody
+// has been in it for IDLE_EXIT_MIN minutes.
+const ROOM = ['fast', 'private'].includes(process.env.ROOM) ? process.env.ROOM : 'main', FAST_URL = process.env.FAST_URL || '', MAIN_URL = process.env.MAIN_URL || '';
+const ROOM_CODE = process.env.ROOM_CODE || '', IDLE_EXIT_MS = (+process.env.IDLE_EXIT_MIN || 0) * 60000;
+const PRIVATE_GAMES = ROOM === 'main' ? Math.max(0, process.env.PRIVATE_GAMES === undefined ? 3 : +process.env.PRIVATE_GAMES || 0) : 0;
 const BOTS = +process.env.BOTS || 120;                    // simulated players per faction (filler)
 const HUMAN_WEIGHT = +process.env.HUMAN_WEIGHT || 10;     // one online human replaces this many bots
 const MAX_CONN_PER_IP = 6, CMD_PER_SEC = 8, SNAP_MS = 250, TICK_MS = 100, RESTART_AFTER_MS = 20000;
@@ -84,10 +90,13 @@ function checkNick(raw, p) {
   return { name: n };
 }
 function setNick(p, raw) {
-  if (!p.linked) return { ok: false, msg: 'Sign in with Google to choose a callsign' };
-  // once per season, with 10 minutes to fix a typo
-  const grace = Date.now() - (p.nameAt || 0) < NICK_GRACE;
-  if (p.nameSeason === season && !grace) return { ok: false, msg: 'You can change your callsign once per season' };
+  // a private game is among friends and is gone in a few hours: anyone there may name themselves, any time
+  if (ROOM !== 'private') {
+    if (!p.linked) return { ok: false, msg: 'Sign in with Google to choose a callsign' };
+    // once per season, with 10 minutes to fix a typo
+    const grace = Date.now() - (p.nameAt || 0) < NICK_GRACE;
+    if (p.nameSeason === season && !grace) return { ok: false, msg: 'You can change your callsign once per season' };
+  }
   const c = checkNick(raw, p); if (!c.name) return { ok: false, msg: c.msg };
   if (c.name === p.name) return { ok: true, name: p.name };
   const old = p.name; p.name = c.name; if (p.nameSeason !== season) p.nameAt = Date.now(); p.nameSeason = season;
@@ -129,7 +138,10 @@ async function pollAlerts() {
 async function pollStaff() {
   try { const j = await getJson('https://russianwarship.rip/api/v2/statistics/latest'); const d = j.data; realWar.staff = { date: d.date, day: d.day, drones: d.stats.uav_systems, dronesToday: d.increase.uav_systems, missiles: d.stats.cruise_missiles, missilesToday: d.increase.cruise_missiles }; realWar.staffAt = Date.now(); realWar.staffErr = null; } catch (e) { realWar.staffErr = errText(e); logOnce('staff', 'cannot load General Staff data: ' + realWar.staffErr); }
 }
-pollAlerts(); pollStaff(); setInterval(pollAlerts, 60 * 1000); setInterval(pollStaff, 60 * 60 * 1000);
+// a private game takes the real-war data from the main server instead of asking the outside sources again
+const REALWAR_FROM = process.env.REALWAR_FROM || '';
+if (REALWAR_FROM) { const pull = async () => { try { const j = await getJson(REALWAR_FROM); realWar.alerts = j.alerts; realWar.alertsAt = j.alerts ? Date.now() : 0; realWar.staff = j.staff; realWar.staffAt = j.staff ? Date.now() : 0; } catch {} }; pull(); setInterval(pull, 60 * 1000); }
+else { pollAlerts(); pollStaff(); setInterval(pollAlerts, 60 * 1000); setInterval(pollStaff, 60 * 60 * 1000); }
 // ---------- web push: alerts reach players who are not in the game right now ----------
 const vapid = readJson('vapid.json', null) || (() => { const k = webpush.generateVAPIDKeys(); writeJson('vapid.json', k); return k; })();
 webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:admin@supply-lines.invalid', vapid.publicKey, vapid.privateKey);
@@ -174,8 +186,8 @@ setInterval(savePlayers, 30000);
 let saveTimer = null; const savePlayersSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { savePlayers(); saveWorld(); }, 1000); };
 
 // ---------- static files ----------
-const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webmanifest': 'application/manifest+json' };
-const PUBLIC = new Set(['/icons.js', '/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png']);
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json' };
+const PUBLIC = new Set(['/icons.js', '/i18n.js', '/i18n-uk.js', '/og.jpg', '/og-uk.jpg', '/world.html', '/index.html', '/net.js', '/game/engine.js', '/sw.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/badge-96.png', ...['convoys', 'drones', 'front', 'world', 'phone1', 'phone2', 'phone3'].map(n => '/img/lp-' + n + '.webp')]);
 // static files are compressed once (brotli and gzip) and kept in memory; ETag lets browsers revalidate with a 304
 const fileCache = new Map(), PACK = /\.(html|js|json|css|svg|webmanifest)$/;
 function cachedFile(p) {
@@ -207,10 +219,20 @@ function ukPreview(html, p) {
 }
 // error reports, stats, health check, backups
 const ops = createOps({ DATA, getHealth: () => ({ season, simT: Math.round(E.S.simT), ended: !!E.S.ended, online: humansOnline(), players: E.players.size, uptime: Math.round(process.uptime()) }) });
+const games = PRIVATE_GAMES ? createRooms({ ROOT, PORT, max: PRIVATE_GAMES }) : null;
+// all modes live on one site so the page can move between them without reloading. In production nginx serves blitz
+// under /fast/; without nginx (npm run dev) FAST_PROXY=http://127.0.0.1:5178 makes this server pass /fast/ through.
+const fastProxy = ROOM === 'main' && process.env.FAST_PROXY ? createPrefixProxy('/fast/', process.env.FAST_PROXY) : null;
+const clientIp = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 const server = http.createServer((req, res) => {
-  let p; try { p = decodeURIComponent(req.url.split('?')[0]); } catch { res.writeHead(400); return res.end(); } if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
+  let p; try { p = decodeURIComponent(req.url.split('?')[0]); } catch { res.writeHead(400); return res.end(); }
+  if (games && games.handle(req, res, p, clientIp(req))) return;
+  if (fastProxy && fastProxy.handle(req, res, p, clientIp(req))) return;
+  if (p === '/') p = '/index.html'; if (p === '/world') p = '/world.html';
   if (ops.handle(req, res, p)) return;
   if (p === '/world.json') return sendPacked(req, res, 'application/json', JSON.stringify(worldState()), { 'cache-control': 'no-cache', 'access-control-allow-origin': '*' });
+  // the start screen of the other mode reads this: how long a season is here and how many people play now
+  if (p === '/room.json') { const on = humansOnline(); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache', 'access-control-allow-origin': '*' }); return res.end(JSON.stringify({ room: ROOM, code: ROOM_CODE || undefined, minutes: Math.round(K.SEASON / SIM_SPEED / 60), online: on[0] + on[1], season, day: Math.min(7, Math.floor(E.S.simT / K.SEASON * 7) + 1), games: games ? { open: games.count(), max: games.max } : undefined })); }
   if (p === '/vapid.json') { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify({ key: vapid.publicKey })); }
   if (p === '/realwar.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify({ alerts: Date.now() - realWar.alertsAt < 15 * 60e3 ? realWar.alerts : null, staff: realWar.staff, status: { alerts: realWar.alertsErr ? 'error: ' + realWar.alertsErr : realWar.alertsAt ? 'ok' : 'loading', staff: realWar.staffErr ? 'error: ' + realWar.staffErr : realWar.staffAt ? 'ok' : 'loading' } })); }
   if (p === '/wire.json') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-cache' }); return res.end(JSON.stringify(wireLog.slice(0, 30))); }
@@ -234,11 +256,20 @@ function pickFaction() {
   if (h[0] !== h[1]) return h[0] < h[1] ? 0 : 1;
   const sc = E.scores().pts; return sc[0] <= sc[1] ? 0 : 1;   // tie: help the side that is behind
 }
-function rebalanceBots() { const h = humansOnline(); E.bots = h.map(x => Math.max(20, BOTS - x * HUMAN_WEIGHT)); }
+function rebalanceBots() { const h = humansOnline(); E.bots = h.map(x => Math.max(Math.min(20, BOTS), BOTS - x * HUMAN_WEIGHT)); }
 
-const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 4096 });
+// the game socket is /ws; with private games on, /r/CODE/ws goes through to that game's server
+const wss = new WebSocketServer({ noServer: true, maxPayload: 4096 });
+server.on('upgrade', (req, socket, head) => {
+  if (req.url.split('?')[0] === '/ws') return wss.handleUpgrade(req, socket, head, ws => wss.emit('connection', ws, req));
+  if (games && games.upgrade(req, socket, head, clientIp(req))) return;
+  if (fastProxy && fastProxy.upgrade(req, socket, head, clientIp(req))) return;
+  socket.destroy();
+});
+// a private game shuts itself down once it has been empty for a while
+if (IDLE_EXIT_MS) { let busyAt = Date.now(); setInterval(() => { if (sockets.size) busyAt = Date.now(); else if (Date.now() - busyAt > IDLE_EXIT_MS) { console.log('empty for a while: closing'); process.exit(0); } }, 15000); }
 wss.on('connection', (ws, req) => {
-  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const ip = clientIp(req);
   if ((perIp.get(ip) || 0) >= MAX_CONN_PER_IP) { ws.close(1008, 'too many connections'); return; }
   perIp.set(ip, (perIp.get(ip) || 0) + 1);
   const s = { pid: null, ip, tokens: CMD_PER_SEC, last: Date.now() };
@@ -256,7 +287,7 @@ wss.on('connection', (ws, req) => {
       if (!pid || !E.players.has(pid)) { pid = pid || crypto.randomBytes(12).toString('hex'); E.addPlayer(pid, inv && E.squadMembers(inv.code).length < K.SQUAD_MAX ? inv.f : pickFaction()); savePlayersSoon(); }
       const p = E.players.get(pid); p.online = true; s.pid = pid;
       let squadMsg = null; if (m.squad) { const r = inv ? E.joinSquad(pid, inv.code) : { ok: false, msg: 'This invite link is no longer valid' }; squadMsg = r.already ? null : r.ok ? (r.msg || `You joined ${inv.name}`) : r.msg; savePlayersSoon(); }
-      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, cpRegen: K.CP_REGEN, room: ROOM, fastUrl: ROOM === 'main' ? FAST_URL : '', mainUrl: ROOM === 'fast' ? MAIN_URL : '', caps: E.CAPS, squadMsg, google: GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'test' ? GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID ? 'test' : null }));
+      ws.send(JSON.stringify({ type: 'welcome', pid, pub: p.pub, f: p.f, name: p.name, speed: SIM_SPEED, cpRegen: K.CP_REGEN, room: ROOM, code: ROOM_CODE || undefined, games: !!games, fastUrl: ROOM !== 'fast' ? FAST_URL : '', mainUrl: ROOM !== 'main' ? MAIN_URL : '', caps: E.CAPS, squadMsg, google: GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'test' ? GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID ? 'test' : null }));
       ws.send(JSON.stringify({ type: 'snap', ...E.snapshot(p.f), seasonNo: season, you: you(p), online: humansOnline() }));
       rebalanceBots();
       return;
@@ -296,7 +327,7 @@ wss.on('connection', (ws, req) => {
       ws.send(JSON.stringify({ type: 'google_res', ok: true, signedOut: true })); return;
     }
     if (m.type === 'nick') {
-      const r = setNick(E.players.get(s.pid), m.name); ws.send(JSON.stringify({ type: 'nick_res', ...r })); return;
+      const r = setNick(E.players.get(s.pid), m.name); ws.send(JSON.stringify({ type: 'nick_res', ...r, quiet: m.quiet ? 1 : undefined })); return;
     }
     if (m.type === 'squad') {
       const p = E.players.get(s.pid); let r;
@@ -317,7 +348,7 @@ wss.on('connection', (ws, req) => {
     rebalanceBots();
   });
 });
-const you = p => ({ ...E.publicPlayer(p), nickFree: !!p.linked && (p.nameSeason !== season || Date.now() - (p.nameAt || 0) < NICK_GRACE) });
+const you = p => ({ ...E.publicPlayer(p), nickFree: ROOM === 'private' || !!p.linked && (p.nameSeason !== season || Date.now() - (p.nameAt || 0) < NICK_GRACE) });
 
 // ---------- simulation loop ----------
 const SIGNALS = new Set(['attack', 'defend', 'troops', 'thanks']);
@@ -401,4 +432,4 @@ setInterval(() => {
   }
 }, SNAP_MS);
 
-server.listen(PORT, () => console.log(`Supply Lines ${ROOM} room on http://localhost:${PORT}  (season ${(K.SEASON / SIM_SPEED / 60).toFixed(0)} min real time, 1 CP every ${CP_SECONDS} s, warhead ${K.NUKE_COST} CP, ${BOTS} bots per faction)`));
+server.listen(PORT, process.env.HOST || undefined, () => console.log(`Supply Lines ${ROOM} room on http://localhost:${PORT}  (season ${(K.SEASON / SIM_SPEED / 60).toFixed(0)} min real time, 1 CP every ${CP_SECONDS} s, warhead ${K.NUKE_COST} CP, ${BOTS} bots per faction)`));

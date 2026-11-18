@@ -8,6 +8,7 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server/server.mjs",
+    "dev": "node tools/dev.mjs",
     "test": "node tools/test-engine.mjs && node tools/test-persist.mjs",
     "balance": "node tools/balance.mjs 16",
     "build:net": "cd tools && npm install && node build-net.mjs",

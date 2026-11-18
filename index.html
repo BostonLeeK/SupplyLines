@@ -39,14 +39,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Roboto+Condensed:wght@500;600;700&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=Roboto+Condensed:wght@500;600;700&family=Manrope:wght@400;600;700;800&family=Tektur:wdth,wght@75..100,400..900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#05080d; --ink:#e9eef5; --dim:#7d8a9a; --faint:#3a4656;
-  --plate:#0b1118; --plate2:#111a24; --edge:#1f2a37;
+  --plate:#0c1628; --plate2:#13243d; --edge:#22385c;
   --a:#4aa3ff; --a-ink:#06192e; --b:#ffad33; --b-ink:#2b1700;
   --good:#5be08a; --bad:#ff6b5b; --cp:#ffc23d;
-  --disp:"IBM Plex Sans Condensed","Roboto Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+  --disp:"Tektur","Roboto Condensed","Arial Narrow",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 .modal .sheet>.foot:first-child{position:sticky;top:0;z-index:3;background:var(--bg);margin-top:0;padding:6px 0 10px;box-shadow:0 10px 14px -10px var(--bg)}
@@ -521,9 +521,229 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .gAuth form.nick .btn2{padding:6px 12px}
 .gAuth form.nick button:disabled{opacity:.45;cursor:default}
 .gAuth form.nick small{flex-basis:100%;color:var(--mut);font-size:11px}
-.introLinks{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-body.fastroom #sideA .nm::after,body.fastroom #sideB .nm::after{content:' · FAST';color:var(--cp)}
-@media (max-width:560px){ .introLinks .btn2{flex:1 1 30%;padding:10px 6px;font-size:10px;text-align:center} }
+/* ---------- start screen: a game landing over the live globe, and behind PLAY the mode screen ---------- */
+/* the whole start screen scrolls (scrollbar at the window edge); the globe of the game turns behind it */
+#intro{padding:0;background:transparent;--gmDisp:'Tektur',var(--disp)}
+#intro:not(.hidden){display:block;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin}
+#intro .sheet{width:100%;max-width:none;margin:0;max-height:none;overflow:visible}
+.gm,#pick{--g1:#ffe27a;--g2:#ffc23d;--g3:#f39b12;color:#eaf2ff}
+.gmIn{max-width:1240px;margin:0 auto;padding:0 32px}
+.gmStars,.gmSec,#pick{background-color:rgba(5,10,20,.95);background-image:radial-gradient(rgba(255,255,255,.4) 1px,transparent 1.4px),radial-gradient(rgba(140,190,255,.25) 1px,transparent 1.4px);background-size:140px 140px,90px 90px;background-position:0 0,45px 60px}
+.gmNav{position:absolute;left:0;right:0;top:0;z-index:3}
+.gmNav .gmIn{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-top:16px;padding-bottom:16px}
+.gmBrand{display:flex;align-items:center;gap:10px;font:900 19px/1 var(--gmDisp);letter-spacing:.04em;color:#eaf2ff}
+.gmEmb{width:40px;height:40px;flex:0 0 auto}
+.gmLinks{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.gmLink{font:700 12.5px/1 'Tektur',var(--disp);letter-spacing:.08em;color:#b7c8e2;text-decoration:none;padding:9px 2px;text-transform:uppercase}
+.gmLink:hover{color:#fff}
+.gmOnline{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:rgba(91,224,138,.1);border:1px solid rgba(91,224,138,.4);color:#8ff0b0;font:700 12px/1 'Tektur',var(--disp);letter-spacing:.06em;text-transform:uppercase}
+.gmOnline[hidden]{display:none}
+.gmOnline i{width:8px;height:8px;border-radius:50%;background:var(--good);animation:lpPulse 1.8s infinite}
+@keyframes lpPulse{0%{box-shadow:0 0 0 0 rgba(91,224,138,.55)}70%{box-shadow:0 0 0 8px rgba(91,224,138,0)}100%{box-shadow:0 0 0 0 rgba(91,224,138,0)}}
+/* buttons: the chunky gold PLAY and a blue secondary one */
+.gmCta{display:inline-flex;align-items:center;justify-content:center;gap:12px;font:900 17px/1 var(--gmDisp);letter-spacing:.04em;color:#2a1600;background:linear-gradient(180deg,var(--g1) 0%,var(--g2) 45%,var(--g3) 100%);border:2px solid #fff1b8;border-radius:14px;padding:16px 26px;box-shadow:0 6px 0 #9a5800,0 12px 26px rgba(0,0,0,.4),0 0 50px rgba(255,194,61,.28);text-shadow:0 1px 0 rgba(255,255,255,.45);cursor:pointer;transition:transform .08s,box-shadow .08s,filter .15s;text-transform:uppercase}
+.gmCta:hover{filter:brightness(1.06)} .gmCta:active{transform:translateY(4px);box-shadow:0 2px 0 #9a5800,0 6px 14px rgba(0,0,0,.4)}
+.gmCta svg{width:20px;height:20px}
+.gmCta.sm{font-size:14px;padding:11px 18px;border-radius:10px;box-shadow:0 4px 0 #9a5800}
+.gmCta.big{font-size:24px;padding:23px 58px}
+.gmBtn2{display:inline-flex;align-items:center;justify-content:center;font:700 15px/1 'Tektur',var(--disp);letter-spacing:.08em;color:#eaf2ff;background:linear-gradient(180deg,#1d3354,#132440);border:2px solid #3d6aa8;border-radius:12px;padding:16px 22px;box-shadow:0 5px 0 #0a1528;cursor:pointer;text-transform:uppercase;transition:transform .08s,box-shadow .08s}
+.gmBtn2:hover{border-color:#6c9ad6} .gmBtn2:active{transform:translateY(3px);box-shadow:0 2px 0 #0a1528}
+/* first screen: logo, ribbon and PLAY over the turning globe */
+.gmHero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;justify-content:center;padding:110px 20px 64px;overflow:hidden;background:linear-gradient(180deg,rgba(5,10,20,.6) 0%,rgba(5,10,20,0) 20%,rgba(5,10,20,0) 40%,rgba(5,10,20,.86) 72%,rgba(5,10,20,.98) 100%)}
+.gmGlow{position:absolute;left:50%;top:44%;width:min(1100px,150vw);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 38% 45%,rgba(74,163,255,.26),transparent 52%),radial-gradient(circle at 66% 52%,rgba(255,173,51,.2),transparent 50%);pointer-events:none;animation:gmGlow 5s ease-in-out infinite}
+.gmOrbit{position:absolute;left:50%;top:44%;width:min(860px,118vw);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;border:2px dashed rgba(120,180,255,.22);animation:gmSpin 90s linear infinite;pointer-events:none}
+.gmOrbit.b{width:min(1020px,140vw);border:1px dashed rgba(255,190,90,.18);animation-duration:130s;animation-direction:reverse}
+@keyframes gmSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes gmGlow{0%,100%{opacity:.8}50%{opacity:1}}
+.gmHeroIn{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;max-width:1000px}
+.gmEmblem{width:96px;height:96px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6))}
+.gmWord{font:900 clamp(44px,8vw,120px)/.9 var(--gmDisp);letter-spacing:.01em;white-space:nowrap;background:linear-gradient(180deg,#fff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 0 #0b1a33) drop-shadow(0 10px 22px rgba(0,0,0,.6))}
+.gmRibbon{font:700 15px/1 'Tektur',var(--disp);letter-spacing:.3em;color:#ffe7a8;background:linear-gradient(90deg,#3a2405,#6b4310,#3a2405);padding:10px 42px;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%)}
+.gmLead{margin:4px 0 0;font-size:18px;line-height:1.55;color:#d0dcec;max-width:620px;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.gmLead2{margin:0;font-size:14px;line-height:1.5;color:#93a9c6;max-width:560px}
+.gmHeroIn .gmCta.big{margin-top:6px}
+.gmChips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.gmChips span{font:600 12px/1 'Tektur',var(--disp);letter-spacing:.1em;color:#9fb4d3;padding:8px 13px;border:1px solid #2b4a78;border-radius:8px;background:rgba(10,19,36,.75)}
+.gmSec{padding:72px 0}
+.gmH{margin:0 0 26px;font:900 clamp(30px,3.8vw,50px)/1.02 var(--gmDisp);text-transform:uppercase;color:#eaf2ff}
+.gmCut,.gmSide,.gmCard,.gmTile,.gmRanks,#intro .mode{clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)}
+/* Atlantica vs Pacifica */
+.gmVsSec{padding-top:24px}
+.gmSeason{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font:700 13px/1 'Tektur',var(--disp);letter-spacing:.2em;color:#8fa6c8;text-transform:uppercase;margin-bottom:22px}
+.gmSeason .live{color:#8ff0b0}
+.gmVs{display:flex;align-items:stretch}
+.gmSide{flex:1 1 0;min-width:0;padding:30px 40px;display:flex;flex-direction:column;gap:10px;min-height:210px}
+.gmSide.a{background:linear-gradient(120deg,rgba(74,163,255,.45),rgba(20,50,95,.92) 55%,rgba(10,22,44,.96))}
+.gmSide.b{background:linear-gradient(240deg,rgba(255,173,51,.42),rgba(95,52,10,.92) 55%,rgba(36,20,6,.96));align-items:flex-end;text-align:right}
+.gmSide .fn{display:flex;align-items:center;gap:12px;font:900 32px/1 var(--gmDisp);color:#fff;text-transform:uppercase}
+.gmSide .fn svg{width:44px;height:44px;flex:0 0 auto}
+.gmSide .pts{font:900 clamp(60px,8vw,104px)/.9 var(--gmDisp);font-variant-numeric:tabular-nums}
+.gmSide.a .pts{color:#bfe0ff;text-shadow:0 0 30px rgba(74,163,255,.6)} .gmSide.b .pts{color:#ffe2b3;text-shadow:0 0 30px rgba(255,173,51,.6)}
+.gmSide .meta{display:flex;gap:18px;flex-wrap:wrap;font:600 13px/1.3 'Tektur',var(--disp);letter-spacing:.05em;text-transform:uppercase}
+.gmSide .meta span:empty{display:none}
+.gmSide.a .meta{color:#cfe3ff} .gmSide.b .meta{color:#ffe6c4;justify-content:flex-end}
+.gmVsBadge{flex:0 0 auto;width:104px;height:104px;margin:auto -40px;z-index:2;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2a1a05,#0b0a10);border:3px solid var(--g2);display:flex;align-items:center;justify-content:center;font:900 38px/1 var(--gmDisp);color:#ffd76a;box-shadow:0 0 40px rgba(255,194,61,.45)}
+.gmBar{max-width:900px;height:12px;margin:22px auto 0;border-radius:6px;overflow:hidden;background:linear-gradient(90deg,#ffbf5e,#e88a12);border:1px solid #22385c}
+.gmBar i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#2f7fd6,#6bb8ff);transition:width .6s;box-shadow:2px 0 0 #050a14}
+.gmNote{margin:16px 0 0;text-align:center;font-size:15px;color:#9fb4d3}
+/* feature cards */
+.gmCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.gmCard{background:linear-gradient(180deg,rgba(22,38,66,.95),rgba(10,19,36,.97));border:1px solid #2b4a78;display:flex;flex-direction:column}
+.gmCardImg{position:relative}
+.gmCardImg img{display:block;width:100%;height:180px;object-fit:cover}
+.gmBadge{position:absolute;left:18px;bottom:-22px;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px solid}
+.gmBadge svg{width:24px;height:24px}
+.gmBadge.blue{background:linear-gradient(180deg,#2c74c9,#164a8c);border-color:#9fd0ff} .gmBadge.orange{background:linear-gradient(180deg,#c9811b,#8a4f06);border-color:#ffd59a}
+.gmBadge.red{background:linear-gradient(180deg,#c43b2a,#7a1d12);border-color:#ffb3a6} .gmBadge.green{background:linear-gradient(180deg,#3aa86a,#1b6a3e);border-color:#b6f5cf}
+.gmCard b{display:block;padding:34px 20px 0;font:800 20px/1.15 'Tektur',var(--disp)}
+.gmCard>span{display:block;padding:8px 20px 22px;font-size:14px;line-height:1.55;color:#a9bcd6}
+/* phones */
+.gmPhones{background-color:rgba(9,20,42,.97)}
+.gmPhones .gmIn{display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+.gmPhTxt{flex:1 1 380px;max-width:500px}
+.gmPhTxt p{font-size:17px;line-height:1.6;color:#b7c8e2;margin:0 0 20px}
+.gmUrl{display:inline-block;font:700 15px/1 'Tektur',var(--disp);letter-spacing:.06em;color:#ffe7a8;padding:12px 16px;border:1px dashed #8a5a14;border-radius:10px}
+.gmPhPics{flex:1 1 480px;position:relative;height:560px}
+.gmPhPics img{position:absolute;width:210px;border-radius:30px;border:7px solid #10192b;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+.gmPhPics .l{left:6%;top:60px;transform:rotate(-9deg)} .gmPhPics .r{right:6%;top:60px;transform:rotate(9deg)}
+.gmPhPics .c{left:50%;top:0;width:240px;transform:translateX(-50%);border-color:#1a2840;z-index:2;box-shadow:0 40px 80px rgba(0,0,0,.7),0 0 0 2px #2b4a78}
+/* mode tiles on the landing */
+.gmTiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:18px}
+.gmTile{position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;border:2px solid #2b4a78;background:#0a1324}
+.gmTile[hidden]{display:none!important}
+.gmTile.main{border-color:var(--g2)}
+.gmTile>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.7}
+.gmTile::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,20,.1),rgba(5,10,20,.95) 70%)}
+.gmTileIn{position:relative;z-index:1;display:flex;flex-direction:column;gap:11px}
+.gmTag{align-self:flex-start;font:700 11px/1 'Tektur',var(--disp);letter-spacing:.14em;padding:6px 10px;border-radius:6px;text-transform:uppercase}
+.gmTag.gold{background:var(--g2);color:#2a1600} .gmTag.orange{background:#ffad33;color:#2a1600} .gmTag.green{background:#5be08a;color:#062012}
+.gmTile b{font:900 32px/1.02 var(--gmDisp)}
+.gmTile .d{font-size:15px;line-height:1.55;color:#c6d4e8}
+.gmTile em{display:flex;gap:14px;font:600 12.5px/1 'Tektur',var(--disp);letter-spacing:.06em;color:#8fa6c8;font-style:normal;text-transform:uppercase}
+.gmTile em .mo{color:#8ff0b0} .gmTile em span:empty{display:none}
+.gmTile .gmCta,.gmTile .gmBtn2{align-self:stretch;margin-top:6px}
+/* ranks */
+.gmRanksHead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.gmRanksHead .gmH{margin:0} .gmRanksHead p{margin:0;max-width:440px;color:#9fb4d3;font-size:15px;line-height:1.5}
+.gmRanks{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;padding:28px 20px;background:linear-gradient(180deg,rgba(22,38,66,.92),rgba(10,19,36,.95));border:1px solid #2b4a78}
+.gmRank{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center}
+.gmRank i{width:68px;height:68px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#0d1a30;border:2px solid #3d5f8f}
+.gmRank i svg{width:38px;height:36px}
+.gmRank.t2 i{background:#102545;border-color:#4aa3ff} .gmRank.t3 i{background:#2a1d06;border-color:var(--g2)}
+.gmRank.t4 i{background:radial-gradient(circle,#4a3208,#1f1503);border-color:#ffe27a;box-shadow:0 0 26px rgba(255,194,61,.55)} .gmRank.t4 b{color:#ffe27a}
+.gmRank b{font:700 13px/1.1 'Tektur',var(--disp);text-transform:uppercase}
+.gmRank>span{font-size:12px;color:#7f95b6}
+/* the last call, and the footer */
+.gmFinal{position:relative;background:radial-gradient(ellipse at 50% 120%,rgba(74,163,255,.28),transparent 60%),rgba(5,10,20,.97);padding:110px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}
+.gmFinalScore{display:flex;gap:10px;justify-content:center;font:700 13px/1 'Tektur',var(--disp);letter-spacing:.2em;color:#8fa6c8;text-transform:uppercase}
+.gmFinal .gmH{margin:0;font-size:clamp(34px,5.6vw,72px)}
+.gmFinal p{margin:0;color:#c6d4e8;font-size:17px;max-width:560px}
+.gmFoot{background:#040810;border-top:1px solid #172742}
+.gmFoot .gmIn{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-top:18px;padding-bottom:18px;font:600 12px/1 'Tektur',var(--disp);letter-spacing:.08em;color:#6f86a8;text-transform:uppercase}
+/* the mode screen: three big blocks */
+.pickH{font:800 clamp(28px,4.2vw,44px)/1 var(--disp);letter-spacing:.03em;color:var(--ink);margin:30px 0 18px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:stretch}
+.modes[hidden],.mode[hidden]{display:none!important}
+.mode{position:relative;display:flex;flex-direction:column;gap:9px;padding:22px;min-height:300px;border-radius:14px;border:1px solid var(--edge);background:rgba(11,17,24,.86);color:var(--dim);cursor:pointer;transition:border-color .15s,transform .15s;backdrop-filter:blur(4px)}
+.mode:hover{border-color:var(--dim);transform:translateY(-2px)}
+.mode .lpIc{width:54px;height:54px;border-radius:13px;margin-bottom:4px} .mode .lpIc svg{width:28px;height:28px}
+#modeMain .lpIc{background:rgba(74,163,255,.13);color:var(--a)} #modeFast .lpIc{background:rgba(255,173,51,.13);color:var(--b)}
+.mode b{font:800 27px/1.05 var(--disp);letter-spacing:.03em;color:var(--ink)}
+.mode .md{font-size:14px;line-height:1.5;color:#a9b5c3}
+.mode em{display:flex;gap:12px;flex-wrap:wrap;font-style:normal;font-size:12px;color:var(--mut)}
+.mode em .mo{color:var(--good)} .mode em span:empty{display:none}
+.mode i{display:none;position:absolute;top:20px;right:20px;font:700 10px/1 var(--body);letter-spacing:.12em;font-style:normal;color:var(--cp)}
+.mode.on{border-color:var(--cp);background:linear-gradient(180deg,rgba(255,194,61,.11),rgba(11,17,24,.9) 55%)}
+.mAct{margin-top:auto;padding-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.mode .mGo{padding:14px 26px}
+/* the selected block gets the bright START; the others keep a quiet one you can still press */
+.mode.on .mGo{font:800 15px/1 var(--disp);letter-spacing:.06em;color:#000;background:var(--ink);padding:16px 30px;border-radius:6px}
+#pick #go{display:none}
+#pick .pickNote{display:none} #pick.elsewhere .pickNote{display:flex} #pick.elsewhere .pkAssign,#pick.elsewhere .pkCard.me{display:none}
+#pick.busy .mode{pointer-events:none} #pick.busy .mode.on .mGo{opacity:.6;cursor:wait} #pick.busy{cursor:wait}
+/* with friends: create a game here, or (inside one) its code, the invite link and ENTER */
+#modePriv{cursor:default}
+#modePriv .pvHere,#modePriv .pvShare{display:none}
+#modePriv .pvForm{display:flex;flex-direction:column;gap:10px;flex:1;margin-top:2px}
+#modePriv.inside .pvNew,#modePriv.inside .pvForm{display:none} #modePriv.inside .pvHere{display:block}
+#modePriv.inside .pvShare{display:flex;align-items:center;gap:10px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+.pvRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pvRow label{font:700 10px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--mut);min-width:52px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{padding:5px 9px;border-radius:6px;border:1px solid var(--edge);background:transparent;color:var(--dim);font:600 11px/1 var(--body);cursor:pointer}
+.seg button:hover{color:var(--ink)} .seg button.on{border-color:var(--cp);color:var(--ink);background:rgba(240,190,60,.12)}
+.pvCode{font:800 15px/1 var(--disp);letter-spacing:.18em;color:var(--cp);padding:6px 9px;border:1px dashed var(--cp);border-radius:6px;background:none}
+#modePriv .pvGo,#modePriv .pvCopy{padding:13px 20px} #modePriv .pvGo:disabled{opacity:.5;cursor:wait}
+#modePriv.on .pvGo{font:800 15px/1 var(--disp);letter-spacing:.06em;color:#000;background:var(--ink);padding:16px 30px;border-radius:6px}
+#intro #pick .foot{margin-top:18px;position:static;background:none;padding:0 0 20px}
+/* the mode screen in the same game look: picture tiles, gold START on the chosen one */
+#pick{min-height:100vh;min-height:100svh;padding:0 max(24px,calc((100% - 1180px) / 2)) 30px}
+#pick .pickTop{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px}
+#pick .pickH{font:900 clamp(30px,4.2vw,50px)/1.02 var(--gmDisp);text-transform:uppercase;letter-spacing:0;color:#eaf2ff;margin:26px 0 20px}
+#intro .mode{overflow:hidden;min-height:400px;justify-content:flex-end;padding:24px;border:2px solid #2b4a78;border-radius:0;background:#0a1324;color:#a9bcd6}
+#intro .mode:hover{transform:none;border-color:#4a76b3}
+#intro .mode .mBg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;pointer-events:none}
+#intro .mode::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,10,20,.1),rgba(5,10,20,.96) 56%);pointer-events:none}
+#intro .mode>*:not(.mBg){position:relative;z-index:1}
+#intro .mode.on{border-color:var(--g2);box-shadow:0 0 44px rgba(255,194,61,.22)}
+#intro .mode b{font:900 30px/1.02 var(--gmDisp);letter-spacing:0;color:#fff}
+#intro .mode .md{color:#c6d4e8}
+#intro .mode em{font:600 12.5px/1 'Tektur',var(--disp);letter-spacing:.06em;text-transform:uppercase;color:#8fa6c8}
+#intro .mode .mAct{margin-top:6px}
+#intro .mode .mGo,#intro .mode .pvGo,#intro .mode .pvCopy{font:700 14px/1 'Tektur',var(--disp);letter-spacing:.08em;text-transform:uppercase;color:#eaf2ff;background:linear-gradient(180deg,#1d3354,#132440);border:2px solid #3d6aa8;border-radius:12px;padding:15px 22px;box-shadow:0 5px 0 #0a1528}
+#intro .mode.on .mGo,#intro #modePriv.on .pvGo{font:900 17px/1 var(--gmDisp);letter-spacing:.04em;color:#2a1600;background:linear-gradient(180deg,var(--g1) 0%,var(--g2) 45%,var(--g3) 100%);border:2px solid #fff1b8;border-radius:14px;padding:17px 30px;box-shadow:0 6px 0 #9a5800,0 0 40px rgba(255,194,61,.3)}
+#intro .mode .mGo:active,#intro .mode .pvGo:active{transform:translateY(3px)}
+#intro .seg button{font:600 12px/1 'Tektur',var(--disp);padding:8px 11px;border-color:#2b4a78;color:#9fb4d3;background:rgba(10,19,36,.7)}
+#intro .seg button.on{border-color:var(--g2);color:#fff;background:rgba(255,194,61,.14)}
+#intro .pvRow label{font:700 11px/1 'Tektur',var(--disp);color:#8fa6c8}
+#intro .pvCode{font:900 17px/1 var(--gmDisp);color:var(--g2);border-color:var(--g2)}
+#pick .foot .pkInfo{flex:1 1 100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px}
+/* under the mode blocks: your side, the era and your callsign as three game panels */
+.pkAssign{display:contents}
+.pkCard{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px 20px;background:linear-gradient(180deg,rgba(22,38,66,.92),rgba(10,19,36,.95));border:1px solid #2b4a78;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)}
+.pkCard.pkSide.f0{border-color:rgba(74,163,255,.65);background:linear-gradient(120deg,rgba(74,163,255,.24),rgba(10,22,44,.96) 62%)}
+.pkCard.pkSide.f1{border-color:rgba(255,173,51,.6);background:linear-gradient(120deg,rgba(255,173,51,.22),rgba(36,20,6,.96) 62%)}
+.pkK{font:700 11px/1 'Tektur',var(--disp);letter-spacing:.16em;text-transform:uppercase;color:#8fa6c8}
+.pkV{display:flex;align-items:center;gap:8px;font:900 25px/1.05 var(--gmDisp);text-transform:uppercase;color:#fff}
+.pkV b{font:inherit}
+.pkV svg{width:22px;height:22px}
+.pkT{font-size:14px;line-height:1.5;color:#b7c8e2}
+.pkChip{font:700 11px/1 'Tektur',var(--disp);letter-spacing:.1em;text-transform:uppercase;color:#ffe7a8;background:rgba(107,67,16,.5);border:1px solid #8a5a14;padding:6px 10px;border-radius:6px}
+.pkCard.me:has(form.nick) #netStatus{display:none}
+.pkCard.me .gAuth{margin-top:0;width:100%}
+@media (max-width:1000px){ .gmCards{grid-template-columns:repeat(2,minmax(0,1fr))} .gmRanks{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:20px} }
+@media (max-width:760px){
+  .gmIn{padding:0 16px}
+  .gmLinks .gmLink:not(#langIntro){display:none}
+  .gmLinks{gap:10px}
+  .gmBrand span{display:none}
+  .gmHero{padding:90px 16px 44px}
+  .gmEmblem{width:66px;height:66px}
+  .gmWord{font-size:clamp(32px,10.6vw,52px)}
+  .gmRibbon{font-size:11px;letter-spacing:.22em;padding:8px 24px}
+  .gmLead{font-size:15.5px} .gmLead2{font-size:13px}
+  .gmHeroIn .gmCta.big,.gmFinal .gmCta.big{align-self:stretch;font-size:19px;letter-spacing:.02em;padding:20px 12px;white-space:nowrap}
+  .gmChips span{font-size:10.5px;padding:7px 9px}
+  .gmSec{padding:48px 0}
+  .gmVs{gap:6px}
+  .gmSide{padding:16px 14px;min-height:0;gap:6px}
+  .gmSide .fn{font-size:16px} .gmSide .fn svg{display:none}
+  .gmSide .pts{font-size:50px}
+  .gmSide .meta{font-size:10px;gap:4px;flex-direction:column}
+  .gmVsBadge{width:54px;height:54px;font-size:19px;margin:auto -30px}
+  .gmCards{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 6px;scrollbar-width:none}
+  .gmCard{flex:0 0 80%;scroll-snap-align:start}
+  .gmPhones{display:none}
+  .gmTile{min-height:240px;padding:18px} .gmTile b{font-size:24px}
+  .gmRanks{display:flex;overflow-x:auto;padding:18px 12px;scrollbar-width:none} .gmRank{flex:0 0 80px}
+  .gmFinal{padding:70px 16px}
+  #pick{padding:0 16px 24px}
+  #intro .mode{min-height:0;padding:18px} #intro .mode b{font-size:24px}
+  .modes{grid-template-columns:1fr;gap:10px}
+}
+body.fastroom #sideA .nm::after,body.fastroom #sideB .nm::after{content:' · BLITZ';color:var(--cp)}
+body.privroom #sideA .nm::after,body.privroom #sideB .nm::after{content:' · ' var(--code, '');color:var(--cp)}
+html[lang=uk] body.fastroom #sideA .nm::after,html[lang=uk] body.fastroom #sideB .nm::after{content:' · БЛІЦ'}
 #manual,#realwar,#locker{z-index:12;background:rgba(5,8,13,.97)}
 .manSheet{max-width:820px}
 .mtabs{display:flex;gap:4px;margin:14px 0 12px;border-bottom:1px solid var(--edge);overflow-x:auto}
@@ -552,7 +772,7 @@ body.fastroom #sideA .nm::after,body.fastroom #sideB .nm::after{content:' · FAS
 .res-grid .big{font:800 34px/1 var(--disp)}
 .chart{background:var(--plate);border:1px solid var(--edge);border-radius:8px;padding:12px;margin-top:10px}
 .chart svg{width:100%;height:120px;display:block}
-body.intro #top,body.intro #feed,body.intro #bottom,body.intro #corner,body.intro #labels,body.intro #leftcol{opacity:0;pointer-events:none}
+body.intro #top,body.intro #feed,body.intro #bottom,body.intro #corner,body.intro #labels,body.intro #leftcol,body.intro #docCard,body.intro #gevCard{opacity:0;pointer-events:none}
 #top,#feed,#bottom,#corner,#labels,#leftcol{transition:opacity .5s}
 body.online #simCtl,body.online #speedBtn{display:none}
 @media (max-width:1500px){
@@ -642,10 +862,59 @@ body.online #simCtl,body.online #speedBtn{display:none}
 #boot .bar i{display:block;width:40%;height:100%;border-radius:2px;background:var(--a);animation:bootBar 1.1s ease-in-out infinite;will-change:transform}
 #boot .bs{font:600 12px/1.4 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:center;padding:0 16px}
 @keyframes bootBar{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+
+/* ================= game skin: the look of the start screen carried into the HUD and the windows =================
+   Tektur for every heading, label and number (narrowed to 85% where the HUD is dense, full width on big titles),
+   navy gradient panels with a blue edge and a faint top highlight, blue game buttons and a gold one for the main
+   action, the score in the factions' colours. */
+body{font-stretch:85%}
+#intro,.sheet h1,.sheet h2,#boot{font-stretch:100%}
+.side,.tug,#gen,#squad,#opPanel,#missions,#regions,#cmd,.ic,#drawer,#card,#tip,#nukePanel,#genPop,#sigMenu,#docCard,#gevCard,#capBar,#replayBar,.mc,.res-grid>div,.chart,.arc,.step,.abilities div{
+  background:linear-gradient(180deg,rgba(21,37,64,.95),rgba(9,17,32,.96));border-color:var(--edge);
+  box-shadow:inset 0 1px 0 rgba(150,200,255,.12),0 10px 26px rgba(0,0,0,.35)}
+#opPanel{border-color:rgba(255,194,61,.45)}
+.ev{background:linear-gradient(90deg,rgba(21,37,64,.96),rgba(9,17,32,.94))}
+/* the score: each side in its colour, heavy numbers */
+/* one solid bar: the frame, fill and shadow sit on the row; the sides only glow in their colours from the edges */
+#top .row{border:1px solid #2b4a78;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(21,37,64,.96),rgba(9,17,32,.97));box-shadow:inset 0 1px 0 rgba(150,200,255,.14),0 10px 26px rgba(0,0,0,.4)}
+#top .side,#top .tug{border:0;border-radius:0;box-shadow:none;background:none}
+#top .side.a{background:linear-gradient(90deg,rgba(74,163,255,.45),rgba(74,163,255,.12) 70%,rgba(74,163,255,0))}
+#top .side.b{background:linear-gradient(270deg,rgba(255,173,51,.42),rgba(255,173,51,.1) 70%,rgba(255,173,51,0))}
+#top .tug{padding:0 10px}
+#top .tug .track{height:10px;border-radius:5px}
+#top .tug .mid{top:50%;bottom:auto;height:18px;transform:translateY(-50%);background:#e9eef5;opacity:.5;width:2px}
+.side .nm{font:800 12px/1 var(--disp);letter-spacing:.12em}
+.side .pts{font:900 25px/1 var(--disp)}
+.side.a .pts{color:#bfe0ff;text-shadow:0 0 18px rgba(74,163,255,.55)} .side.b .pts{color:#ffe2b3;text-shadow:0 0 18px rgba(255,173,51,.55)}
+.tug .track{background:#0a1426;border:1px solid #1d3354}
+/* buttons: blue game buttons, gold for the main action */
+.btn2{font:800 12.5px/1 var(--disp);letter-spacing:.06em;color:#eaf2ff;background:linear-gradient(180deg,#1d3354,#132440);border:1px solid #3d6aa8;border-radius:9px;box-shadow:0 3px 0 #0a1528;transition:transform .08s,box-shadow .08s}
+.btn2:hover{background:linear-gradient(180deg,#24406a,#172b4c);border-color:#6c9ad6}
+.btn2:active{transform:translateY(2px);box-shadow:0 1px 0 #0a1528}
+.play{font:900 17px/1 var(--disp);letter-spacing:.04em;color:#2a1600;background:linear-gradient(180deg,#ffe27a 0%,#ffc23d 45%,#f39b12 100%);border:2px solid #fff1b8;border-radius:12px;box-shadow:0 5px 0 #9a5800,0 10px 24px rgba(0,0,0,.4),0 0 40px rgba(255,194,61,.25);text-shadow:0 1px 0 rgba(255,255,255,.45)}
+.play:hover{filter:brightness(1.06)} .play:active{transform:translateY(3px);box-shadow:0 2px 0 #9a5800}
+.ic{border-radius:9px} .ic:hover{border-color:#6c9ad6}
+.ab:not(:disabled):hover{background:linear-gradient(180deg,rgba(36,64,106,.9),rgba(19,36,64,.9))}
+/* tutorial bubble: a gold-edged game card instead of a white note */
+#coach{background:linear-gradient(180deg,#16294a,#0b1528);color:#eaf2ff;border:2px solid #ffc23d;box-shadow:0 14px 40px rgba(0,0,0,.6),0 0 30px rgba(255,194,61,.2)}
+#coach b.t{color:#ffd76a;font-weight:900}
+#coach .row3{color:#9fb4d3}
+#coach button{background:linear-gradient(180deg,#ffe27a,#f5a524);color:#2a1600;font-weight:900}
+/* windows: a starry backdrop and Tektur titles */
+#manual,#realwar,#locker,#share,#archive,#end{background-color:rgba(5,10,20,.97);background-image:radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.4px),radial-gradient(rgba(140,190,255,.22) 1px,transparent 1.4px);background-size:140px 140px,90px 90px;background-position:0 0,45px 60px}
+.sheet h1{font-weight:900;letter-spacing:0;background:linear-gradient(180deg,#ffffff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #0b1a33)}
+.mtabs{border-bottom-color:#22385c}
+.mc{border-radius:10px} .mh b{font-family:var(--disp);font-weight:800;letter-spacing:.02em}
+/* the boot screen gets the emblem */
+#boot{background:radial-gradient(circle at 50% 45%,#0f1d33,#050a14 70%)}
+#boot .em{width:84px;height:84px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.6))}
+#boot .bt{font:900 clamp(30px,7vw,52px)/1 var(--disp);letter-spacing:.01em;background:linear-gradient(180deg,#ffffff 0%,#dfe9f7 48%,#93a9c6 52%,#e9f1ff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#boot .bar i{background:linear-gradient(90deg,#4aa3ff,#ffc23d)}
+#boot .bs{font-family:var(--disp);font-weight:700;letter-spacing:.16em}
 </style>
 </head>
 <body class="intro">
-<div id="boot"><div class="bt">SUPPLY LINES</div><div class="bar"><i></i></div><div class="bs" id="bootMsg">Loading the world…</div></div>
+<div id="boot"><svg class="em" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><div class="bt">SUPPLY LINES</div><div class="bar"><i></i></div><div class="bs" id="bootMsg">Loading the world…</div></div>
 <script>setTimeout(function(){var m=document.getElementById('bootMsg');if(m&&document.getElementById('boot'))m.textContent='Still loading… a slow connection can take a while';},15000);</script>
 <canvas id="c"></canvas>
 <div id="labels"></div>
@@ -755,7 +1024,7 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div class="modal hidden" id="manual"><div class="sheet manSheet">
   <div class="foot" style="margin-top:0;align-items:center"><h1 style="font-size:30px;margin:0">FIELD MANUAL</h1><button class="btn2" id="manClose">CLOSE</button></div>
   <div class="mtabs"><button class="mt on" data-tab="basics">Basics</button><button class="mt" data-tab="abilities">Abilities</button><button class="mt" data-tab="modern">Modern war</button><button class="mt" data-tab="intel">Intel & diplomacy</button><button class="mt" data-tab="world">World</button></div>
-  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C A</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. A transport plane flies the arc and parachutes open over the target. Enemy megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="modern"><div class="mc"><div class="mh"><kbd>Q</kbd><b>Drones</b><em>2 CP</em></div><p>A kill zone over your city or one bordering your network. Enemy convoys on its routes lose 20%, and you see the area. Three quadcopters circle over it. Half a day, up to 3 zones.</p></div><div class="mc"><div class="mh"><kbd>W</kbd><b>EW</b><em>3 CP</em></div><p>A translucent dome over your city. Enemy drones within 900 km stop working, and long-range strikes into it are jammed. One day.</p></div><div class="mc"><div class="mh"><kbd>Y</kbd><b>Drone strike</b><em>4 CP</em></div><p>Hit a large enemy city or megahub within 3,000 km of your cities. Air defence shoots down half; EW jams them all.</p></div><div class="mc"><div class="mh"><b>Blackout</b><em>half a day</em></div><p>A region hit by a strike goes dark: city lights go out, its glow on the map shrinks, and the enemy makes half the troops there. Sparking transformers mean the grid is still down. A new strike restarts the clock.</p></div><div class="mc"><div class="mh"><b>Air defence</b><em>1,500 km</em></div><p>Every megahub covers 1,500 km around it. It shoots down 40% of enemy airdrops (half as many at night) and half the drone strikes.</p></div><div class="mc"><div class="mh"><kbd>J</kbd><b>Deepfake</b><em>3 CP</em></div><p>A forged order from the enemy HQ: their bots storm one of your front cities. Pick your strongest. Half a day; an enemy spy in that city exposes it.</p></div><div class="mc"><div class="mh"><b>Drone fundraiser</b><em>15 CP</em></div><p>Anyone can chip in CP in the faction panel, and bots give a little too. When it fills, a swarm takes off over the three strongest enemy front cities and one long-range drone strikes a megahub.</p></div><div class="mc"><div class="mh"><b>Corruption</b><em>daily</em></div><p>When a faction leads by 25% or more, a scandal breaks out every day in one of its large cities: weapons are sold off (−25% troops) and production stops for half a day.</p></div><div class="mc"><div class="mh"><b>How to answer</b></div><p>Enemy drones on your front: raise an EW dome next to them. Strikes on your megahubs: cover them with EW. A dark region still holds: garrisons stay, only production drops.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about 17 hours. The satellite passes over the area and scans it with a beam. Up to 2 per faction at once.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>🗓 Eras</b><em>2 weeks</em></div><p>Every two real weeks the whole world enters a new era that bends a few rules and makes some world events likelier: Drone Age, Cold War, Age of Storms, Iron Road, Age of Alliances, Total Mobilisation. The current era is in the top bar: tap it for details.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Callsign</b><em>sign-in</em></div><p>Sign in with Google on the start screen or in the Locker and pick your own callsign instead of a random one. It can change once per season.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
+  <div class="mpanes"><div class="mp on" data-pane="basics"><div class="mc"><div class="mh"><b>Cities</b></div><p>Cities in your colour produce troops. Bigger cities produce more and hold more.</p></div><div class="mc"><div class="mh"><b>Supply</b></div><p>A city cut off from your capital and megahubs stops producing. Protect your lines.</p></div><div class="mc"><div class="mh"><b>Convoys</b><em>Z X C A</em></div><p><b>STD</b> normal · <b>FAST</b> ×1.7 speed, ×0.75 strength · <b>HVY</b> ×0.6 speed, ×1.35 strength · <b>FAKE</b> a decoy: no troops leave, the enemy sees a convoy coming (+1 CP).</p></div><div class="mc"><div class="mh"><b>Routes</b></div><p>Land is reliable. Sea makes long jumps between ports. Air links megahubs only: max 40 troops, 2 CP.</p></div><div class="mc"><div class="mh"><b>Command points</b><em>CP</em></div><p>Abilities cost CP, which refill over time. Regions and nation capitals raise your maximum.</p></div><div class="mc"><div class="mh"><b>Season</b><em>7 days</em></div><p>A season lasts 7 game days. The faction with more points wins, unless one side takes the enemy capital and holds it for 12 hours: that wins the war at once. Your rank and XP stay with you.</p></div><div class="mc"><div class="mh"><b>Modes</b><em>2 h · 15 min</em></div><p>Global war: one shared world with 2-hour seasons where ranks count. Blitz: a separate world with 15-minute seasons and its own ranks. With friends: your own world with the season length you pick, shared by an invite link. Pick one after PLAY on the start screen.</p></div><div class="mc"><div class="mh"><b>Operations</b><em>+5</em></div><p>HQ gives your faction a named operation: take 2 of 3 cities in one region before the deadline. Success pays points to the faction and XP to everyone who took part.</p></div><div class="mc"><div class="mh"><b>Governors</b></div><p>Hold a city you took yourself for a game day and you govern it: your name shows under it for every player, until someone takes it from you.</p></div><div class="mc"><div class="mh"><b>Doctrine</b><em>day 1</em></div><p>The general picks one for the season: Blitzkrieg, Sea power, Air power or Diplomacy. If nobody does, HQ picks at the end of day 1.</p></div><div class="mc"><div class="mh"><b>Capitals</b><em>12 h</em></div><p>Hold the enemy capital for 12 hours to win at once. Lost yours? Move the government (5 CP): the clock runs at half speed, production −15%.</p></div><div class="mc"><div class="mh"><b>Mobilisation</b></div><p>The faction that is behind gets up to +30% production, so no war is lost on day one.</p></div><div class="mc"><div class="mh"><b>Commanders ◆</b></div><p>Take a city yourself and it defends +15% while you are online.</p></div></div><div class="mp" data-pane="abilities"><div class="mc"><div class="mh"><kbd>F</kbd><b>Fortify</b><em>2 CP</em></div><p>Defence ×1.6 in your selected city for 14 hours.</p></div><div class="mc"><div class="mh"><kbd>S</kbd><b>Sabotage</b><em>3 CP</em></div><p>An enemy city next to your network stops producing and defends at ×0.7 for 12 hours. Railways into it are blown up.</p></div><div class="mc"><div class="mh"><kbd>D</kbd><b>Airdrop</b><em>3 CP</em></div><p>From your megahub to any city within 3,500 km, ignoring routes. Max 30 troops. A transport plane flies the arc and parachutes open over the target. Enemy megahubs shoot down 40% nearby.</p></div><div class="mc"><div class="mh"><kbd>B</kbd><b>Blockade</b><em>3 CP</em></div><p>An enemy port linked to you by sea loses its sea routes for 12 hours.</p></div><div class="mc"><div class="mh"><kbd>V</kbd><b>Fleet</b><em>4 CP</em></div><p>Build in a port. In your port it intercepts enemy convoys; in an enemy port it blockades and gives +25% to attacks.</p></div><div class="mc"><div class="mh"><kbd>L</kbd><b>Build</b><em>3–4 CP</em></div><p>With a city selected: click a neighbour of yours for a railway (convoys ×1.8), or the city itself for an airfield in a large city (airdrops start there).</p></div><div class="mc"><div class="mh"><kbd>R</kbd><b>Rally</b><em>free</em></div><p>Propose a shared target. Your faction pushes there and attacks nearby cost half.</p></div><div class="mc"><div class="mh"><b>Squads</b><em>up to 6</em></div><p>Create a squad and send the invite link: friends land on your side. Two squadmates hitting a city within 4 hours give the second hit +15%.</p></div><div class="mc"><div class="mh"><b>Volunteers</b><em>+30 XP</em></div><p>When your faction leads by 30% or more, you may switch to the losing side for the rest of the season. Your progress this season starts over. Squads switch together, between seasons.</p></div><div class="mc"><div class="mh"><kbd>M</kbd><b>General</b><em>elected</em></div><p>Online players vote for a general (most XP if nobody votes). The general places up to 3 marks a day: ⚔ attack (+15%, bots push there) and 🛡 hold (+20% defence).</p></div><div class="mc"><div class="mh"><kbd>G</kbd><b>Signals</b><em>free</em></div><p>Right-click a city to call your faction: attack, defend, need troops.</p></div><div class="mc"><div class="mh"><kbd>N</kbd><b>Nuke</b><em>faction</em></div><p>Hold 3 megahubs and a uranium mine, pour CP into a warhead. Launch needs two commanders. A second strike in a season is nuclear winter: everyone loses.</p></div></div><div class="mp" data-pane="modern"><div class="mc"><div class="mh"><kbd>Q</kbd><b>Drones</b><em>2 CP</em></div><p>A kill zone over your city or one bordering your network. Enemy convoys on its routes lose 20%, and you see the area. Three quadcopters circle over it. Half a day, up to 3 zones.</p></div><div class="mc"><div class="mh"><kbd>W</kbd><b>EW</b><em>3 CP</em></div><p>A translucent dome over your city. Enemy drones within 900 km stop working, and long-range strikes into it are jammed. One day.</p></div><div class="mc"><div class="mh"><kbd>Y</kbd><b>Drone strike</b><em>4 CP</em></div><p>Hit a large enemy city or megahub within 3,000 km of your cities. Air defence shoots down half; EW jams them all.</p></div><div class="mc"><div class="mh"><b>Blackout</b><em>half a day</em></div><p>A region hit by a strike goes dark: city lights go out, its glow on the map shrinks, and the enemy makes half the troops there. Sparking transformers mean the grid is still down. A new strike restarts the clock.</p></div><div class="mc"><div class="mh"><b>Air defence</b><em>1,500 km</em></div><p>Every megahub covers 1,500 km around it. It shoots down 40% of enemy airdrops (half as many at night) and half the drone strikes.</p></div><div class="mc"><div class="mh"><kbd>J</kbd><b>Deepfake</b><em>3 CP</em></div><p>A forged order from the enemy HQ: their bots storm one of your front cities. Pick your strongest. Half a day; an enemy spy in that city exposes it.</p></div><div class="mc"><div class="mh"><b>Drone fundraiser</b><em>15 CP</em></div><p>Anyone can chip in CP in the faction panel, and bots give a little too. When it fills, a swarm takes off over the three strongest enemy front cities and one long-range drone strikes a megahub.</p></div><div class="mc"><div class="mh"><b>Corruption</b><em>daily</em></div><p>When a faction leads by 25% or more, a scandal breaks out every day in one of its large cities: weapons are sold off (−25% troops) and production stops for half a day.</p></div><div class="mc"><div class="mh"><b>How to answer</b></div><p>Enemy drones on your front: raise an EW dome next to them. Strikes on your megahubs: cover them with EW. A dark region still holds: garrisons stay, only production drops.</p></div></div><div class="mp" data-pane="intel"><div class="mc"><div class="mh"><b>Fog of war</b></div><p>Enemy garrisons and convoys are visible only near your network.</p></div><div class="mc"><div class="mh"><kbd>T</kbd><b>Satellite</b><em>4 CP</em></div><p>Lifts the fog within 2,200 km for about 17 hours. The satellite passes over the area and scans it with a beam. Up to 2 per faction at once.</p></div><div class="mc"><div class="mh"><kbd>I</kbd><b>Spy</b><em>2 CP</em></div><p>Reveals an enemy city and its neighbours and reports the enemy army, rally point and nuclear program. 1 in 4 get caught.</p></div><div class="mc"><div class="mh"><kbd>E</kbd><b>Envoy</b><em>3 CP</em></div><p>Raises a free nation's favour. At 100 all its free cities join you with +20% garrisons.</p></div><div class="mc"><div class="mh"><b>Betrayal</b></div><p>Take a city of a nation that favours you by force and its favour drops to 0; the enemy gains +30.</p></div></div><div class="mp" data-pane="world"><div class="mc"><div class="mh"><b>☢ Uranium</b></div><p>Needed for the nuclear program; every mine speeds it up.</p></div><div class="mc"><div class="mh"><b>⛽ Oil</b></div><p>Each field speeds up your convoys. Without oil they are slower.</p></div><div class="mc"><div class="mh"><b>🌾 Grain</b></div><p>Each field boosts troop production. Only supplied sites count.</p></div><div class="mc"><div class="mh"><b>World events</b><em>daily</em></div><p>From day 2 a world event bends the rules until midnight: oil shock, solar storm, peace summit, hurricanes and more.</p></div><div class="mc"><div class="mh"><b>🏛 Wonders</b><em>+3 each</em></div><p>Space Center (Houston), Silicon Valley (San Francisco), Great Port (Amsterdam), League of Nations (Paris), Atomic Lab (Almaty), Stock Exchange (Tokyo): each gives its holder a perk.</p></div><div class="mc"><div class="mh"><b>Trade &amp; pirates</b></div><p>Trade ships pay whoever holds the port they reach; a fleet at either end plunders them. Pirate waters (Aden, Caribbean, Malacca) cost unescorted convoys 10%.</p></div><div class="mc"><div class="mh"><b>Scenarios &amp; campaigns</b></div><p>Seasons rotate: World War, Pacific War, Long Winter, Age of Sail. Seven seasons make a Great War; bombed cities stay fallout through the next season’s first day.</p></div><div class="mc"><div class="mh"><b>⚓ Canals &amp; straits</b><em>+2 each</em></div><p>Suez, Bab-el-Mandeb, Panama, Gibraltar, the Bosporus and Malacca. Hold the city that controls one and its sea lanes close to the enemy.</p></div><div class="mc"><div class="mh"><b>🗓 Eras</b><em>2 weeks</em></div><p>Every two real weeks the whole world enters a new era that bends a few rules and makes some world events likelier: Drone Age, Cold War, Age of Storms, Iron Road, Age of Alliances, Total Mobilisation. The current era is in the top bar: tap it for details.</p></div><div class="mc"><div class="mh"><b>❄ Weather</b><em>real calendar</em></div><p>Northern winter (Nov–Mar) snows in Volga–Ural, Siberia and the North; the summer monsoon (Jun–Sep) soaks South and Southeast Asia. Land convoys there slow down.</p></div><div class="mc"><div class="mh"><b>✊ Unrest</b></div><p>A free-nation city taken by force produces nothing for half a day (a whole day after a betrayal), and uprisings may thin its garrison or free it. Envoys avoid this.</p></div><div class="mc"><div class="mh"><b>🌙 Night</b></div><p>Cities at night are seen only up close. Air defence there is halved, spies are rarely caught and sabotage lasts longer.</p></div><div class="mc"><div class="mh"><b>Storms</b></div><p>Sea routes through a storm run at 40% speed.</p></div><div class="mc"><div class="mh"><b>Ranks &amp; Locker</b><em>8 ranks</em></div><p>Captures and missions earn XP; your rank stays across seasons and shows as insignia next to your name. Each rank unlocks a convoy trail in the <b>Locker</b> (next to your rank) that every player sees.</p></div><div class="mc"><div class="mh"><b>Callsign</b><em>sign-in</em></div><p>Sign in with Google on the start screen or in the Locker and pick your own callsign instead of a random one. It can change once per season.</p></div><div class="mc"><div class="mh"><b>Regions</b></div><p>Hold every city of a region: +30% production there, +8 points and +1 max CP.</p></div></div></div>
 </div></div>
 <div class="modal hidden" id="realwar"><div class="sheet rwSheet">
   <div class="rwKick">This is a game. In Ukraine it is not.</div>
@@ -785,21 +1054,95 @@ body.online #simCtl,body.online #speedBtn{display:none}
 <div id="tip"></div>
 
 <div class="modal" id="intro"><div class="sheet">
-  <h1>SUPPLY LINES</h1>
-  <div class="lead">A global war of logistics. Two factions, one planet, no sign-up: open the page and you are on the front line. Russia is gone, its nations are free, and where Muscovy was there is now a sea.</div>
-  <div class="steps">
-    <div class="step"><div class="no">01</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#2a3644" stroke-width="2"/><circle cx="40" cy="32" r="16" fill="none" stroke="#fff" stroke-width="2"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">48</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#2a3644"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
-      <b>Select your city</b><span>Cities in your colour produce troops over time.</span></div>
-    <div class="step"><div class="no">02</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="#fff" stroke-width="2"/><circle cx="100" cy="32" r="5" fill="var(--a)"/><circle cx="88" cy="32" r="3" fill="var(--a)" opacity=".6"/><circle cx="78" cy="32" r="2" fill="var(--a)" opacity=".3"/><rect x="26" y="23" width="28" height="18" rx="3" fill="#fff"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#000">24</text><rect x="146" y="23" width="28" height="18" rx="3" fill="#0d141c" stroke="#fff" stroke-width="2"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#93a3b6">26</text></svg>
-      <b>Click a glowing city</b><span>Green ring: you will take it. Drag from one of your cities to another to move troops.</span></div>
-    <div class="step"><div class="no">03</div>
-      <svg viewBox="0 0 200 64"><line x1="40" y1="32" x2="160" y2="32" stroke="var(--a)" stroke-width="2" opacity=".7"/><rect x="26" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="40" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">24</text><circle cx="160" cy="32" r="22" fill="none" stroke="var(--a)" stroke-width="2" opacity=".5"/><rect x="146" y="23" width="28" height="18" rx="3" fill="var(--a)"/><text x="160" y="36" text-anchor="middle" font-family="IBM Plex Sans Condensed" font-weight="700" font-size="10" fill="#06192e">22</text></svg>
-      <b>Outnumber the garrison</b><span>More troops than the defence takes the city. Cities cut off from your capital and megahubs stop producing.</span></div>
+<section class="lp gm" id="lp">
+  <header class="gmNav"><div class="gmIn">
+    <div class="gmBrand"><svg class="gmEmb" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><path d="M32 8 52 20v24L32 56 12 44V20z" fill="none" stroke="rgba(255,194,61,.35)" stroke-width="1"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40 Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40 Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><span>SUPPLY LINES</span></div>
+    <nav class="gmLinks"><a class="gmLink" href="#gmModes">MODES</a><a class="gmLink" href="#gmFeatures">WHAT AWAITS YOU</a><a class="gmLink" href="#gmRanks">RANKS</a><button class="gmLink" id="manualBtn" type="button">FIELD MANUAL</button><a class="gmLink" href="world" target="_blank" rel="noopener">WORLD REPORT ↗</a><button class="gmLink notr" id="langIntro" type="button"></button><span class="gmOnline" id="lpOnline" hidden><i></i><span></span></span><button class="gmCta sm" type="button" data-play>PLAY</button></nav>
+  </div></header>
+  <div class="gmHero">
+    <div class="gmGlow"></div><div class="gmOrbit"></div><div class="gmOrbit b"></div>
+    <div class="gmHeroIn">
+      <svg class="gmEmblem" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><path d="M32 8 52 20v24L32 56 12 44V20z" fill="none" stroke="rgba(255,194,61,.35)" stroke-width="1"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40 Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40 Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg>
+      <div class="gmWord">SUPPLY LINES</div>
+      <div class="gmRibbon">A GLOBAL WAR OF LOGISTICS</div>
+      <p class="gmLead">Two factions share one planet. Move convoys across a 3D globe, cut the enemy's supply lines and take the world city by city.</p>
+      <p class="gmLead2">Here Russia is gone: its nations are free, and where Muscovy was there is now a sea.</p>
+      <button class="gmCta big" id="playBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg><span>PLAY FOR FREE</span></button>
+      <div class="gmChips"><span>NO SIGN-UP</span><span>IN THE BROWSER</span><span>ON YOUR PHONE</span></div>
+    </div>
   </div>
-  <div class="foot"><div><div class="team" id="assign"></div><div class="team" id="netStatus" style="font-size:12px;margin-top:6px;color:var(--dim)"></div><div class="gAuth" id="gAuthIntro"></div></div><button class="play" id="go">PLAY</button></div>
-  <div class="introLinks"><button class="btn2" id="manualBtn" type="button">FIELD MANUAL</button><button class="btn2" id="tutAgain" type="button">REPLAY TUTORIAL</button><button class="btn2 notr" id="langIntro" type="button"></button><a class="btn2" href="world" target="_blank" rel="noopener" style="text-decoration:none">WORLD REPORT ↗</a><a class="btn2" id="roomLink" href="#" title="A separate world where a season lasts about half an hour. Handy for a quick test; it does not count for the main war." style="text-decoration:none;display:none">QUICK 30-MIN ROOM ↗</a></div>
+  <div class="gmSec gmVsSec"><div class="gmIn">
+    <div class="gmSeason" id="lpLive"></div>
+    <div class="gmVs">
+      <div class="gmSide a"><b class="fn"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#0b2244" stroke="#9fd0ff" stroke-width="2"/><path d="M24 9v30M15 18h18M14 30c2 5 6 8 10 8s8-3 10-8" fill="none" stroke="#9fd0ff" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="9" r="3" fill="#9fd0ff"/></svg><span id="vsNameA">Atlantica</span></b><div class="pts" id="vsPtsA">0</div><div class="meta"><span id="vsCapA"></span><span id="vsOnA"></span></div></div>
+      <div class="gmVsBadge">VS</div>
+      <div class="gmSide b"><b class="fn"><span id="vsNameB">Pacifica</span><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#3a2205" stroke="#ffd59a" stroke-width="2"/><circle cx="24" cy="26" r="7" fill="none" stroke="#ffd59a" stroke-width="2.4"/><path d="M24 11v5M12 26H9M39 26h-3M15 17l3 3M33 17l-3 3M11 35h26" stroke="#ffd59a" stroke-width="2.4" stroke-linecap="round"/></svg></b><div class="pts" id="vsPtsB">0</div><div class="meta"><span id="vsOnB"></span><span id="vsCapB"></span></div></div>
+    </div>
+    <div class="gmBar"><i id="vsBar"></i></div>
+    <p class="gmNote">Your side is chosen by HQ: newcomers join the side with fewer people online right now.</p>
+  </div></div>
+  <div class="gmSec" id="gmFeatures"><div class="gmIn">
+    <h2 class="gmH">What awaits you</h2>
+    <div class="gmCards">
+      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-convoys.webp" alt="Convoys crossing Europe; green rings mark cities one convoy can take" loading="lazy"><span class="gmBadge blue"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 17h13l4-4M3 12h9M3 7h6"/><circle cx="7" cy="19" r="1.6"/><circle cx="14" cy="19" r="1.6"/></svg></span></div><b>Convoys and supply</b><span>Move troops by land, sea and air. A city with no road to the capital stops producing.</span></div>
+      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-drones.webp" alt="Drones over Riyadh and a blackout across the region" loading="lazy"><span class="gmBadge orange"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/><rect x="10" y="10" width="4" height="4" rx="1"/></svg></span></div><b>Drones, EW, blackouts</b><span>Lay kill zones over the front, hide cities under an EW dome and switch off the enemy's lights across whole regions.</span></div>
+      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-front.webp" alt="The front line between Atlantica and Pacifica" loading="lazy"><span class="gmBadge red"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 10V4a8 8 0 0 1 6.9 4M13.7 13l5.2 3a8 8 0 0 1-6.9 4M10.3 13l-5.2 3A8 8 0 0 1 5.1 8"/></svg></span></div><b>The nuclear button</b><span>Build a warhead together with your faction. A launch needs two commanders, and a second blast in a season means nuclear winter.</span></div>
+      <div class="gmCard"><div class="gmCardImg"><img src="img/lp-world.webp" alt="The whole globe with both factions" loading="lazy"><span class="gmBadge green"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span></div><b>A world that changes</b><span>A new era with its own rules every two weeks, world events every day, real winter and night on the globe.</span></div>
+    </div>
+  </div></div>
+  <div class="gmSec gmPhones"><div class="gmIn">
+    <div class="gmPhTxt"><h2 class="gmH">The same world on your phone</h2><p>Open globalwar.xyz on your phone and fight in the same world as on your computer. There is nothing to install, and when your city is attacked the game can send you a notification.</p><span class="gmUrl notr">globalwar.xyz</span></div>
+    <div class="gmPhPics"><img class="l" src="img/lp-phone1.webp" alt="The game on a phone: the globe and the order panel" loading="lazy"><img class="r" src="img/lp-phone3.webp" alt="The game on a phone: another moment of the battle" loading="lazy"><img class="c" src="img/lp-phone2.webp" alt="The game on a phone: troops moving on Baghdad" loading="lazy"></div>
+  </div></div>
+  <div class="gmSec" id="gmModes"><div class="gmIn">
+    <h2 class="gmH">Choose a mode</h2>
+    <div class="gmTiles">
+      <div class="gmTile main" data-room="main"><img src="img/lp-world.webp" alt="" loading="lazy"><div class="gmTileIn"><span class="gmTag gold">Main world</span><b>GLOBAL WAR</b><span class="d">Everyone on one map. A season of about two hours, and your rank stays with you.</span><em><span class="ml"></span><span class="mo"></span></em><button class="gmCta" type="button" data-start="main">PLAY</button></div></div>
+      <div class="gmTile" data-room="fast" hidden><img src="img/lp-drones.webp" alt="" loading="lazy"><div class="gmTileIn"><span class="gmTag orange">15 minutes</span><b>BLITZ</b><span class="d">One quick match from start to finish, with ranks of its own.</span><em><span class="ml"></span><span class="mo"></span></em><button class="gmBtn2" type="button" data-start="fast">PLAY</button></div></div>
+      <div class="gmTile" data-room="private" hidden><img src="img/lp-convoys.webp" alt="" loading="lazy"><div class="gmTileIn"><span class="gmTag green">By invite link</span><b>WITH FRIENDS</b><span class="d">A world of your own for your crowd. Pick the season length and send friends the link.</span><em><span class="ml"></span><span class="mo"></span></em><button class="gmBtn2" type="button" data-start="private">CREATE GAME</button></div></div>
+    </div>
+  </div></div>
+  <div class="gmSec" id="gmRanks"><div class="gmIn">
+    <div class="gmRanksHead"><h2 class="gmH">From private to general</h2><p>Your rank stays with you between seasons, and each new one unlocks a trail for your convoys.</p></div>
+    <div class="gmRanks">
+      <div class="gmRank t1"><i><svg viewBox="0 0 40 40" fill="none" stroke="#c9d8ee" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M8 22l12-8 12 8"/></svg></i><b>Private</b><span>0 XP</span></div>
+      <div class="gmRank t1"><i><svg viewBox="0 0 40 40" fill="none" stroke="#c9d8ee" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M8 18l12-8 12 8M8 27l12-8 12 8"/></svg></i><b>Corporal</b><span>50 XP</span></div>
+      <div class="gmRank t1"><i><svg viewBox="0 0 40 40" fill="none" stroke="#c9d8ee" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><path d="M8 14l12-8 12 8M8 22l12-8 12 8M8 30l12-8 12 8"/></svg></i><b>Sergeant</b><span>150 XP</span></div>
+      <div class="gmRank t2"><i><svg viewBox="0 0 40 40" fill="#cfe6ff" aria-hidden="true"><path d="M20 9l3.2 6.6 7.3 1-5.3 5.1 1.3 7.2L20 25.5l-6.5 3.4 1.3-7.2-5.3-5.1 7.3-1z"/></svg></i><b>Lieutenant</b><span>300 XP</span></div>
+      <div class="gmRank t2"><i><svg viewBox="0 0 48 40" fill="#cfe6ff" aria-hidden="true"><path d="M14 11l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.6-5 2.6.9-5.6-4-4 5.6-.8zM34 11l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.6-5 2.6.9-5.6-4-4 5.6-.8z"/></svg></i><b>Captain</b><span>500 XP</span></div>
+      <div class="gmRank t3"><i><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6l4 8.2 9 1.3-6.5 6.4 1.5 9L20 26.6 12 31l1.5-9L7 15.5l9-1.3z" fill="#ffd76a"/></svg></i><b>Major</b><span>800 XP</span></div>
+      <div class="gmRank t3"><i><svg viewBox="0 0 52 40" fill="#ffd76a" aria-hidden="true"><path d="M10 12l2 4.2 4.6.6-3.3 3.3.8 4.6L10 22.5l-4.1 2.2.8-4.6-3.3-3.3 4.6-.6zM26 8l2 4.2 4.6.6-3.3 3.3.8 4.6L26 18.5l-4.1 2.2.8-4.6-3.3-3.3 4.6-.6zM42 12l2 4.2 4.6.6-3.3 3.3.8 4.6L42 22.5l-4.1 2.2.8-4.6-3.3-3.3 4.6-.6z"/></svg></i><b>Colonel</b><span>1200 XP</span></div>
+      <div class="gmRank t4"><i><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="none" stroke="#ffe27a" stroke-width="2" stroke-dasharray="3 3"/><path d="M20 9l3.2 6.6 7.3 1-5.3 5.1 1.3 7.2L20 25.5l-6.5 3.4 1.3-7.2-5.3-5.1 7.3-1z" fill="#ffe27a"/></svg></i><b>General</b><span>1800 XP</span></div>
+    </div>
+  </div></div>
+  <div class="gmFinal">
+    <div class="gmFinalScore" id="lpFinalScore"></div>
+    <h2 class="gmH" id="lpFinalH">The war is on</h2>
+    <p>Your first game starts with a short tutorial, and the rest you will pick up as you play.</p>
+    <button class="gmCta big" id="playBtn2" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg><span>PLAY FOR FREE</span></button>
+  </div>
+  <footer class="gmFoot"><div class="gmIn"><span>Supply Lines · free, and its code is open</span><button class="gmLink" id="tutAgain" type="button">REPLAY TUTORIAL</button></div></footer>
+</section>
+<section class="pick" id="pick" hidden>
+  <div class="pickTop"><button class="gmLink" id="pickBack" type="button">← BACK</button><div class="gmBrand"><svg class="gmEmb" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 3 56 17v30L32 61 8 47V17z" fill="#0d1a30" stroke="#ffc23d" stroke-width="2.5"/><path d="M32 8 52 20v24L32 56 12 44V20z" fill="none" stroke="rgba(255,194,61,.35)" stroke-width="1"/><circle cx="32" cy="32" r="15" fill="#0a1730" stroke="#9fc3ef" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="7" ry="15" fill="none" stroke="#9fc3ef" stroke-width="1.2"/><path d="M17 32h30" stroke="#9fc3ef" stroke-width="1.2"/><path d="M14 40 Q26 22 44 20" fill="none" stroke="#4aa3ff" stroke-width="2.6" stroke-linecap="round"/><path d="M50 40 Q38 26 22 22" fill="none" stroke="#ffad33" stroke-width="2.6" stroke-linecap="round"/><path d="M32 2l2 4h4l-3 3 1 4-4-2-4 2 1-4-3-3h4z" fill="#ffc23d"/></svg><span>SUPPLY LINES</span></div></div>
+  <h2 class="pickH">Choose a mode</h2>
+  <div class="modes" id="modes">
+    <div class="mode" id="modeMain" data-room="main" tabindex="0"><img class="mBg" src="img/lp-world.webp" alt="" loading="lazy"><span class="lpIc" data-ic="flag"></span><b>GLOBAL WAR</b><span class="md">The main world where everyone fights. A season lasts about two hours of real time, and your rank and experience carry over from one season to the next.</span><em><span class="ml"></span><span class="mo"></span></em><div class="mAct"><button type="button" class="btn2 mGo">START</button></div></div>
+    <div class="mode" id="modeFast" data-room="fast" tabindex="0" hidden><img class="mBg" src="img/lp-drones.webp" alt="" loading="lazy"><span class="lpIc" data-ic="bolt"></span><b>BLITZ</b><span class="md">The same war squeezed into fifteen minutes, for when you want to play one match from start to finish. Ranks here are kept apart from the global war.</span><em><span class="ml"></span><span class="mo"></span></em><div class="mAct"><button type="button" class="btn2 mGo">START</button></div></div>
+    <div class="mode" id="modePriv" data-room="private" tabindex="0" hidden><img class="mBg" src="img/lp-convoys.webp" alt="" loading="lazy"><span class="lpIc" data-ic="users"></span><b>WITH FRIENDS</b>
+      <span class="md pvNew">A separate world for you and your friends. Choose how long a season lasts, create the game and send the link to the people you want to play with.</span>
+      <span class="md pvHere">This is a private game. Anyone who opens the link ends up right here.</span>
+      <em><span class="ml"></span><span class="mo"></span></em>
+      <div class="pvForm">
+        <div class="pvRow"><label>Season</label><div class="seg" data-k="minutes"><button type="button" data-v="15">15 min</button><button type="button" data-v="30" class="on">30 min</button><button type="button" data-v="60">1 h</button><button type="button" data-v="120">2 h</button></div></div>
+        <div class="pvRow"><label>Bots</label><div class="seg" data-k="bots"><button type="button" data-v="few" class="on">Few</button><button type="button" data-v="many">Many</button></div></div>
+        <div class="mAct"><button type="button" class="btn2 pvGo">CREATE GAME</button></div>
+      </div>
+      <div class="pvShare"><code class="notr pvCode"></code><button type="button" class="btn2 pvCopy">COPY INVITE LINK</button><button type="button" class="btn2 mGo pvStart">START</button></div>
+    </div>
+  </div>
+  <div class="foot"><div class="pkInfo"><div class="pkCard pickNote" id="pickNote"><span class="pkK">Your side</span><span class="pkT">You get your side and capital when the game starts.</span></div><div class="pkAssign" id="assign"></div><div class="pkCard me"><span class="pkK">Your callsign</span><div class="pkV" id="netStatus"></div><div class="gAuth" id="gAuthIntro"></div></div></div><button class="play" id="go" type="button">START</button></div>
+</section>
 </div></div>
 <div class="modal hidden" id="end"><div class="sheet" id="endC"></div></div>
 
@@ -1303,7 +1646,7 @@ function onGameEvent(ev) {
     case 'squad': { const sq = myStats().squad; if (sq && sq.code === ev.code && ev.who !== myId) event(`👥 ${ev.name} joined your squad`, me); break; }
     case 'combo': { const sq = myStats().squad; if (sq && sq.code === ev.code) { event(`⚡ Squad combo at ${cname(ev.city)}: +15% to the second hit`, me, ev.city); if (ev.who === myId || ev.mate === myId) toast('⚡ SQUAD COMBO +15%', 'good', ev.city); } break; }
     case 'volunteer': event(`🎖 ${ev.name} volunteered for ${FN[ev.f]}`, ev.f); break;
-    case 'chief': if (ev.f === me) event(`★ ${ev.who === myId ? 'You are' : ev.name + ' is'} now the general of ${FN[me]}${ev.votes ? ` (${ev.votes} ${ev.votes === 1 ? 'vote' : 'votes'})` : ''}`, me); if (ev.f === me && ev.who === myId) toast('You are the general: place strategic marks', 'good'); break;
+    case 'chief': if (ev.f === me) event(`★ ${ev.who === myId ? 'You are' : ev.name + ' is'} now the general of ${FN[me]}${ev.votes ? ` (${ev.votes} ${ev.votes === 1 ? 'vote' : 'votes'})` : ''}`, me); if (ev.f === me && ev.who === myId && !document.body.classList.contains('intro')) toast('You are the general: place strategic marks', 'good'); break;
     case 'mark': if (ev.f === me && ev.by === 'HQ') { event(`★ HQ order: ${ev.kind === 'attack' ? '⚔ ATTACK' : '🛡 HOLD'} ${cname(ev.city)}`, me, ev.city); } else if (ev.f === me) { event(`★ General ${ev.by}: ${ev.kind === 'attack' ? '⚔ ATTACK' : '🛡 HOLD'} ${cname(ev.city)}`, me, ev.city); } break;
     case 'unmark': break;
     case 'drones': refreshVis(); if (ev.who === myId) sfx('drone'); if (ev.f === me && ev.who === myId) event(`🛸 Drones over ${cname(ev.city)}${ev.jammed ? ': <b>jammed by enemy EW</b> for now' : ': enemy convoys on its routes lose 20%'}`, me, ev.city); break;
@@ -1402,46 +1745,203 @@ function onGameEvent(ev) {
 }
 E.onEvent(ev => { if (!online) onGameEvent(ev); });
 
+// ================= modes: global war, blitz, a game with friends =================
+// Each mode is its own server: blitz usually under /fast/, a private game under /r/CODE/ (the main server starts it
+// and passes it through). The start screen shows the modes with the season length and how many people play right
+// now, read from each server's room.json.
+let modesTimer = 0, privateGame = false;
+const curLang = () => (window.slLang ? slLang.get() : document.documentElement.lang) || '';
+const withLang = url => { const l = curLang(); return l ? url + (url.includes('?') ? '&' : '?') + 'lang=' + l : url; };
+// Each mode is its own world on its own server, all on this one site: the global war at /, blitz at /fast/ (nginx in
+// production, the global server itself in `npm run dev`), a private game at /r/CODE/ (started and passed through by
+// the global server). The page keeps one socket to one of them. Picking a block on the mode screen only selects it;
+// START moves the socket to that world (and the address bar to its path) without reloading the page, and the game
+// begins as soon as that world's first state arrives.
+const roomBases = {};                 // room -> its path on this site, as the servers tell us
+let curRoom = null, selRoom = null, gamesOn = false, wantStart = false, switching = false, justCreated = false;
+const modeCard = r => $({ main: 'modeMain', fast: 'modeFast', private: 'modePriv' }[r]);
+function showPick(on = true) {
+  $('lp').hidden = on; $('pick').hidden = !on; $('intro').scrollTop = 0;
+  document.body.classList.toggle('picking', on);
+}
+function playClicked() {
+  if (online) return showPick(true);
+  if (offlineReady) return $('go').click();
+  // still connecting: wait a moment for the server, then decide
+  const t0 = performance.now(), wait = () => online ? showPick(true) : offlineReady || performance.now() - t0 > 3500 ? $('go').click() : setTimeout(wait, 150);
+  wait();
+}
+$('playBtn').onclick = playClicked; $('playBtn2').onclick = playClicked; $('pickBack').onclick = () => showPick(false);
+document.querySelectorAll('#lp [data-play]').forEach(b => { b.onclick = playClicked; });
+// the mode tiles on the landing start that mode straight away; "with friends" opens its card to set the game up
+document.querySelectorAll('#lp [data-start]').forEach(b => { b.onclick = () => {
+  const r = b.dataset.start;
+  if (!online) return playClicked();
+  if (r === 'private' && curRoom !== 'private') { showPick(true); selectMode('private'); return; }
+  startMode(r);
+}; });
+// the landing's live numbers: score, sides, capitals and who is online come from the world this page is connected to
+const setHtml = (id, h) => { const el = $(id); if (el && el._h !== h) { el._h = h; el.innerHTML = h; } };
+setInterval(() => {
+  if ($('intro').classList.contains('hidden') || $('lp').hidden) return;
+  const pts = E.scores().pts, tot = pts[0] + pts[1];
+  for (const f of [0, 1]) {
+    const k = f ? 'B' : 'A';
+    setHtml('vsName' + k, FN[f]); setHtml('vsPts' + k, String(pts[f]));
+    setHtml('vsCap' + k, CAPS[f] >= 0 && cities[CAPS[f]] ? `Capital: ${cities[CAPS[f]].name}` : '');
+    setHtml('vsOn' + k, online ? `Online: ${netOnline[f] || 0}` : '');
+  }
+  $('vsBar').style.width = (tot ? pts[0] / tot * 100 : 50).toFixed(1) + '%';
+  setHtml('lpFinalScore', `<span>${FN[0]}</span><span>${pts[0]}</span><span>·</span><span>${FN[1]}</span><span>${pts[1]}</span>`);
+  setHtml('lpFinalH', online ? `Season ${seasonNo} is already on` : 'The war is on');
+}, 1000);
+document.querySelectorAll('#intro .lpIc').forEach(e => { if (window.slIcons) e.innerHTML = slIcons.svg(e.dataset.ic); });
+function selectMode(r) {
+  selRoom = r;
+  for (const x of ['main', 'fast', 'private']) modeCard(x).classList.toggle('on', x === r);
+  // your side and capital belong to the world you are connected to: elsewhere they are decided when you start
+  $('pick').classList.toggle('elsewhere', r !== curRoom);
+}
+function startMode(r) {
+  if (switching) return;
+  selectMode(r);
+  if (r === curRoom) return $('go').click();
+  if (roomBases[r]) switchRoom(roomBases[r], true);
+}
+function setBusy(on) { $('pick').classList.toggle('busy', on); }
+// move the socket to another world; `start` enters the game once its first state is here
+function switchRoom(base, start) {
+  if (switching || base === ROOM_BASE) { if (start && base === ROOM_BASE) $('go').click(); return; }
+  switching = true; wantStart = !!start; setBusy(true);
+  const prev = ROOM_BASE, setPath = b => { try { const u = new URL(location.href); u.pathname = b; ['play', 'game', 'squad'].forEach(k => u.searchParams.delete(k)); history.replaceState(null, '', u); } catch (e) {} };
+  // forget the world we leave: the first state of the next one replaces everything else
+  document.body.classList.remove('fastroom', 'privroom'); privateGame = false; nickCarried = false; youInfo = null; S.season = -1;
+  ROOM_BASE = base; setPath(base);
+  const old = ws; ws = null; try { if (old) old.close(); } catch (e) {}
+  connect({ onFail: () => {
+    switching = false; wantStart = false; setBusy(false); toast('✕ Could not reach that game. Try again', 'bad');
+    ROOM_BASE = prev; setPath(prev); connect();
+  } });
+}
+function setupModes(msg) {
+  const here = msg.room === 'fast' || msg.room === 'private' ? msg.room : 'main';
+  curRoom = here; roomBases[here] = ROOM_BASE;
+  const path = u => new URL(u, location.href).pathname;
+  if (here === 'main') gamesOn = !!msg.games;
+  if (msg.fastUrl && here !== 'fast') roomBases.fast = path(msg.fastUrl);
+  if (msg.mainUrl && here !== 'main') roomBases.main = path(msg.mainUrl);
+  if (here !== 'private') delete roomBases.private;
+  // private games are started by the global server; from blitz the card asks it over there
+  const showPriv = here === 'private' || gamesOn || (here === 'fast' && !!roomBases.main);
+  for (const r of ['main', 'fast', 'private']) modeCard(r).hidden = !(roomBases[r] || (r === 'private' && showPriv));
+  document.querySelectorAll('#lp .gmTile').forEach(t => { t.hidden = modeCard(t.dataset.room).hidden; });
+  for (const r of ['main', 'fast']) {
+    const c = modeCard(r); if (c.hidden) continue;
+    c.onclick = e => { if (!e.target.closest('button')) selectMode(r); };
+    c.onkeydown = e => { if (e.key === 'Enter' && e.target === c) startMode(r); };
+    c.querySelector('.mGo').onclick = e => { e.stopPropagation(); startMode(r); };
+  }
+  if (showPriv) setupPrivate(here === 'private', msg);
+  selectMode(here);
+  if (here === 'private' || qp.get('play')) { showPick(true); if (qp.get('play')) { try { const u = new URL(location.href); u.searchParams.delete('play'); history.replaceState(null, '', u); } catch (e) {} } }
+  const fill = (r, j) => {
+    const ml = j.minutes >= 90 ? `Season: ${Math.round(j.minutes / 60)} h` : `Season: ${j.minutes} min`, mo = j.online > 0 ? `${j.online} playing now` : '';
+    for (const c of [modeCard(r), ...document.querySelectorAll(`#lp .gmTile[data-room="${r}"]`)]) { c.querySelector('.ml').textContent = ml; c.querySelector('.mo').textContent = mo; }
+    if (r === curRoom && j.season) liveLine(j);
+  };
+  fill(here, { minutes: Math.round(K.SEASON / msg.speed / 60), online: 0 });
+  const poll = () => { if ($('intro').classList.contains('hidden')) return; for (const [r, b] of Object.entries(roomBases)) fetch(b + 'room.json', { cache: 'no-store' }).then(x => x.json()).then(j => fill(r, j)).catch(() => {}); };
+  $('modes').hidden = false; poll(); clearInterval(modesTimer); modesTimer = setInterval(poll, 30000);
+}
+// the live line under PLAY on the landing page
+function liveLine(j) {
+  const el = $('lpLive'); if (!el) return;
+  el.innerHTML = `<span>Season ${j.season}</span>` + (j.day ? `<span>Day ${j.day} of 7</span>` : '') + '<span class="live">Live</span>';
+  const on = $('lpOnline'); if (on) { on.hidden = !(j.online > 0); on.querySelector('span').textContent = `${j.online} online`; }
+}
+// the "with friends" card: elsewhere it creates a game; inside one it hands out the invite link and starts it
+function setupPrivate(inside, msg) {
+  const c = $('modePriv'); c.hidden = false; c.classList.toggle('inside', inside);
+  c.onclick = e => { if (!e.target.closest('button')) selectMode('private'); };
+  if (inside) {
+    c.querySelector('.pvCode').textContent = msg.code || '';
+    c.querySelector('.pvStart').onclick = e => { e.stopPropagation(); startMode('private'); };
+    c.querySelector('.pvCopy').onclick = async e => {
+      const tr = s => window.slLang ? slLang.tr(s) : s;
+      e.stopPropagation(); const url = withLang(location.origin + ROOM_BASE), text = tr('Join my game in Supply Lines: a free browser war of logistics, no sign-up.');
+      if (navigator.share && matchMedia('(pointer:coarse)').matches) { try { await navigator.share({ title: 'Supply Lines', text, url }); return; } catch (err) {} }
+      try { await navigator.clipboard.writeText(url); toast('✓ Invite link copied: send it to your friends', 'good'); } catch (err) { prompt(tr('Copy the invite link'), url); }
+    };
+    if (justCreated || qp.get('new')) { justCreated = false; try { const u = new URL(location.href); u.searchParams.delete('new'); history.replaceState(null, '', u); } catch (e) {} setTimeout(() => toast('✓ Your game is ready: copy the invite link and send it to your friends', 'good'), 600); }
+    return;
+  }
+  if (!c._wired) {
+    c._wired = true; c._pick = { minutes: '30', bots: 'few' };
+    c.querySelectorAll('.seg').forEach(seg => seg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; e.stopPropagation(); selectMode('private'); seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); c._pick[seg.dataset.k] = b.dataset.v; }));
+  }
+  const go = c.querySelector('.pvGo');
+  go.onclick = async e => {
+    e.stopPropagation(); if (go.disabled || switching) return; go.disabled = true; selectMode('private');
+    try {
+      // the global server starts private games, whichever world this page is connected to now
+      const r = await fetch((roomBases.main || '/') + 'api/games', { method: 'POST', headers: { 'content-type': 'text/plain' }, body: JSON.stringify({ minutes: +c._pick.minutes, bots: c._pick.bots }) });
+      const j = await r.json(); go.disabled = false;
+      if (!j.ok) return toast('✕ ' + (j.msg || 'Could not start the game. Try again'), 'bad');
+      justCreated = true; switchRoom(`${roomBases.main || '/'}r/${j.code}/`, false);
+    } catch (err) { go.disabled = false; toast('✕ Could not start the game. Try again', 'bad'); }
+  };
+}
+if (qp.get('game') === 'gone') { setTimeout(() => toast('This private game has ended: nobody was in it for a while', 'bad'), 1200); try { const u = new URL(location.href); u.searchParams.delete('game'); history.replaceState(null, '', u); } catch (e) {} }
 // ================= networking =================
-// the game can be served from a sub-path (the fast room lives at /fast/): sockets and the saved identity follow it
-const BASE = location.pathname.replace(/[^/]*$/, ''), PID_KEY = BASE === '/' ? 'sl-pid' : 'sl-pid:' + BASE;
-function connect() {
-  let pid = null; try { pid = localStorage.getItem(PID_KEY); } catch (e) {}
-  let opened = false;
-  try { ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + BASE + 'ws'); } catch (e) { return offlineFallback(); }
-  const timer = setTimeout(() => { if (!opened) { try { ws.close(); } catch (e) {} offlineFallback(); } }, 2500);
-  ws.onopen = () => { opened = true; clearTimeout(timer); ws.send(JSON.stringify({ type: 'hello', pid, squad: (qp.get('squad') || '').toUpperCase() || undefined })); };
-  ws.onmessage = m => {
+// the page may be opened on any world's path (/, /fast/, /r/CODE/); the socket and the saved identity follow the
+// world the page is connected to, and switchRoom() moves them without a reload
+let ROOM_BASE = location.pathname.replace(/[^/]*$/, '');
+const pidKey = () => ROOM_BASE === '/' ? 'sl-pid' : 'sl-pid:' + ROOM_BASE;
+function connect(opts = {}) {
+  let pid = null; try { pid = localStorage.getItem(pidKey()); } catch (e) {}
+  let opened = false, sock = null, firstSnap = true;
+  const fail = () => { if (sock === ws) ws = null; if (opts.onFail) opts.onFail(); else offlineFallback(); };
+  try { sock = ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + ROOM_BASE + 'ws'); } catch (e) { return fail(); }
+  const timer = setTimeout(() => { if (!opened && sock === ws) { try { sock.close(); } catch (e) {} fail(); } }, 2500);
+  sock.onopen = () => { opened = true; clearTimeout(timer); sock.send(JSON.stringify({ type: 'hello', pid, squad: (qp.get('squad') || '').toUpperCase() || undefined })); };
+  sock.onmessage = m => {
+    if (sock !== ws) return;   // a socket we already left
     const msg = JSON.parse(m.data);
     if (msg.type === 'welcome') {
       online = true; myId = msg.pub; me = msg.f; serverSpeed = msg.speed; if (msg.cpRegen) K.CP_REGEN = msg.cpRegen;
-      try { localStorage.setItem(PID_KEY, msg.pid); } catch (e) {}
+      try { localStorage.setItem(pidKey(), msg.pid); } catch (e) {}
       document.body.classList.add('online'); facUI();
-      $('netStatus').innerHTML = msg.room === 'fast' ? `Fast room: you are <b>${msg.name}</b>. A season here lasts ${Math.round(K.SEASON / msg.speed / 60)} minutes and does not count for the main war` : `Online: you are <b>${msg.name}</b> in a shared world`;
-      if (msg.room === 'fast') { document.body.classList.add('fastroom'); if (msg.mainUrl) { $('roomLink').href = msg.mainUrl; $('roomLink').textContent = 'MAIN WAR ↗'; $('roomLink').style.display = ''; } }
-      else if (msg.fastUrl) { $('roomLink').href = msg.fastUrl; $('roomLink').style.display = ''; }
+      $('netStatus').innerHTML = `<b class="notr">${msg.name}</b>`;
+      if (msg.room === 'fast') document.body.classList.add('fastroom');
+      if (msg.room === 'private') { privateGame = true; document.body.classList.add('privroom'); document.body.style.setProperty('--code', JSON.stringify(msg.code || '')); }
+      setupModes(msg);
       if (qp.get('squad')) { try { const u = new URL(location.href); u.searchParams.delete('squad'); history.replaceState(null, '', u); } catch (e) {} }
       googleId = msg.google || null; renderAuth();
       if (msg.squadMsg) { $('netStatus').innerHTML += ` · <b style="color:var(--cp)">${msg.squadMsg}</b>`; setTimeout(() => toast(msg.squadMsg, 'good'), 1500); }
       $('conn').style.display = 'none';
-    } else if (msg.type === 'snap') applySnap(msg);
+    } else if (msg.type === 'snap') {
+      applySnap(msg);
+      if (firstSnap) { firstSnap = false; if (switching) { switching = false; setBusy(false); if (wantStart) { wantStart = false; $('go').click(); } } }
+    }
     else if (msg.type === 'res') onResult(msg);
     else if (msg.type === 'google_res') {
       if (!msg.ok) toast('✕ ' + msg.msg, 'bad');
-      else if (msg.signedOut) { try { localStorage.removeItem(PID_KEY); } catch (e) {} location.reload(); }
-      else if (msg.pid) { try { localStorage.setItem(PID_KEY, msg.pid); localStorage.setItem('sl-auth-msg', msg.msg); } catch (e) {} location.reload(); }
+      else if (msg.signedOut) { try { localStorage.removeItem(pidKey()); } catch (e) {} location.reload(); }
+      else if (msg.pid) { try { localStorage.setItem(pidKey(), msg.pid); localStorage.setItem('sl-auth-msg', msg.msg); } catch (e) {} location.reload(); }
       else { toast('✓ ' + msg.msg, 'good'); if (youInfo) youInfo.linked = true; renderAuth(); }
     }
     else if (msg.type === 'nick_res') {
-      if (!msg.ok) toast('✕ ' + msg.msg, 'bad');
-      else { toast('✓ Callsign saved', 'good'); if (youInfo) youInfo.name = msg.name; const b = $('netStatus').querySelector('b'); if (b) b.textContent = msg.name; renderAuth(); }
+      if (!msg.ok) { if (!msg.quiet) toast('✕ ' + msg.msg, 'bad'); }
+      else { if (!msg.quiet) toast('✓ Callsign saved', 'good'); if (youInfo) youInfo.name = msg.name; carryNick(); const b = $('netStatus').querySelector('b'); if (b) b.textContent = msg.name; renderAuth(); }
     }
     else if (msg.type === 'squad_res') { if (!msg.ok) toast('✕ ' + msg.msg, 'bad'); else if (msg.act === 'create') { toast('✓ Squad created: copy the invite link', 'good'); setTimeout(squadHud, 400); } else toast('You left the squad', 'good'); }
     else if (msg.type === 'push_ok') { toast('✓ Alerts on: we will tell you when your cities are attacked', 'good'); updateBell(); }
   };
-  ws.onclose = () => {
+  sock.onclose = () => {
     clearTimeout(timer);
-    if (online) { $('conn').style.display = 'block'; setTimeout(connect, 3000); }
+    if (sock !== ws) return;                 // we left it on purpose
+    if (!opened) return fail();
+    if (online) { $('conn').style.display = 'block'; setTimeout(() => { if (!ws || ws === sock) connect(); }, 3000); }
     else offlineFallback();
   };
 }
@@ -1453,7 +1953,7 @@ let offlineReady = false;
 function applySnap(m) {
   const seasonChanged = m.season !== S.season;
   E.applySnapshot(m); E.markStormEdges(); sync();
-  { const ak = y => y ? `${!!y.linked}|${y.name}|${!!y.nickFree}` : '', was = ak(youInfo); youInfo = m.you; if (googleId && was !== ak(youInfo)) renderAuth(); } if (m.seasonNo) seasonNo = m.seasonNo; netOnline = m.online || netOnline; board = m.board || board; restartIn = m.restartIn || 0; lastSnapAt = performance.now();
+  { const ak = y => y ? `${!!y.linked}|${y.name}|${!!y.nickFree}` : '', was = ak(youInfo); youInfo = m.you; if ((googleId || privateGame) && was !== ak(youInfo)) renderAuth(); if (!was) carryNick(); } if (m.seasonNo) seasonNo = m.seasonNo; netOnline = m.online || netOnline; board = m.board || board; restartIn = m.restartIn || 0; lastSnapAt = performance.now();
   if (m.bots) E.bots = m.bots;
   if (m.history) S.history = m.history;
   if (m.frames) S.frames = m.frames;
@@ -2200,7 +2700,10 @@ $('musicBtn').onclick = () => { musicOn = !musicOn; try { localStorage.setItem('
 
 function facUI() {
   $('sideA').classList.toggle('me', me === 0); $('sideB').classList.toggle('me', me === 1);
-  $('assign').innerHTML = `<span>Your faction:</span> <b style="color:${FCSS[me]}">${FN[me].toUpperCase()}</b><span> · </span><span>Your capital:</span> <b>${cities[CAPS[me]].name}</b><br><small>New players join the side with fewer people online.</small>` + (() => { const n = eraAt(Date.now()), er = ERAS[n.k], l = daysLeft(n.end); return `<div class="introEra"><span class="eraChip">${er.icon} ${er.name}</span> <span>${er.text}</span> <small>${l} ${l === 1 ? 'day' : 'days'} left in this era</small></div>`; })();
+  // the mode screen's panels: your side with its capital, and the era the whole world is in
+  const n = eraAt(Date.now()), er = ERAS[n.k], l = daysLeft(n.end);
+  $('assign').innerHTML = `<div class="pkCard pkSide f${me}"><span class="pkK">Your side</span><b class="pkV" style="color:${FCSS[me]}">${FN[me]}</b><span class="pkT"><span>Capital: ${cities[CAPS[me]].name}</span><br><span>If the enemy holds it for 12 hours, your side loses the season.</span></span></div>`
+    + `<div class="pkCard era"><span class="pkK">Era</span><b class="pkV">${er.icon} ${er.name}</b><span class="pkT">${er.text}</span><span class="pkChip">${l} ${l === 1 ? 'day' : 'days'} left</span></div>`;
 }
 // doctrine: the general picks on day 1; the chip next to the clock shows what your faction follows
 let docHidden = false;
@@ -2418,19 +2921,33 @@ function loadGis() {
   return gisLoading || (gisLoading = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }));
 }
 function sendGoogle(credential) { if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'google', credential })); }
+const NICK_FORM = '<form class="nick"><label>Callsign</label><input name="n" maxlength="20" autocomplete="off" spellcheck="false" class="notr"><button type="submit" class="btn2">SAVE</button><small></small></form>';
+function wireNick(el) {
+  const fm = el.querySelector('form.nick'), inp = fm.n, free = !!(youInfo && youInfo.nickFree);
+  inp.value = (youInfo && youInfo.name) || ''; inp.disabled = !free; fm.querySelector('button').disabled = !free;
+  fm.querySelector('small').textContent = privateGame ? 'Letters, digits, spaces and - _ . Only in this game.' : free ? 'Letters, digits, spaces and - _ . Once per season.' : 'You can change it again next season.';
+  fm.onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); if (!v || v === youInfo.name) return; ws.send(JSON.stringify({ type: 'nick', name: v })); };
+}
+// a callsign picked in the global war follows you into private games
+let nickCarried = false;
+function carryNick() {
+  if (!youInfo || !online) return;
+  try {
+    if (!privateGame) { if (youInfo.linked && youInfo.name && !/#\d+$/.test(youInfo.name)) localStorage.setItem('sl-callsign', youInfo.name); return; }
+    const n = localStorage.getItem('sl-callsign'); if (nickCarried || !n || n === youInfo.name || !/#\d+$/.test(youInfo.name || '')) return;
+    nickCarried = true; ws.send(JSON.stringify({ type: 'nick', name: n, quiet: 1 }));
+  } catch (e) {}
+}
 async function renderAuth() {
   const els = [$('gAuthIntro'), $('gAuthLocker')].filter(Boolean);
+  if (online && privateGame) { els.forEach(el => { el.innerHTML = NICK_FORM; wireNick(el); }); return; }
   if (!online || !googleId) { els.forEach(e => e.innerHTML = ''); return; }
   const linked = !!(youInfo && youInfo.linked);
   for (const el of els) {
     if (linked) {
-      el.innerHTML = '<span class="ok">✓ Your rank and XP are saved to your Google account</span><button class="out">Sign out</button>'
-        + '<form class="nick"><label>Callsign</label><input name="n" maxlength="20" autocomplete="off" spellcheck="false" class="notr"><button type="submit" class="btn2">SAVE</button><small></small></form>';
+      el.innerHTML = '<span class="ok">✓ Your rank and XP are saved to your Google account</span><button class="out">Sign out</button>' + NICK_FORM;
       el.querySelector('.out').onclick = () => { if (confirm('Sign out? Your progress stays in your Google account.')) ws.send(JSON.stringify({ type: 'google_out' })); };
-      const fm = el.querySelector('form.nick'), inp = fm.n, free = !!youInfo.nickFree;
-      inp.value = youInfo.name || ''; inp.disabled = !free; fm.querySelector('button').disabled = !free;
-      fm.querySelector('small').textContent = free ? 'Letters, digits, spaces and - _ . Once per season.' : 'You can change it again next season.';
-      fm.onsubmit = e => { e.preventDefault(); const v = inp.value.trim(); if (!v || v === youInfo.name) return; ws.send(JSON.stringify({ type: 'nick', name: v })); };
+      wireNick(el);
       continue;
     }
     el.innerHTML = '<div class="gbtn"></div><span>Optional: keep your rank, XP and trail on every device and pick your own callsign. We store no email or name.</span>';
@@ -2517,7 +3034,7 @@ const T = t => (window.slLang ? slLang.tr(t) : t);
 async function drawShare(pts) {
   const g = shareCv.getContext('2d'), st = endStats || myStats(), W = 1200, H = 630, w = S.winter ? -2 : pts[0] === pts[1] ? -1 : pts[0] > pts[1] ? 0 : 1;
   const col = w >= 0 ? FCSS[w] : w === -2 ? '#d7e66a' : '#e9eef5', art = await posterArt(w, col);
-  g.fillStyle = '#0b1118'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#0b1118'; g.fillRect(0, 0, W, H); g.fontStretch = 'semi-condensed';
   // sunburst from the lower right
   g.save(); g.translate(960, 640); for (let k = 0; k < 28; k++) { g.rotate(Math.PI * 2 / 28); g.fillStyle = k % 2 ? col : '#0b1118'; g.globalAlpha = k % 2 ? 0.24 : 1; g.beginPath(); g.moveTo(0, 0); g.lineTo(1400, -60); g.lineTo(1400, 60); g.closePath(); g.fill(); } g.restore(); g.globalAlpha = 1;
   const vg = g.createRadialGradient(960, 640, 120, 960, 640, 900); vg.addColorStop(0, 'rgba(11,17,24,0)'); vg.addColorStop(1, 'rgba(11,17,24,.7)'); g.fillStyle = vg; g.fillRect(0, 0, W, H);
@@ -2525,16 +3042,16 @@ async function drawShare(pts) {
   // frame
   g.strokeStyle = col; g.lineWidth = 6; g.strokeRect(24, 24, W - 48, H - 48); g.lineWidth = 1.5; g.strokeRect(36, 36, W - 72, H - 72);
   const sc = SCENARIOS[S.scenario] || SCENARIOS.classic, camp = campaign ? ` · GREAT WAR ${campaign.n}` : '';
-  g.fillStyle = '#e9eef5'; g.font = '700 20px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(T(`SEASON ${endSeason}`) + ` · ${T(sc.name).toUpperCase()}` + (campaign ? ` · ${T('GREAT WAR')} ${campaign.n}` : ''), 70, 92);
+  g.fillStyle = '#e9eef5'; g.font = '700 20px "Tektur", "Roboto Condensed", sans-serif'; g.fillText(T(`SEASON ${endSeason}`) + ` · ${T(sc.name).toUpperCase()}` + (campaign ? ` · ${T('GREAT WAR')} ${campaign.n}` : ''), 70, 92);
   const slogan = T((w >= 0 ? SLOGANS.win : w === -1 ? SLOGANS.draw : SLOGANS.winter)[(endSeason || 0) % (w >= 0 ? SLOGANS.win.length : 1)]);
   const lines = w >= 0 ? [T(FN[w]).toUpperCase(), ...slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, [])] : slogan.split(' ').reduce((a, x) => { const l = a[a.length - 1]; if (l && (l + ' ' + x).length <= 9) a[a.length - 1] = l + ' ' + x; else a.push(x); return a; }, []);
-  let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
+  let y = 180; lines.forEach((l, k) => { g.font = `700 ${k === 0 && w >= 0 ? 84 : 70}px "Tektur", "Roboto Condensed", sans-serif`; g.fillStyle = k === 0 ? col : '#e9eef5'; g.fillText(l, 66, y); y += k === 0 && w >= 0 ? 84 : 70; });
   // stats
   const box = (x, label, val, c) => { g.fillStyle = 'rgba(11,17,24,.82)'; g.fillRect(x, 470, 200, 84); g.strokeStyle = c; g.lineWidth = 2; g.strokeRect(x, 470, 200, 84);
-    g.fillStyle = '#9aa7b6'; g.font = '700 13px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
+    g.fillStyle = '#9aa7b6'; g.font = '700 13px "Tektur", "Roboto Condensed", sans-serif'; g.fillText(label, x + 14, 494); g.fillStyle = c; g.font = '700 32px "Tektur", "Roboto Condensed", sans-serif'; g.fillText(val, x + 14, 538); };
   box(66, T('SCORE'), `${pts[0]}–${pts[1]}`, '#e9eef5'); box(282, `${online ? (st.name || '').toUpperCase().slice(0, 14) : T('YOU')}`, `${st.caps || 0} ${T('TAKEN')}`, FCSS[me]);
   if (campaign) box(498, T('CAMPAIGN'), `${campaign.wins[0] + (w === 0 ? 1 : 0)}–${campaign.wins[1] + (w === 1 ? 1 : 0)}`, '#ffc23d');
-  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "IBM Plex Sans Condensed", "Roboto Condensed", sans-serif'; g.fillText(T('JOIN THE WAR') + ' · ' + location.host.toUpperCase(), 66, H - 48);
+  g.fillStyle = col; g.fillRect(36, H - 74, W - 72, 38); g.fillStyle = '#0b1118'; g.font = '700 18px "Tektur", "Roboto Condensed", sans-serif'; g.fillText(T('JOIN THE WAR') + ' · ' + location.host.toUpperCase(), 66, H - 48);
   g.textAlign = 'right'; g.fillText('SUPPLY LINES', W - 66, H - 48); g.textAlign = 'left';
 }
 let campaign = null;
@@ -2589,7 +3106,7 @@ const wintered = r => !!r.winter || (r.winner < 0 && r.pts && r.pts[0] !== r.pts
 async function openArchive() {
   $('archive').classList.remove('hidden'); $('arList').innerHTML = 'Loading…';
   let list = [];
-  if (online) { try { list = await (await fetch('/archive.json')).json(); } catch (e) { list = []; } } else list = localArchive().slice().reverse();
+  if (online) { try { list = await (await fetch('archive.json')).json(); } catch (e) { list = []; } } else list = localArchive().slice().reverse();
   if (!list.length) { $('arList').innerHTML = 'No finished seasons yet. History is written at the end of each season.'; return; }
   $('arList').innerHTML = list.map((r, k) => `<div class="arc"><canvas id="arMap${k}" width="480" height="240"></canvas><div>
     <h4 style="color:${r.winner >= 0 ? FCSS[r.winner] : wintered(r) ? '#d7e66a' : 'var(--ink)'}">Season ${r.season}: ${r.winner >= 0 ? FN[r.winner] + ' won' : wintered(r) ? '☢ nuclear winter, nobody won' : 'draw'} ${r.pts[0]}–${r.pts[1]}</h4>
@@ -2857,7 +3374,11 @@ const flipLang = () => { if (!window.slLang) return; slLang.set(slLang.get() ===
 $('langBtn').onclick = flipLang; $('langIntro').onclick = flipLang; langUi();
 // ================= installable app & push alerts =================
 let swReg = null, installEvt = null;
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+// On a local dev server a service worker only gets in the way (it can keep serving an old copy of the page), so
+// there it is off and any old one is removed; ?sw=1 turns it on to test install and push alerts locally.
+const LOCAL_DEV = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && !/[?&]sw=1(&|$)/.test(location.search);
+if ('serviceWorker' in navigator && LOCAL_DEV) navigator.serviceWorker.getRegistrations().then(rs => { for (const r of rs) r.unregister(); if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))); }).catch(() => {});
+else if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   navigator.serviceWorker.register('/sw.js').then(r => { swReg = r; updateBell(); }).catch(() => {});
 }
 addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('installBtn').style.display = ''; });

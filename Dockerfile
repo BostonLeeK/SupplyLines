@@ -6,6 +6,7 @@ RUN npm ci --omit=dev
 COPY index.html world.html icons.js i18n.js i18n-uk.js net.js sw.js manifest.json og.jpg ./
 COPY game ./game
 COPY icons ./icons
+COPY img ./img
 COPY server/*.mjs ./server/
 # world saves, players and the generated VAPID key live here
 ENV DATA_DIR=/data PORT=5177

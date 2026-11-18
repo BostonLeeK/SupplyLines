@@ -61,6 +61,7 @@ The map is the real world with three changes:
 | **Squads** | Create a squad, share the invite link: friends land on your side, and coordinated hits get a combo bonus. |
 | **Ranks and cosmetics** | Eight ranks with insignia; each unlocks a convoy trail every player can see. |
 | **World report** | A public page with the live map, score, chronicle and leaders, made for sharing. |
+| **Three modes** | **Global war**: 2-hour seasons in one shared world where ranks count. **Blitz**: 15-minute seasons in a separate world. **With friends**: a private world with the season length you pick, shared by an invite link and closed once everyone has left. A landing page leads to a mode screen with all three and who is playing in each. |
 | **Optional Google sign-in** | Play anonymously, or sign in to keep your rank, XP and trail on every device and pick your own callsign (once per season; letters, digits, spaces and - _ . only, no taken, reserved or look-alike names). Only a salted hash of the account id is stored. |
 | **Ukrainian / English** | The whole interface in Ukrainian or English, picked from the browser and switchable at any time (UA/EN button). |
 | **Season replay** | Watch any past season: key moments as captions, a camera that follows the fighting, a score timeline you can scrub. |
@@ -96,6 +97,10 @@ npm start
 Open <http://localhost:5177>. Open a second browser (or a private window) to play as another person.
 Add `?offline=1` to play a quick single-player world without the server.
 
+`npm run dev` starts every mode instead: open <http://localhost:5177>, where the global war is at `/`, blitz at `/fast/`
+(passed through to a second server on :5178, as nginx does in production) and private games at `/r/CODE/`. The page moves
+between them without reloading (blitz saves go to `server/data/fast`).
+
 Useful environment variables:
 
 | Variable | Default | Meaning |
@@ -106,6 +111,7 @@ Useful environment variables:
 | `BOTS` | `120` | Bots per faction when nobody is online |
 | `DATA_DIR` | `server/data` | Where the world, players, squads and the VAPID key are saved |
 | `GOOGLE_CLIENT_ID` | (empty) | Turns on optional Google sign-in, see DEPLOY.md |
+| `PRIVATE_GAMES` | `3` | How many private games may run at once on the main server (each is a child process); `0` turns them off |
 | `STATS_KEY` | (empty) | Opens `/stats` (daily visitors, PLAY, 5+ min, returns, JS errors) with `?key=`; always open from the server itself |
 | `ALERTS_URL` | ubilling | Source of live air-raid alerts, for a mirror or proxy |
 | `VAPID_SUBJECT` | `mailto:admin@supply-lines.invalid` | Contact for web push |
