@@ -678,6 +678,17 @@ body.intro #nukeDock,body.intro #genPop{opacity:0;pointer-events:none} body.repl
 .gmFinalScore{display:flex;gap:10px;justify-content:center;font:700 13px/1 'Tektur',var(--disp);letter-spacing:.2em;color:#8fa6c8;text-transform:uppercase}
 .gmFinal .gmH{margin:0;font-size:clamp(34px,5.6vw,72px)}
 .gmFinal p{margin:0;color:#c6d4e8;font-size:17px;max-width:560px}
+/* the trailer: a poster with a big play button; the YouTube player only loads when you press it */
+.gmTrHead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:24px}
+.gmTrHead .gmH{margin:0}
+.gmTrailer{position:relative;max-width:1040px;margin:0 auto;aspect-ratio:16/9;background:#060c18;border:1px solid #2b4a78;box-shadow:0 24px 60px rgba(0,0,0,.55);overflow:hidden}
+.gmTrailer img,.gmTrailer iframe{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:cover;display:block}
+.gmTrPlay{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:radial-gradient(circle at 50% 50%,rgba(4,8,16,0) 30%,rgba(4,8,16,.35) 100%);cursor:pointer;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 7% 8% 0}   /* bottom right: the poster's headline stays readable */
+.gmTrPlay svg{width:92px;height:92px;padding:24px 22px 24px 28px;border-radius:50%;color:#2a1800;background:linear-gradient(180deg,#ffe27a,#ffc23d 55%,#f39b12);box-shadow:0 4px 0 #a5650a,0 14px 34px rgba(0,0,0,.55),0 0 0 8px rgba(255,194,61,.18);transition:transform .2s}
+.gmTrPlay:hover svg,.gmTrPlay:focus-visible svg{transform:scale(1.08)}
+.gmTrYt{display:block;width:max-content;margin:14px auto 0;color:#8fa6c8;font:700 12px/1 'Tektur',var(--disp);letter-spacing:.1em;text-transform:uppercase;text-decoration:none}
+.gmTrYt:hover{color:#fff}
+@media (max-width:760px){ .gmTrPlay{padding:0 3.5% 4% 0} .gmTrPlay svg{width:50px;height:50px;padding:13px 11px 13px 15px;box-shadow:0 3px 0 #a5650a,0 8px 20px rgba(0,0,0,.55),0 0 0 5px rgba(255,194,61,.18)} }
 .gmFoot{background:#040810;border-top:1px solid #172742}
 .gmLegal{display:flex;align-items:center;gap:6px 20px;flex-wrap:wrap}
 .gmLegal a{color:#8fa6c8;text-decoration:none}
@@ -1157,6 +1168,11 @@ body.tv #corner .ic:not(#tvBtn){display:none}
       <div class="gmCard"><div class="gmCardImg"><img src="img/lp-front.webp" alt="The front line between Atlantica and Pacifica" loading="lazy"><span class="gmBadge red"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M13.8 15.12L17.1 20.83A10.2 10.2 0 0 1 6.9 20.83L10.2 15.12A3.6 3.6 0 0 0 13.8 15.12ZM8.4 12L1.8 12A10.2 10.2 0 0 1 6.9 3.17L10.2 8.88A3.6 3.6 0 0 0 8.4 12ZM13.8 8.88L17.1 3.17A10.2 10.2 0 0 1 22.2 12L15.6 12A3.6 3.6 0 0 0 13.8 8.88Z" fill="#fff" stroke="none"/><circle cx="12" cy="12" r="2.2" fill="#fff" stroke="none"/></svg></span></div><b>The nuclear button</b><span>Build a warhead together with your faction. A launch needs two commanders, and a second blast in a season means nuclear winter.</span></div>
       <div class="gmCard"><div class="gmCardImg"><img src="img/lp-world.webp" alt="The whole globe with both factions" loading="lazy"><span class="gmBadge green"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span></div><b>A world that changes</b><span>A new era with its own rules every two weeks, world events every day, real winter and night on the globe.</span></div>
     </div>
+  </div></div>
+  <div class="gmSec gmTrSec" id="gmTrailer"><div class="gmIn">
+    <div class="gmTrHead"><h2 class="gmH">Trailer</h2></div>
+    <div class="gmTrailer gmCut" id="lpTrailer" data-lang="en"><img src="img/trailer-en.webp" alt="Supply Lines trailer: two factions, one planet" loading="lazy" width="1280" height="720"><button class="gmTrPlay" type="button" aria-label="Play the trailer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg></button></div>
+    <a class="gmTrYt" id="lpTrailerYt" href="https://www.youtube.com/watch?v=xOtaGoPp3Mc" target="_blank" rel="noopener">Watch on YouTube ↗</a>
   </div></div>
   <div class="gmSec gmPhones"><div class="gmIn">
     <div class="gmPhTxt"><h2 class="gmH">The same world on your phone</h2><p>Open globalwar.xyz on your phone and fight in the same world as on your computer. There is nothing to install, and when your city is attacked the game can send you a notification.</p><span class="gmUrl notr">globalwar.xyz</span></div>
@@ -3502,7 +3518,21 @@ function stepReplay(dt) {
 // counts one "played 5+ minutes" per page load, only while the game is visible and running
 { let played = 0; const t = setInterval(() => { if (running && !document.hidden) played += 15; if (played >= 300) { clearInterval(t); window.slStat && slStat('active5'); } }, 15000); }
 // language switch (the translation itself lives in i18n.js)
-function langUi() { const l = window.slLang ? slLang.get() : 'en'; $('langBtn').textContent = l === 'uk' ? 'UA' : 'EN'; $('langBtn').title = l === 'uk' ? 'Мова: українська. Switch to English' : 'Language: English. Перейти на українську'; $('langIntro').innerHTML = l === 'uk' ? '<span class="lf">ENGLISH</span><span class="ls">EN</span>' : '<span class="lf">УКРАЇНСЬКА</span><span class="ls">UA</span>'; $('langIntro').title = l === 'uk' ? 'Switch to English' : 'Перейти на українську'; }
+function langUi() { const l = window.slLang ? slLang.get() : 'en'; $('langBtn').textContent = l === 'uk' ? 'UA' : 'EN'; $('langBtn').title = l === 'uk' ? 'Мова: українська. Switch to English' : 'Language: English. Перейти на українську'; $('langIntro').innerHTML = l === 'uk' ? '<span class="lf">ENGLISH</span><span class="ls">EN</span>' : '<span class="lf">УКРАЇНСЬКА</span><span class="ls">UA</span>'; $('langIntro').title = l === 'uk' ? 'Switch to English' : 'Перейти на українську'; trailerUi(l); }
+// the trailer on the landing, in the page's language; YouTube loads only once you press play (privacy-friendly domain)
+const TRAILER = { en: 'xOtaGoPp3Mc', uk: 'evjRuA5HzPQ' };
+function trailerUi(l) {
+  const box = $('lpTrailer'); if (!box || box.dataset.lang === l) return;
+  box.dataset.lang = l; $('lpTrailerYt').href = 'https://www.youtube.com/watch?v=' + TRAILER[l];
+  const f = box.querySelector('iframe'); if (f) f.remove();   // a new language starts from its own poster
+  box.querySelector('img').src = `img/trailer-${l}.webp`; box.querySelector('.gmTrPlay').hidden = false;
+}
+$('lpTrailer').querySelector('.gmTrPlay').onclick = e => {
+  const box = $('lpTrailer'), l = box.dataset.lang === 'uk' ? 'uk' : 'en', f = document.createElement('iframe');
+  f.src = `https://www.youtube-nocookie.com/embed/${TRAILER[l]}?autoplay=1&rel=0&playsinline=1&hl=${l}`; f.title = 'Supply Lines trailer';
+  f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+  e.currentTarget.hidden = true; box.appendChild(f); window.slStat && slStat('trailer');
+};
 const flipLang = () => { if (!window.slLang) return; slLang.set(slLang.get() === 'uk' ? 'en' : 'uk'); langUi(); };
 $('langBtn').onclick = flipLang; $('langIntro').onclick = flipLang; langUi();
 // ================= installable app & push alerts =================

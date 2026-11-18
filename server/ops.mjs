@@ -10,7 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 
-const EVENTS = ['visit', 'unique', 'play', 'active5', 'return'];
+const EVENTS = ['visit', 'unique', 'play', 'active5', 'return', 'trailer'];
 const BACKUP_FILES = ['messages.jsonl', 'world.json', 'players.json', 'squads.json', 'archive.json', 'auth.json', 'stats.json', 'vapid.json'];
 const BACKUP_DAYS = 14, MAX_LOG = 1 << 20, MAX_BODY = 8192;
 const today = () => new Date().toISOString().slice(0, 10);
@@ -98,12 +98,12 @@ export function createOps({ DATA, getHealth }) {
     const list = readMessages().slice(-50).reverse();
     const msgs = '<h1 style="margin-top:28px">Messages</h1><p>From the contact form, newest first (messages.jsonl in the data folder).</p>' + (list.map(m => `<div style="max-width:900px;border:1px solid #1f2a37;border-radius:8px;padding:10px 12px;margin:0 0 10px"><div style="color:#7d8a9a;font-size:12px">${esc(m.at.slice(0, 16).replace('T', ' '))} · ${esc(m.topic)}${m.name ? ' · ' + esc(m.name) : ''}${m.from ? ' · <a style="color:#9fc3ef" href="mailto:' + esc(m.from) + '">' + esc(m.from) + '</a>' : ''}${m.lang ? ' · ' + esc(m.lang) : ''}</div><div style="white-space:pre-wrap;margin-top:6px">${esc(m.text)}</div></div>`).join('') || '<p>None yet.</p>');
     const days = Object.keys(stats).sort().reverse().slice(0, 30), h = getHealth();
-    const row = d => { const s = stats[d] || {}; const conv = (a, b) => s[b] ? Math.round((s[a] || 0) / s[b] * 100) + '%' : '–'; return `<tr><td>${d}</td><td>${s.visit || 0}</td><td>${s.unique || 0}</td><td>${s.play || 0} <small>${conv('play', 'unique')}</small></td><td>${s.active5 || 0} <small>${conv('active5', 'play')}</small></td><td>${s.return || 0}</td><td>${s.errors || 0}</td></tr>`; };
+    const row = d => { const s = stats[d] || {}; const conv = (a, b) => s[b] ? Math.round((s[a] || 0) / s[b] * 100) + '%' : '–'; return `<tr><td>${d}</td><td>${s.visit || 0}</td><td>${s.unique || 0}</td><td>${s.play || 0} <small>${conv('play', 'unique')}</small></td><td>${s.active5 || 0} <small>${conv('active5', 'play')}</small></td><td>${s.return || 0}</td><td>${s.trailer || 0}</td><td>${s.errors || 0}</td></tr>`; };
     return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Supply Lines stats</title>
 <style>body{margin:0;padding:24px;background:#05080d;color:#e9eef5;font:14px/1.5 system-ui,sans-serif}h1{font-size:20px;margin:0 0 4px}p{color:#7d8a9a;margin:0 0 16px}
 table{border-collapse:collapse;width:100%;max-width:900px}th,td{text-align:right;padding:8px 10px;border-bottom:1px solid #1f2a37;font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}th{color:#7d8a9a;font-weight:600;font-size:12px}small{color:#5d6b7c}</style>
 <h1>Supply Lines</h1><p>Now: ${h.online ? h.online[0] + h.online[1] : 0} players online · season ${h.season} · up ${Math.round(h.uptime / 3600)} h · ${h.players} known players. Last 30 days (UTC):</p>
-<table><tr><th>Day</th><th>Page loads</th><th>Unique visitors</th><th>Pressed PLAY</th><th>Played 5+ min</th><th>Came back</th><th>JS errors</th></tr>${days.map(row).join('') || '<tr><td colspan="7">No data yet</td></tr>'}</table>
+<table><tr><th>Day</th><th>Page loads</th><th>Unique visitors</th><th>Pressed PLAY</th><th>Played 5+ min</th><th>Came back</th><th>Watched trailer</th><th>JS errors</th></tr>${days.map(row).join('') || '<tr><td colspan="8">No data yet</td></tr>'}</table>
 <p style="margin-top:16px">No cookies, no stored IP addresses. Error details: errors.log in the data folder.</p>${msgs}`;
   }
 
