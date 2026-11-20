@@ -190,6 +190,21 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 #radioBtn.fresh{animation:rdFresh 1.6s ease-in-out 4}
 @keyframes rdFresh{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 0 0 rgba(141,255,176,0)}50%{box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 0 7px rgba(141,255,176,.28)}}
 @media (max-width:700px){ #radioBtn{width:58px;height:58px} #radioBtn svg{width:18px;height:18px} }
+/* air raid alert: a red siren in the dock while an enemy strike flies at one of our cities */
+#alertBtn{position:relative;width:70px;height:70px;border-radius:50%;padding:0;border:0;cursor:pointer;color:#ff6b5a;background:radial-gradient(circle,#1e0c0a 58%,transparent 59%),conic-gradient(#ff5a46 var(--p,0deg),#3a1611 0);box-shadow:0 6px 20px rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:none;overflow:visible;animation:alPulse 1.1s ease-in-out infinite}
+#alertBtn[hidden]{display:none}
+#alertBtn:hover{filter:brightness(1.2)}
+#alertBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(255,90,70,.6))}
+#alertBtn .v{font:800 10px/1 var(--disp);font-variant-numeric:tabular-nums}
+#alertBtn .hk{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);font:700 9px/1 var(--body);color:var(--mut)}
+#alertBtn .n{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#ff5a46;color:#140605;font:800 11px/18px var(--disp);text-align:center;padding:0 4px}
+#alertBtn .n:empty{display:none}
+#alertBtn.wait{animation:none;opacity:.6;cursor:default}
+#alertBtn .lb{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);white-space:nowrap;font:700 11px/1.25 var(--body);color:#ffd2cb;background:rgba(30,10,8,.92);border:1px solid #5a2219;padding:6px 9px;text-align:right;pointer-events:none}
+#alertBtn .lb b{display:block;color:#ff6b5a;font:800 10px/1 var(--disp);letter-spacing:.12em;margin-bottom:3px}
+@keyframes alPulse{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 0 0 rgba(255,90,70,0)}50%{box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 0 9px rgba(255,90,70,.3)}}
+@media (max-width:700px){ #alertBtn{width:58px;height:58px} #alertBtn svg{width:18px;height:18px} #alertBtn .lb{display:none} }
+@media (prefers-reduced-motion:reduce){ #alertBtn{animation:none} }
 #radio{position:fixed;right:96px;top:50%;transform:translateY(-50%);z-index:11;width:348px;max-height:calc(100% - 140px);overflow:auto;padding:12px 14px 12px;border-radius:12px;background:radial-gradient(130% 90% at 50% 0%,#0a1a10,var(--phBg) 70%);border:1px solid var(--phD);box-shadow:0 0 0 1px #000,0 24px 70px rgba(0,0,0,.75),inset 0 0 50px rgba(60,255,120,.06);color:var(--ph);font:500 13px/1.35 var(--mono);text-shadow:0 0 6px rgba(80,255,140,.35)}
 #radio[hidden]{display:none}
 #radio::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0 2px,rgba(0,0,0,.28) 2px 3px);mix-blend-mode:multiply}
@@ -235,7 +250,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 #radio .rdRes.lost .big{color:#ff6b5b;text-shadow:0 0 8px rgba(255,90,70,.6)}
 #radio .rdHint{font-size:11px;color:var(--phD);margin-top:8px}
 @media (max-width:760px){ #radio{left:8px;right:8px;width:auto;top:auto;bottom:max(8px,env(safe-area-inset-bottom));transform:none;z-index:12;max-height:calc(100% - var(--topArea, 120px) - 16px)} #radio .rdD{flex:1;width:auto;height:34px} #radio .rdK{height:44px} #radio .rdHint{display:none} }
-body.intro #radio,body.replay #radio,body.tv #radio,body.tv #radioBtn{display:none!important}
+body.intro #radio,body.replay #radio,body.tv #radio,body.tv #radioBtn,body.intro #alertBtn,body.replay #alertBtn,body.tv #alertBtn{display:none!important}
 .docChip{display:inline-block;padding:1px 7px;border-radius:4px;background:rgba(74,163,255,.1);border:1px solid var(--edge);color:var(--ink);font-weight:700;cursor:help}
 #docCard{position:fixed;left:50%;top:118px;transform:translateX(-50%);z-index:9;width:min(760px,calc(100% - 28px));padding:18px 18px 14px;border-radius:12px;background:linear-gradient(180deg,rgba(14,21,31,.97),rgba(8,12,18,.97));border:1px solid var(--edge);box-shadow:0 24px 70px rgba(0,0,0,.65);display:none}
 #docCard.on{display:block}
@@ -1100,7 +1115,7 @@ body.tv #corner .ic:not(#tvBtn){display:none}
   </div>
 </div>
 
-<div id="nukeDock"><button id="radioBtn" hidden title="Radio intercept" aria-label="Radio intercept"><svg viewBox="0 0 32 32"><path d="M16 15v13M11 28h10M16 15l-4 13M16 15l4 13"/><circle cx="16" cy="12" r="2.4"/><path class="wv" d="M11.5 7.5a6.5 6.5 0 0 0 0 9M20.5 7.5a6.5 6.5 0 0 1 0 9"/><path class="wv w2" d="M8 4.5a11 11 0 0 0 0 15M24 4.5a11 11 0 0 1 0 15"/></svg><span class="v notr" id="rdBtnT"></span><span class="hk">K</span></button><button id="genBadge" title="You are the general of your faction"><svg viewBox="0 0 39 13"><path transform="translate(0 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(13 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(26 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/></svg><span>GENERAL</span></button></div>
+<div id="nukeDock"><button id="alertBtn" hidden title="Air raid alert: defend the city" aria-label="Air raid alert"><span class="lb"><b>AIR RAID</b><span id="alCity"></span></span><svg viewBox="0 0 32 32"><path d="M9 24v-8a7 7 0 0 1 14 0v8"/><path d="M6 24h20v3H6z"/><path d="M16 12.5v5"/><path d="M4 9l3 2M28 9l-3 2M16 3v3M9.5 5l1.5 2.6M22.5 5L21 7.6"/></svg><span class="v notr" id="alT"></span><span class="n notr" id="alN"></span><span class="hk">A</span></button><button id="radioBtn" hidden title="Radio intercept" aria-label="Radio intercept"><svg viewBox="0 0 32 32"><path d="M16 15v13M11 28h10M16 15l-4 13M16 15l4 13"/><circle cx="16" cy="12" r="2.4"/><path class="wv" d="M11.5 7.5a6.5 6.5 0 0 0 0 9M20.5 7.5a6.5 6.5 0 0 1 0 9"/><path class="wv w2" d="M8 4.5a11 11 0 0 0 0 15M24 4.5a11 11 0 0 1 0 15"/></svg><span class="v notr" id="rdBtnT"></span><span class="hk">K</span></button><button id="genBadge" title="You are the general of your faction"><svg viewBox="0 0 39 13"><path transform="translate(0 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(13 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/><path transform="translate(26 0)" d="M6.5 1l1.7 3.6 3.9.5-2.9 2.7.8 3.9-3.5-2-3.5 2 .8-3.9L.9 5.1l3.9-.5z"/></svg><span>GENERAL</span></button></div>
 <div id="genPop">
   <div class="gpH"><b>You are the general</b><button id="gpX" title="Close">×</button></div>
   <p>Your faction chose you: players online vote, and with no votes the most experienced player leads. You stay general while you are online and keep the votes.</p>
@@ -1772,6 +1787,8 @@ function onResult(res, meta) {
   if (!meta && res.id !== undefined) { meta = pending.get(res.id) || {}; pending.delete(res.id); }
   meta = meta || {};
   if (meta.cipher) cipherResult(res, meta.cipher);
+  if (meta.raidTake) return meta.raidTake(res);
+  if (meta.raidDone && res.ok) { if (res.out === 'down') toast('🛡 The city held: no warhead got through', 'good', meta.city); return; }
   if (!res.ok) { sfx('err'); return toast('✕ ' + res.msg, 'bad', meta.city ?? -1); }
   if (meta.ok) toast('✓ ' + meta.ok, 'good', meta.city ?? -1);
   if (res.f !== undefined && online && res.f !== me) { try { localStorage.setItem('sl-auth-msg', meta.ok || 'Side switched'); } catch (e) {} setTimeout(() => location.reload(), 600); return; }
@@ -1858,6 +1875,64 @@ function cipherResult(res, m) {
   rdSig = ''; renderRadio();
 }
 setInterval(renderRadio, 120);
+// ================= air raid alert =================
+// An enemy strike on one of our cities waits a moment for a defender. The city's commander gets the first call,
+// then anyone online; whoever takes it fights the raid by hand and the server replays the inputs to judge the damage.
+let arActive = null, arFresh = false, arBusy = false;
+const raidsNow = () => (online ? S.airraids || [] : E.airRaidView(me)).filter(r => r.v === undefined || r.v === me);
+// a raid I took and have not finished (say, after a reload) comes first, so I can get back into it
+const raidMine = r => !!r.by && (online ? r.byPub === myId : true);
+const raidEnd = r => raidMine(r) ? r.until : r.call;
+const raidOpen = () => raidsNow().filter(r => raidMine(r) ? r.until > simT : !r.by && r.call > simT).sort((a, b) => raidMine(b) - raidMine(a) || a.call - b.call);
+function renderAlert() {
+  const btn = $('alertBtn'), open = raidOpen(), r = open[0];
+  if (!r || replay || arActive) { btn.hidden = true; return; }
+  const end = raidEnd(r), left = Math.max(0, end - simT) / (online ? serverSpeed : 1), mineFirst = !raidMine(r) && online && r.first > simT && r.cmdr && r.cmdr !== myId;
+  btn.hidden = false; btn.classList.toggle('wait', !!mineFirst);
+  btn.style.setProperty('--p', Math.max(0, Math.min(1, (end - simT) / Math.max(1e-6, end - (raidMine(r) ? end - K.AIRRAID_PLAY * (online ? serverSpeed : 1) : r.at)))) * 360 + 'deg');
+  $('alT').textContent = Math.ceil(left) + 's'; $('alN').textContent = open.length > 1 ? open.length : '';
+  const lc = $('alCity'); if (lc.dataset.i !== String(r.i)) { lc.dataset.i = r.i; lc.textContent = cities[r.i] ? cities[r.i].name : ''; }   // once, so the translator can rename it
+  btn.title = mineFirst ? 'The city\'s commander gets the first call' : 'Air raid alert: defend the city';
+}
+setInterval(renderAlert, 250);
+window.__alert = { state: () => ({ active: arActive, busy: arBusy, open: raidOpen(), all: raidsNow(), simT, myId }), take: () => takeRaid() };   // for tests and a hidden tab
+function takeRaid() {
+  const r = raidOpen()[0]; if (!r || arBusy || arActive) return;
+  arBusy = true; sfx('click');
+  const done = res => { arBusy = false; if (!res.ok) { sfx('err'); toast('✕ ' + res.msg, 'bad', r.i); renderAlert(); return; } fightRaid(res.raid, res.city, res.params); };
+  if (online) { if (!ws || ws.readyState !== 1) { arBusy = false; return toast('Not connected to the server', 'bad'); } const id = reqId++; pending.set(id, { raidTake: done }); ws.send(JSON.stringify({ type: 'cmd', id, cmd: { type: 'airraid_take', id: r.id } })); }
+  else done(E.command('me', { type: 'airraid_take', id: r.id }));
+}
+function fightRaid(id, city, params) {
+  const c = cities[city]; if (!c) return;
+  const was = speed; if (!online) setSpeed(1);   // offline the war keeps its normal pace while you fight
+  arActive = { id, city, sent: false }; renderAlert();
+  const report = log => {
+    if (!arActive || arActive.id !== id || arActive.sent) return; arActive.sent = true;
+    act({ type: 'airraid_done', id, log }, { city, raidDone: true });
+  };
+  import('./raid-ui.js').then(m => {
+    const ui = m.openRaid({
+      lat: c.lat, lng: c.lng, city: c.name, polys: NET.polys, params, deployTime: 45,
+      cities: cities.map(x => ({ name: x.name, lat: x.lat, lng: x.lng, own: owner ? owner[x.i] === me : true })),
+      muted: () => muted, onEnd: (res, log) => report(log),
+      onClose: () => { report(ui.raid.log.slice()); arActive = null; if (!online && was !== 1) setSpeed(was); renderAlert(); },
+    });
+    window.__raid = ui;
+  }).catch(() => { arActive = null; toast('Could not load the air raid', 'bad'); });
+}
+$('alertBtn').onclick = () => { if (!$('alertBtn').classList.contains('wait')) takeRaid(); };
+addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.nodeName)) || document.getElementById('raidOv')) return;
+  if (e.code === 'KeyA' && !$('alertBtn').hidden && !$('alertBtn').classList.contains('wait')) { takeRaid(); e.preventDefault(); e.stopImmediatePropagation(); }
+}, true);
+function esc(s) { return String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]); }
+function raidNote(ev) {
+  const r = ev.raid; if (!r) return '';
+  // its own element, so the sentence before it still matches its translation
+  if (r.auto) return r.by ? `<span> (${esc(r.by)} left the fight)</span>` : '<span> (nobody answered the alert)</span>';
+  return `<span>. ${esc(r.by)} fought the raid: ${r.down} of ${r.total} shot down, ${r.leaks} of ${r.warheads} warheads got through, rating ${r.rating}</span>`;
+}
 
 // ================= the feel of the war (feel.js) and sound in space (sound.js) =================
 let snd = null;
@@ -1942,8 +2017,11 @@ function onGameEvent(ev) {
     case 'fund': if (ev.f === me) { event(`🛸 The drone fundraiser is full: a swarm takes off over ${ev.n} enemy front cities${ev.out === 'hit' ? ', and a long-range drone blacked out a region' : ''}`, me, ev.city); sfx('drone'); } else event(`🛸 Enemy volunteers raised money for a drone swarm: watch your front`, 'warn', ev.city >= 0 ? ev.city : undefined); refreshVis(); break;
     case 'graft': if (ev.f === me) event(`💰 Corruption scandal in ${cname(ev.city)}: officials sold off weapons, −${ev.lost} troops and no production for ~${Math.round(K.GRAFT_TIME * GMIN / 60)} h`, 'alarm', ev.city); else if (c && c.vis) event(`💰 A corruption scandal shakes ${cname(ev.city)}`, 1 - me, ev.city); break;
     case 'ew': if (ev.f === me) event(`📡 EW dome over ${cname(ev.city)}: enemy drones and strikes are jammed within 900 km`, me, ev.city); break;
-    case 'blackout': blast(ev.city, ev.f, false); if (ev.victim === me || (ev.f === me && ev.who === myId) || (c && c.vis && c.sx > 0 && c.sx < innerWidth && c.sy > 0 && c.sy < innerHeight)) sfx('boom'); if (ev.victim === me) { event(`⚡ Blackout in <b>${REGIONS[ev.r]}</b>: an enemy drone hit ${cname(ev.city)}. Production there is halved for ~${Math.round(K.BLACKOUT_TIME * GMIN / 60)} h`, 'alarm', ev.city); sfx('alarm'); } else if (ev.f === me) { event(`⚡ Our drones knocked out power in <b>${REGIONS[ev.r]}</b>`, me, ev.city); if (ev.who === myId) toast('⚡ Blackout', 'good', ev.city); } break;
-    case 'strike_down': if (ev.f === me && ev.who === myId || owner[ev.city] === me && c && c.vis) sfx('pop'); if (ev.f === me && ev.who === myId) toast('Shot down by air defence', 'bad', ev.city); else if (ev.f !== me && owner[ev.city] === me) event(`🛡 Our air defence shot down a drone heading for ${cname(ev.city)}`, me, ev.city); break;
+    case 'blackout': blast(ev.city, ev.f, false); if (ev.victim === me || (ev.f === me && ev.who === myId) || (c && c.vis && c.sx > 0 && c.sx < innerWidth && c.sy > 0 && c.sy < innerHeight)) sfx('boom'); if (ev.victim === me) { event(`⚡ Blackout in <b>${REGIONS[ev.r]}</b>: an enemy drone hit ${cname(ev.city)}. Production there is halved for ~${Math.max(1, Math.round((ev.len || K.BLACKOUT_TIME) * GMIN / 60))} h` + raidNote(ev), 'alarm', ev.city); sfx('alarm'); } else if (ev.f === me) { event(`⚡ Our drones knocked out power in <b>${REGIONS[ev.r]}</b>`, me, ev.city); if (ev.who === myId) toast('⚡ Blackout', 'good', ev.city); } break;
+    case 'strike_down': if (ev.f === me && ev.who === myId || owner[ev.city] === me && c && c.vis) sfx('pop'); if (ev.f === me && ev.who === myId) toast('Shot down by air defence', 'bad', ev.city); else if (ev.f !== me && owner[ev.city] === me) event(`🛡 Our air defence shot down a drone heading for ${cname(ev.city)}` + raidNote(ev), me, ev.city); break;
+    case 'airraid': if (ev.victim === me) { event(`🚨 Air raid alert over ${cname(ev.city)}: enemy strike drones are on the way. Press the red siren on the right to fight them off`, 'alarm', ev.city); sfx('alarm'); arFresh = true; renderAlert(); } else if (ev.f === me && ev.who === myId) toast('Drones in the air: the enemy is trying to stop them', 'info', ev.city); break;
+    case 'airraid_take': if (ev.victim === me && ev.who !== myId) event(`🛡 ${esc(ev.by)} is defending ${cname(ev.city)} from the air raid`, me, ev.city); renderAlert(); break;
+    case 'airraid_end': renderAlert(); break;
     case 'strike_jammed': if (ev.f === me && ev.who === myId) toast('Jammed by enemy EW', 'bad', ev.city); else if (ev.f !== me) event(`📡 Our EW jammed a drone heading for ${cname(ev.city)}`, me, ev.city); break;
     case 'power_back': if (ev.f === me) event(`💡 Power is back in <b>${REGIONS[ev.r]}</b>`, me); break;
     case 'sat': refreshVis(); if (ev.f === me) event(`🛰 Satellite over ${cname(ev.city)}: fog lifted for ~${Math.round(K.SAT_TIME * GMIN / 60)} h${ev.who === myId ? '' : ' (' + ev.by + ')'}`, me, ev.city); break;

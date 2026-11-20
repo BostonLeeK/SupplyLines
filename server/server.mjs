@@ -25,6 +25,8 @@ const SIM_SPEED = +process.env.SIM_SPEED || 0.125;         // sim-seconds per re
 // The warhead price and bot nuke funding scale with it, so the nuclear program keeps its pace within a season.
 const CP_SECONDS = +process.env.CP_SECONDS || 45;
 { const k = K.CP_REGEN / (CP_SECONDS * SIM_SPEED); K.CP_REGEN = CP_SECONDS * SIM_SPEED; K.NUKE_COST = Math.round(K.NUKE_COST * k); K.NUKE_BOT_RATE *= k; }
+// an air raid is fought by hand, so its alert and fight windows stay in real seconds whatever the season length
+for (const k of ['AIRRAID_CALL', 'AIRRAID_FIRST', 'AIRRAID_PLAY']) K[k] *= SIM_SPEED;
 // ROOM=fast runs the blitz world: no news posts, and the main world links to it (FAST_URL) and back (MAIN_URL).
 // ROOM=private is a game among friends that the main server started (server/rooms.mjs); it closes itself once nobody
 // has been in it for IDLE_EXIT_MIN minutes.

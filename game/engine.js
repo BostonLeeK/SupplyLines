@@ -2,6 +2,8 @@
 // Used by the browser (offline practice, and as a mirror of the server state) and by the server.
 // All times are in sim-seconds; a season is SEASON sim-seconds = 7 game days.
 
+import { replayRaid } from './raid.js';
+
 export const K = {
   SEASON: 900, SPEED: [230, 360, 950],
   PROD: [0, 0.35, 0.7, 1.25], CAPT: [0, 80, 150, 260], NEUTRAL: [0, 24, 52, 96], VALUE: [0, 1, 3, 6],
@@ -26,6 +28,10 @@ export const K = {
   SAT_COST: 4, SAT_KM: 2200, SAT_TIME: 90, SAT_MAX: 2, SPY_COST: 2, SPY_TIME: 150, SPY_CATCH: 0.25,
   // a spy who gets in also intercepts an enemy cipher: a key of 4 different digits, 6 tries, every digit marked; cracking it opens the enemy radio to the faction
   CIPHER_LEN: 4, CIPHER_SYMS: 10, CIPHER_TRIES: 6, CIPHER_TIME: 90, DECRYPT_TIME: 40, DECRYPT_BONUS: 8,
+  // a drone strike on a city whose faction has players online becomes an air raid one of them can fight (game/raid.js).
+  // The times are real seconds at speed 1; the server rescales them so they stay real seconds at any season length.
+  // CALL: how long the alert waits for a defender; FIRST: the city's commander gets it first; PLAY: time to fight it out
+  AIRRAID_CALL: 45, AIRRAID_FIRST: 15, AIRRAID_PLAY: 300, AIRRAID_LOG: 3000, AIRRAID_FULL: 4,
   ENVOY_COST: 3, ENVOY_GAIN: 40, ENVOY_RIVAL: 5, BETRAY_GIFT: 30, ALLY_BONUS: 1.2,
   FLEET_COST: 4, FLEET_TROOPS: 30, FLEET_SPEED: 280, FLEET_MAX_FACTION: 6, FLEET_MAX_PLAYER: 2, FLEET_POWER: 1.5, FLEET_SHORE: 0.004, FLEET_SIEGE: 1.25,
 };
@@ -196,7 +202,7 @@ export function createEngine(NET, opts = {}) {
     S.owner = new Int8Array(N).fill(-1); S.troops = new Float32Array(N); S.supplied = new Uint8Array(N); S.frontDist = new Int16Array(N);
     S.fort = new Float32Array(N); S.sab = new Float32Array(N); S.heat = new Float32Array(edges.length); S.hold = new Float32Array(N);
     S.regionHeld = REGIONS.map(() => -1); S.mobil = [1, 1]; S.orders = [-1, -1]; S.history = []; S.convoys = [];
-    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.decrypt = []; S.drones = []; S.ew = []; S.blackout = []; S.fund = [0, 0]; S.graft = []; S.graftDay = 0; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
+    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.decrypt = []; S.drones = []; S.ew = []; S.blackout = []; S.fund = [0, 0]; S.graft = []; S.graftDay = 0; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = []; S.airraids = [];
     S.gov = new Array(N).fill(''); S.capBy = new Array(N).fill(''); S.capAt = new Float32Array(N); S.ops = [null, null]; S.opPts = [0, 0]; S.tradePts = [0, 0]; S.ships = []; nextOpAt = [K.SEASON / 14, K.SEASON / 14]; nextShip = 3;
     S.capHold = [null, null]; S.doctrine = [null, null]; S.exile = [-1, -1]; S.rail = new Uint8Array(edges.length); S.field = new Uint8Array(N); S.unrest = new Float32Array(N);
     { const m = new Date().getUTCMonth(); S.weather = Object.keys(WEATHER).filter(k => WEATHER[k].months.includes(m)); if (S.scenario === 'frost' && !S.weather.includes('snow')) S.weather.push('snow'); }
@@ -357,11 +363,56 @@ export function createEngine(NET, opts = {}) {
   }
   function strike(f, i, who) {
     if (E.jammed(f, i)) { emit({ k: 'strike_jammed', f, city: i, who: pubOf(who) }); return 'jammed'; }
-    if (E.aaCover(i, f) >= 0 && Math.random() < K.STRIKE_AA * (E.isNight && E.isNight(i) ? K.NIGHT_AA * 2 : 1)) { emit({ k: 'strike_down', f, city: i, who: pubOf(who) }); return 'down'; }
-    const r = cities[i].region, v = 1 - f;
-    S.blackout = (S.blackout || []).filter(b => !(b.f === v && b.r === r)); S.blackout.push({ f: v, r, until: S.simT + K.BLACKOUT_TIME, city: i });
-    emit({ k: 'blackout', f, victim: v, city: i, r, who: pubOf(who) }); return 'hit';
+    if (humansOnline(1 - f).length && !(S.airraids || []).some(r => r.i === i)) { openAirRaid(f, i, who); return 'raid'; }
+    return strikeRoll(f, i, who);
   }
+  // nobody fights the raid: the old dice roll against the city's air defence
+  function strikeRoll(f, i, who, extra) {
+    if (E.aaCover(i, f) >= 0 && Math.random() < K.STRIKE_AA * (E.isNight && E.isNight(i) ? K.NIGHT_AA * 2 : 1)) { emit({ k: 'strike_down', f, city: i, who: pubOf(who), ...extra }); return 'down'; }
+    return blackout(f, i, who, K.BLACKOUT_TIME, extra);
+  }
+  function blackout(f, i, who, len, extra) {
+    const r = cities[i].region, v = 1 - f;
+    S.blackout = (S.blackout || []).filter(b => !(b.f === v && b.r === r)); S.blackout.push({ f: v, r, until: S.simT + len, city: i });
+    emit({ k: 'blackout', f, victim: v, city: i, r, who: pubOf(who), len: Math.round(len), ...extra }); return 'hit';
+  }
+  // ---------- air raids: a strike the defenders can fight by hand ----------
+  const bearing = (a, b) => { const R = Math.PI / 180, f1 = a.lat * R, f2 = b.lat * R, dl = (b.lng - a.lng) * R; return Math.round((Math.atan2(Math.sin(dl) * Math.cos(f2), Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl)) / R + 360) % 360); };
+  // what the defender has to work with comes from the war: air defence cover, an EW dome over the city, a fort, the night
+  E.airRaidParams = (f, i) => {
+    const v = 1 - f, foes = [];
+    for (let j = 0; j < N; j++) if (S.owner[j] === f) { const km = kmBetween(i, j); if (km > 250) foes.push([km, j]); }
+    foes.sort((a, b) => a[0] - b[0]);
+    const dome = (S.ew || []).some(d => d.f === v && d.until > S.simT && kmBetween(d.i, i) <= K.EW_KM);
+    return { seed: (Math.random() * 2 ** 31) | 0, bearings: foes.length ? foes.slice(0, 3).map(([, j]) => bearing(cities[i], cities[j])) : [90], size: 1,
+      night: !!(E.isNight && E.isNight(i)), sams: E.aaCover(i, f) >= 0 ? 6 : 4, groups: 3, battery: dome ? 1.5 : 1, budget: S.fort[i] > S.simT ? 8 : 6 };
+  };
+  let airRaidSeq = 1;
+  function openAirRaid(f, i, who) {
+    const cm = S.cmdr[i] && E.cmdrActive(i) ? S.cmdr[i] : null;
+    const r = { id: airRaidSeq++, f, v: 1 - f, i, who, at: S.simT, call: S.simT + K.AIRRAID_CALL, first: cm ? S.simT + K.AIRRAID_FIRST : 0, cmdr: cm, by: null, byName: null, until: 0, params: E.airRaidParams(f, i) };
+    (S.airraids = S.airraids || []).push(r);
+    emit({ k: 'airraid', f, victim: r.v, city: i, id: r.id, who: pubOf(who), until: r.call, cmdr: cm ? pubOf(cm) : null });
+  }
+  // the verdict of a fought raid: warheads that got through black the region out, longer the more of them there were
+  function endAirRaid(r, res, p) {
+    S.airraids = S.airraids.filter(x => x !== r); emit({ k: 'airraid_end', f: r.f, victim: r.v, city: r.i, id: r.id });
+    const extra = { raid: { by: r.byName, byPub: p ? p.pub : null, rating: res.rating, leaks: res.leaks, warheads: res.warheads, down: res.down, total: res.total, score: res.score } };
+    if (p) { p.raids = (p.raids || 0) + 1; p.xp = (p.xp || 0) + ({ S: 20, A: 15, B: 10, C: 5 }[res.rating] || 2); }
+    if (!res.leaks) { emit({ k: 'strike_down', f: r.f, city: r.i, who: pubOf(r.who), ...extra }); return 'down'; }
+    return blackout(r.f, r.i, r.who, K.BLACKOUT_TIME * Math.min(1, res.leaks / K.AIRRAID_FULL), extra);
+  }
+  function tickAirRaids() {
+    for (const r of S.airraids.slice()) {
+      const lost = S.owner[r.i] !== r.v;
+      if (lost || (!r.by && S.simT >= r.call) || (r.by && S.simT >= r.until)) {
+        S.airraids = S.airraids.filter(x => x !== r);
+        if (!lost) strikeRoll(r.f, r.i, r.who, { raid: { auto: true, by: r.byName } });
+        emit({ k: 'airraid_end', f: r.f, victim: r.v, city: r.i, id: r.id });
+      }
+    }
+  }
+  E.airRaidView = viewer => (S.airraids || []).filter(r => viewer < 0 || r.v === viewer).map(r => ({ id: r.id, i: r.i, f: r.f, v: r.v, at: +r.at.toFixed(2), call: +r.call.toFixed(2), first: +r.first.toFixed(2), cmdr: r.cmdr ? pubOf(r.cmdr) : null, by: r.byName, byPub: r.by && players.get(r.by) ? players.get(r.by).pub : null, until: +r.until.toFixed(2), params: r.params }));
   E.aaCover = (i, attacker) => { const o = S.owner[i]; if (o < 0 || o === attacker) return -1; for (const h of hubs) if (S.owner[h] === o && kmBetween(h, i) <= K.AA_KM) return h; return -1; };
   E.canBlockade = (f, i) => cities[i].port && S.owner[i] === 1 - f && S.block[i] <= S.simT && adj[i].some(x => x.e.type === 1 && S.owner[x.to] === f);
   E.defOf = i => S.troops[i] * E.defMult(i);
@@ -869,7 +920,8 @@ export function createEngine(NET, opts = {}) {
     if (S.sats && S.sats.length && S.sats.some(x => x.until <= S.simT)) S.sats = S.sats.filter(x => x.until > S.simT);
     if (S.spies && S.spies.length && S.spies.some(x => x.until <= S.simT)) S.spies = S.spies.filter(x => x.until > S.simT);
     if (S.decrypt && S.decrypt.length && S.decrypt.some(x => x.until <= S.simT)) { for (const d of S.decrypt) if (d.until <= S.simT) emit({ k: 'decrypt_end', f: d.f }); S.decrypt = S.decrypt.filter(x => x.until > S.simT); }
-    for (const p of players.values()) if (p.cipher && S.simT > p.cipher.until + 20) p.cipher = null;   // a finished or lost cipher lingers a moment so its result can be shown
+    for (const p of players.values()) if (p.cipher && S.simT > p.cipher.until + 20) p.cipher = null;
+    if (S.airraids && S.airraids.length) tickAirRaids();   // a finished or lost cipher lingers a moment so its result can be shown
     for (const key of ['drones', 'ew', 'blackout', 'graft']) if (S[key] && S[key].length && S[key].some(x => x.until <= S.simT)) { if (key === 'blackout') for (const b of S[key]) if (b.until <= S.simT) emit({ k: 'power_back', f: b.f, r: b.r }); S[key] = S[key].filter(x => x.until > S.simT); }
     chiefT -= dt; if (chiefT <= 0) { chiefT = 2; updateChief(0); updateChief(1); if (S.marks.length && S.marks.some(m => m.until <= S.simT)) S.marks = S.marks.filter(m => m.until > S.simT); }
     for (const p of players.values()) p.cp = Math.min(E.cpMax(p.f), p.cp + dt / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
@@ -1101,7 +1153,26 @@ export function createEngine(NET, opts = {}) {
         if (!E.strikeOk(f, i)) return fail(`Long-range drones hit large enemy cities and megahubs within ${K.STRIKE_KM.toLocaleString('en-US')} km`);
         if (p.cp < K.STRIKE_COST) return fail(`A drone strike costs ${K.STRIKE_COST} CP`);
         p.cp -= K.STRIKE_COST; p.strikes = (p.strikes || 0) + 1;
-        const out = strike(f, i, pid); return { ok: true, sfx: out === 'hit' ? 'win' : 'err', result: out };
+        const out = strike(f, i, pid); return { ok: true, sfx: out === 'hit' ? 'win' : out === 'raid' ? 'send' : 'err', result: out };
+      }
+      case 'airraid_take': {
+        const r = (S.airraids || []).find(x => x.id === c.id);
+        if (!r || r.v !== f) return fail('That air raid is already over');
+        if (r.by === pid) return { ok: true, raid: r.id, params: r.params, city: r.i };
+        if (r.by) return fail(`${r.byName} is already defending ${cities[r.i].name}`);
+        if (S.simT < r.first && r.cmdr !== pid && E.cmdrActive(r.i)) return fail(`${players.get(r.cmdr).name} commands ${cities[r.i].name}: they get the first call`);
+        if (S.airraids.some(x => x.by === pid)) return fail('You are already fighting another air raid');
+        r.by = pid; r.byName = p.name; r.until = S.simT + K.AIRRAID_PLAY;
+        emit({ k: 'airraid_take', f: r.f, victim: r.v, city: r.i, id: r.id, by: p.name, who: pubOf(pid) });
+        return { ok: true, raid: r.id, params: r.params, city: r.i, sfx: 'fort' };
+      }
+      case 'airraid_done': {
+        const r = (S.airraids || []).find(x => x.id === c.id);
+        if (!r || r.by !== pid) return fail('That air raid is already over');
+        if (!Array.isArray(c.log) || c.log.length > K.AIRRAID_LOG) return fail('Bad raid log');
+        const log = c.log.filter(e => Array.isArray(e) && Number.isInteger(e[0]) && e[0] >= 0 && e[1] && typeof e[1] === 'object').map(e => [e[0], e[1]]).sort((a, b) => a[0] - b[0]);
+        let res; try { res = replayRaid(r.params, log); } catch (e) { return fail('Bad raid log'); }
+        const out = endAirRaid(r, res, p); return { ok: true, out, rating: res.rating, leaks: res.leaks, score: res.score };
       }
       case 'donate': {
         const n = Math.max(1, Math.min(5, Math.floor(c.n || 1)));
@@ -1201,7 +1272,7 @@ export function createEngine(NET, opts = {}) {
     roster: viewer >= 0 ? humansOnline(viewer).map(p => ({ pub: p.pub, name: p.name, rank: rankOf(p.xp || 0).name, votes: E.votesFor(viewer, p.pub) })).sort((a, b) => b.votes - a.votes).slice(0, 40) : [],
     era: S.era || null,
     drones: (S.drones || []).map(z => ({ f: z.f, i: z.i, until: +z.until.toFixed(1) })), ew: (S.ew || []).map(d => ({ f: d.f, i: d.i, until: +d.until.toFixed(1) })), blackout: S.blackout || [],
-    sats: (S.sats || []).filter(x => viewer < 0 || x.f === viewer), spies: (S.spies || []).filter(x => viewer < 0 || x.f === viewer), decrypt: (S.decrypt || []).filter(x => viewer < 0 || x.f === viewer),
+    sats: (S.sats || []).filter(x => viewer < 0 || x.f === viewer), spies: (S.spies || []).filter(x => viewer < 0 || x.f === viewer), decrypt: (S.decrypt || []).filter(x => viewer < 0 || x.f === viewer), airraids: E.airRaidView(viewer),
     favour: (S.favour || []).map(x => [Math.round(x[0]), Math.round(x[1])]),
     fleets: S.fleets.filter(fl => !vis || fl.f === viewer || (fl.at >= 0 ? vis[fl.at] : (vis[fl.moving.es[fl.moving.hop].a] || vis[fl.moving.es[fl.moving.hop].b]))).map(fl => ({ id: fl.id, f: fl.f, str: Math.round(fl.str), at: fl.at, who: pubOf(fl.who), mv: fl.moving ? { es: fl.moving.es.map(e => e.i), nodes: fl.moving.nodes, hop: fl.moving.hop, t: +fl.moving.t.toFixed(4) } : null })),
     missiles: S.missiles.filter(m => !m.done).map(m => ({ id: m.id, f: m.f, from: m.from, target: m.target, t: +m.t.toFixed(4), chance: +E.interceptChance(m.target, m.extra).toFixed(2), by: m.by })),
@@ -1227,7 +1298,7 @@ export function createEngine(NET, opts = {}) {
     if (snap.favour) S.favour = snap.favour;
     if (snap.era && (!S.era || S.era.k !== snap.era.k)) E.applyEra(snap.era); S.era = snap.era || S.era || null;
     S.drones = snap.drones || []; S.ew = snap.ew || []; S.blackout = snap.blackout || []; S.fund = snap.fund || [0, 0]; S.graft = snap.graft || [];
-    S.gev = snap.gev || null; S.capHold = snap.capHold || [null, null]; S.doctrine = snap.doctrine || [null, null]; S.exile = snap.exile || [-1, -1]; S.rail = new Uint8Array(edges.length); for (const k of snap.rail || []) S.rail[k] = 1; S.field = new Uint8Array(N); for (const k of snap.field || []) S.field[k] = 1; S.unrest = new Float32Array(N); for (const [k, v] of snap.unrest || []) S.unrest[k] = v; S.weather = snap.weather || []; S.scenario = snap.scenario || 'classic'; if (snap.caps) E.applyCaps(snap.caps); S.gov = new Array(N).fill(''); for (const [k, n] of snap.gov || []) S.gov[k] = n; S.ops = snap.ops || [null, null]; S.ships = (snap.ships || []).map(([id, e, fwd, t]) => ({ id, e, fwd: !!fwd, t })); S.opPts = snap.opPts || [0, 0]; S.tradePts = snap.tradePts || [0, 0]; S.cos = snap.cos || {}; S.marks = snap.marks || []; S.chiefInfo = snap.chief || [null, null]; S.roster = snap.roster || []; S.sats = snap.sats || []; S.spies = snap.spies || []; S.decrypt = snap.decrypt || [];
+    S.gev = snap.gev || null; S.capHold = snap.capHold || [null, null]; S.doctrine = snap.doctrine || [null, null]; S.exile = snap.exile || [-1, -1]; S.rail = new Uint8Array(edges.length); for (const k of snap.rail || []) S.rail[k] = 1; S.field = new Uint8Array(N); for (const k of snap.field || []) S.field[k] = 1; S.unrest = new Float32Array(N); for (const [k, v] of snap.unrest || []) S.unrest[k] = v; S.weather = snap.weather || []; S.scenario = snap.scenario || 'classic'; if (snap.caps) E.applyCaps(snap.caps); S.gov = new Array(N).fill(''); for (const [k, n] of snap.gov || []) S.gov[k] = n; S.ops = snap.ops || [null, null]; S.ships = (snap.ships || []).map(([id, e, fwd, t]) => ({ id, e, fwd: !!fwd, t })); S.opPts = snap.opPts || [0, 0]; S.tradePts = snap.tradePts || [0, 0]; S.cos = snap.cos || {}; S.marks = snap.marks || []; S.chiefInfo = snap.chief || [null, null]; S.roster = snap.roster || []; S.sats = snap.sats || []; S.spies = snap.spies || []; S.decrypt = snap.decrypt || []; S.airraids = snap.airraids || [];
     S.fleets = (snap.fleets || []).map(x => ({ id: x.id, f: x.f, str: x.str, at: x.at, who: x.who, moving: x.mv ? { es: x.mv.es.map(k => edges[k]), nodes: x.mv.nodes, hop: x.mv.hop, t: x.mv.t } : null }));
     const oldM = new Map((S.missiles || []).map(m => [m.id, m])); S.missiles = (snap.missiles || []).map(m => { const o = oldM.get(m.id); if (o && Math.abs(o.t - m.t) < 0.05) m.t = o.t; return m; });
     const old = new Map(S.convoys.map(c => [c.id, c]));

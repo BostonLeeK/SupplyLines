@@ -1,7 +1,7 @@
 // Supply Lines service worker: makes the game installable, keeps a copy of the app for flaky networks,
 // and shows push notifications (your city is under attack, a launch needs your key, ...).
-const CACHE = 'supply-lines-v3';
-const SHELL = ['/', '/index.html', '/net.js', '/game/engine.js', '/manifest.json', '/icons/icon-192.png', '/icons/badge-96.png'];
+const CACHE = 'supply-lines-v4';
+const SHELL = ['/', '/index.html', '/net.js', '/game/engine.js', '/game/raid.js', '/manifest.json', '/icons/icon-192.png', '/icons/badge-96.png'];
 
 // a shell that fails to download must not keep the old worker (and its old copy of the game) in charge
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}).then(() => self.skipWaiting())); });

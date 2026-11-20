@@ -149,7 +149,7 @@ const CSS = `
   #raidOv .rMedals,#raidOv .rNotes{padding-left:14px;padding-right:14px} #raidOv .rBtns{padding:14px}
 }`;
 
-// opts: { lat, lng, city, polys, cities: [{ name, lat, lng, own }], params: { seed, bearings, size, night, sams, groups, battery, budget }, muted(), onEnd(result, log), onAgain(), onClose() }
+// opts: { lat, lng, city, polys, cities: [{ name, lat, lng, own }], params: { seed, bearings, size, night, sams, groups, battery, budget }, muted(), onEnd(result, log), onAgain(), onClose(), deployTime (s, optional) }
 export function openRaid(opts) {
   if (!document.getElementById('raidCss')) { const st = document.createElement('style'); st.id = 'raidCss'; st.textContent = CSS; document.head.appendChild(st); }
   const raid = createRaid(opts.params), S = raid.S, P = raid.P, plan = raid.plan;
@@ -169,7 +169,7 @@ export function openRaid(opts) {
         <div class="rIntel">${['shahed', 'decoy', 'jet', 'hunter', 'cruise'].map(t => count(t) ? `<div><svg viewBox="0 0 12 12"><path d="M6 1l5 5-5 5-5-5z" fill="rgba(${HOS_RGB},.2)" stroke="${C2.hos}"/></svg><b>${count(t)}</b><span>${TYPE_TXT[t]}</span></div>` : '').join('')}${P.night ? '<div><svg viewBox="0 0 12 12"><path d="M8 1a5 5 0 1 0 3 8A4 4 0 0 1 8 1z" fill="none" stroke="#7c858c"/></svg><b></b><span>night: fire groups see less</span></div>' : ''}</div>
         <div class="rBud"><span>BUDGET</span><span id="rBud" style="display:contents"></span></div>
         <div class="rKit" id="rKit"></div>
-        <button class="rGo" id="rGo">START THE FIGHT</button>
+        <button class="rGo" id="rGo"><span>START THE FIGHT</span><span class="notr rGoT" id="rGoT"></span></button>
       </div>
       <div class="rCards">
         <div class="rW sam"><h4>SAM <kbd>TAP</kbd><em class="notr">${RAID.SAM_RANGE} ${tr('km')}</em></h4><div class="rAmmo" id="rAmmo"></div><div class="rEng" id="rEng"></div><small>Tap a target on the radar to launch. Only inside the dashed circle of the site.</small></div>
@@ -318,7 +318,10 @@ export function openRaid(opts) {
     e.stopPropagation();
   };
   addEventListener('keydown', onKey, true); addEventListener('keyup', onKey, true);
-  $('rGo').onclick = () => { audio(); ov.classList.remove('deploy'); started = true; siren(); layout(); setRange(innerWidth > 760 ? RAID.R : VR); };
+  // in the war the enemy will not wait: deployTime seconds to set up, then the fight starts by itself
+  let deployT = null;
+  if (opts.deployTime) { const end = performance.now() + opts.deployTime * 1000; const tickDeploy = () => { if (started) return clearInterval(deployT); const left = Math.max(0, Math.ceil((end - performance.now()) / 1000)); $('rGoT').textContent = ' · 0:' + String(left).padStart(2, '0'); if (!left) $('rGo').click(); }; deployT = setInterval(tickDeploy, 250); tickDeploy(); }
+  $('rGo').onclick = () => { if (started) return; clearInterval(deployT); $('rGoT').textContent = ''; audio(); ov.classList.remove('deploy'); started = true; siren(); layout(); setRange(innerWidth > 760 ? RAID.R : VR); };
   $('rX').onclick = () => close();
 
   // ---------- callouts, banner, popups, particles ----------
@@ -635,7 +638,7 @@ export function openRaid(opts) {
     if (opts.onEnd) opts.onEnd(r, raid.log.slice());
   }
   function close() {
-    cancelAnimationFrame(raf); ro.disconnect(); removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKey, true);
+    cancelAnimationFrame(raf); clearInterval(deployT); ro.disconnect(); removeEventListener('keydown', onKey, true); removeEventListener('keyup', onKey, true);
     try { staticNode && staticNode.stop(); } catch (e) {} ov.remove(); if (opts.onClose) opts.onClose();
   }
   // tick(n): run n frames by hand (tests, and a hidden tab where animation frames stop)
