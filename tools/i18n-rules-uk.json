@@ -422,5 +422,21 @@
  [
   "^(\\d+) days left$",
   "ще $1 днів"
+ ],
+ [
+  "^The enemy radio is open to your faction for ~(\\d+) h: their convoys heading for your cities show through the fog, and their decoys are exposed\\.$",
+  "Ворожий радіоефір відкритий твоїй фракції на ~$1 год: їхні конвої на твої міста видно крізь туман, а приманки викрито."
+ ],
+ [
+  "^([^A-Za-z]*)Enemy radio decrypted( \\([^)]*\\))?: their convoys heading for our cities show through the fog for ~(\\d+) h(\\. Their plans target)?$",
+  "$1Ворожий радіоефір розшифровано$2: їхні конвої на наші міста видно крізь туман ще ~$3 год{4}"
+ ],
+ [
+  "^· (\\d+) different digits, (\\d+) of (\\d+) tries left$",
+  "· $1 різні цифри, лишилось спроб: $2 з $3"
+ ],
+ [
+  "^The key is (\\d+) different digits$",
+  "Ключ — це $1 різні цифри"
  ]
 ]

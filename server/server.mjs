@@ -450,7 +450,7 @@ E.onEvent(ev => {
 });
 // events are part of the fog of war too: intel, plans and launch keys stay inside the faction that made them,
 // and a convoy closing in is news only for the side it is coming at
-const PRIVATE_EVENTS = new Set(['op_start', 'op_done', 'op_failed', 'pirates', 'raid', 'decoy', 'spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed', 'fake', 'donate']);
+const PRIVATE_EVENTS = new Set(['op_start', 'op_done', 'op_failed', 'pirates', 'raid', 'decoy', 'spy', 'sat', 'mark', 'unmark', 'rally', 'chief', 'fortify', 'envoy', 'squad', 'combo', 'nuke_armed', 'nuke_abort', 'nuke_confirmed', 'fake', 'donate', 'decrypt', 'decrypt_end']);
 const seesEvent = (ev, f) => ev.k === 'threat' ? ev.f !== f : PRIVATE_EVENTS.has(ev.k) ? ev.f === f : true;
 setInterval(() => {
   if (E.S.ended) {

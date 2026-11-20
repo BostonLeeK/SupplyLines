@@ -24,6 +24,8 @@ export const K = {
   CAP_HOLD: 64, CAP_PTS: 10, // hold the enemy capital for 12 game hours to win the season; +10 points while you hold it
   MARK_MAX: 3, MARK_ATK: 1.15, MARK_DEF: 1.2,
   SAT_COST: 4, SAT_KM: 2200, SAT_TIME: 90, SAT_MAX: 2, SPY_COST: 2, SPY_TIME: 150, SPY_CATCH: 0.25,
+  // a spy who gets in also intercepts an enemy cipher: a key of 4 different digits, 6 tries, every digit marked; cracking it opens the enemy radio to the faction
+  CIPHER_LEN: 4, CIPHER_SYMS: 10, CIPHER_TRIES: 6, CIPHER_TIME: 90, DECRYPT_TIME: 40, DECRYPT_BONUS: 8,
   ENVOY_COST: 3, ENVOY_GAIN: 40, ENVOY_RIVAL: 5, BETRAY_GIFT: 30, ALLY_BONUS: 1.2,
   FLEET_COST: 4, FLEET_TROOPS: 30, FLEET_SPEED: 280, FLEET_MAX_FACTION: 6, FLEET_MAX_PLAYER: 2, FLEET_POWER: 1.5, FLEET_SHORE: 0.004, FLEET_SIEGE: 1.25,
 };
@@ -194,7 +196,7 @@ export function createEngine(NET, opts = {}) {
     S.owner = new Int8Array(N).fill(-1); S.troops = new Float32Array(N); S.supplied = new Uint8Array(N); S.frontDist = new Int16Array(N);
     S.fort = new Float32Array(N); S.sab = new Float32Array(N); S.heat = new Float32Array(edges.length); S.hold = new Float32Array(N);
     S.regionHeld = REGIONS.map(() => -1); S.mobil = [1, 1]; S.orders = [-1, -1]; S.history = []; S.convoys = [];
-    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.drones = []; S.ew = []; S.blackout = []; S.fund = [0, 0]; S.graft = []; S.graftDay = 0; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
+    S.frames = []; S.fleets = []; S.marks = []; S.chief = [null, null]; S.sats = []; S.spies = []; S.decrypt = []; S.drones = []; S.ew = []; S.blackout = []; S.fund = [0, 0]; S.graft = []; S.graftDay = 0; S.gev = null; S.gevDay = 0; S.gevUsed = []; S.favour = Array.from({ length: NN }, () => [0, 0]); S.rad = new Uint8Array(N); S.penalty = [0, 0]; S.rage = [0, 0]; S.strikes = 0; S.winter = false; S.missiles = [];
     S.gov = new Array(N).fill(''); S.capBy = new Array(N).fill(''); S.capAt = new Float32Array(N); S.ops = [null, null]; S.opPts = [0, 0]; S.tradePts = [0, 0]; S.ships = []; nextOpAt = [K.SEASON / 14, K.SEASON / 14]; nextShip = 3;
     S.capHold = [null, null]; S.doctrine = [null, null]; S.exile = [-1, -1]; S.rail = new Uint8Array(edges.length); S.field = new Uint8Array(N); S.unrest = new Float32Array(N);
     { const m = new Date().getUTCMonth(); S.weather = Object.keys(WEATHER).filter(k => WEATHER[k].months.includes(m)); if (S.scenario === 'frost' && !S.weather.includes('snow')) S.weather.push('snow'); }
@@ -866,6 +868,8 @@ export function createEngine(NET, opts = {}) {
     }
     if (S.sats && S.sats.length && S.sats.some(x => x.until <= S.simT)) S.sats = S.sats.filter(x => x.until > S.simT);
     if (S.spies && S.spies.length && S.spies.some(x => x.until <= S.simT)) S.spies = S.spies.filter(x => x.until > S.simT);
+    if (S.decrypt && S.decrypt.length && S.decrypt.some(x => x.until <= S.simT)) { for (const d of S.decrypt) if (d.until <= S.simT) emit({ k: 'decrypt_end', f: d.f }); S.decrypt = S.decrypt.filter(x => x.until > S.simT); }
+    for (const p of players.values()) if (p.cipher && S.simT > p.cipher.until + 20) p.cipher = null;   // a finished or lost cipher lingers a moment so its result can be shown
     for (const key of ['drones', 'ew', 'blackout', 'graft']) if (S[key] && S[key].length && S[key].some(x => x.until <= S.simT)) { if (key === 'blackout') for (const b of S[key]) if (b.until <= S.simT) emit({ k: 'power_back', f: b.f, r: b.r }); S[key] = S[key].filter(x => x.until > S.simT); }
     chiefT -= dt; if (chiefT <= 0) { chiefT = 2; updateChief(0); updateChief(1); if (S.marks.length && S.marks.some(m => m.until <= S.simT)) S.marks = S.marks.filter(m => m.until > S.simT); }
     for (const p of players.values()) p.cp = Math.min(E.cpMax(p.f), p.cp + dt / K.CP_REGEN * (E.ge('arms') ? 2 : 1));
@@ -912,7 +916,29 @@ export function createEngine(NET, opts = {}) {
   E.leaderboard = () => heroes.map(h => ({ name: h.name, f: h.f, caps: h.caps })).concat([...players.values()].filter(p => p.online || p.caps).map(p => ({ name: p.name, f: p.f, caps: p.caps, id: p.pub, rank: rankOf(p.xp).name }))).sort((a, b) => b.caps - a.caps);
 
   E.publicPlayer = p => ({ cp: +p.cp.toFixed(2), cpMax: E.cpMax(p.f), f: p.f, name: p.name, pub: p.pub, caps: p.caps, sent: p.sent, clashes: p.clashes, forts: p.forts, sabs: p.sabs, drops: p.drops, blocks: p.blocks || 0,
-    volunteered: p.volunteered === S.season, linked: !!p.linked, trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200) });
+    volunteered: p.volunteered === S.season, linked: !!p.linked, trail: p.trail || 'std', squad: E.squadInfo(p), commands: S.cmdr.filter(id => id === p.id).length, vote: p.vote || null, chief: S.chief[p.f] === p.id, nukeCp: p.nukeCp || 0, xp: p.xp, rank: rankOf(p.xp), missions: p.missions, far: p.far, captured: p.captured.slice(-200), cipher: E.cipherView(p) });
+  // ---------- intercepted ciphers: a small code-breaking game after a successful spy ----------
+  function newCipher(city) {
+    const pool = [...Array(K.CIPHER_SYMS).keys()], code = [];
+    for (let k = 0; k < K.CIPHER_LEN; k++) code.push(pool.splice((Math.random() * pool.length) | 0, 1)[0]);
+    return { code, tries: [], city, at: S.simT, until: S.simT + K.CIPHER_TIME, done: null };
+  }
+  // [right digit in the right place, right digit in the wrong place]
+  E.cipherScore = (code, g) => { let hit = 0, near = 0; g.forEach((x, k) => { if (code[k] === x) hit++; else if (code.includes(x)) near++; }); return [hit, near]; };
+  // the same, digit by digit: h = in place, n = in the key elsewhere, x = not in the key
+  E.cipherMarks = (code, g) => g.map((x, k) => code[k] === x ? 'h' : code.includes(x) ? 'n' : 'x').join('');
+  // what the player may see of their cipher: never the code while it is still being broken
+  E.cipherView = p => { const cf = p && p.cipher; if (!cf || (cf.until <= S.simT && !cf.done)) return null;
+    return { city: cf.city, at: +cf.at.toFixed(1), until: +cf.until.toFixed(1), tries: cf.tries, max: K.CIPHER_TRIES, len: K.CIPHER_LEN, syms: K.CIPHER_SYMS, done: cf.done, code: cf.done ? cf.code : undefined }; };
+  // the enemy radio is open: every enemy convoy heading for your cities shows through the fog and decoys are exposed
+  E.decrypted = f => (S.decrypt || []).some(d => d.f === f && d.until > S.simT);
+  function decrypt(f, p, pid, spare) {
+    const e = 1 - f, len = K.DECRYPT_TIME + K.DECRYPT_BONUS * Math.max(0, spare), was = (S.decrypt || []).find(d => d.f === f && d.until > S.simT);
+    if (was) was.until = Math.max(was.until, S.simT + len); else S.decrypt.push({ f, until: S.simT + len, by: p.name });
+    p.decrypts = (p.decrypts || 0) + 1; p.xp = (p.xp || 0) + 5 + 2 * Math.max(0, spare);
+    const op = S.ops[e];
+    emit({ k: 'decrypt', f, who: pubOf(pid), by: p.name, until: S.simT + len, tries: K.CIPHER_TRIES - spare, marks: (S.marks || []).filter(m => m.f === e && m.kind === 'attack' && m.fake === undefined && m.until > S.simT).map(m => m.i), op: op ? op.targets : [], order: S.orders[e] });
+  }
   // ---------- player commands (validated: the server trusts nothing else) ----------
   const fail = msg => ({ ok: false, msg });
   E.command = (pid, c) => {
@@ -1105,10 +1131,21 @@ export function createEngine(NET, opts = {}) {
         p.cp -= K.SPY_COST; p.spies = (p.spies || 0) + 1;
         if (Math.random() < (E.isNight(i) ? K.NIGHT_SPY : K.SPY_CATCH)) { emit({ k: 'spy_caught', f, city: i, who: pubOf(pid) }); return { ok: true, sfx: 'err' }; }
         S.spies.push({ f, i, until: S.simT + K.SPY_TIME });
+        if (!p.cipher || p.cipher.done || p.cipher.until <= S.simT) p.cipher = newCipher(i);   // an unfinished cipher is never swapped out
         { const fk = S.marks.findIndex(m => m.fake === 1 - f && m.f === f && m.i === i); if (fk >= 0) { S.marks.splice(fk, 1); emit({ k: 'fake_exposed', f, city: i, who: pubOf(pid) }); } }
         const e = 1 - f, nk = S.nuke[e];
         emit({ k: 'spy', f, city: i, who: pubOf(pid), troops: Math.round(S.troops[i]), order: S.orders[e], nuke: Math.round(nk.prog * 100), ready: !!nk.ready && !nk.used, arm: nk.arm ? nk.arm.target : -1, army: Math.round(S.troops.reduce((a, t, j) => a + (S.owner[j] === e ? t : 0), 0)) });
         return { ok: true, sfx: 'fort' };
+      }
+      case 'cipher': {
+        const cf = p.cipher;
+        if (!cf || cf.done || cf.until <= S.simT) return fail('No intercepted cipher: send a spy into an enemy city');
+        const g = Array.isArray(c.g) ? c.g.map(x => x | 0) : [];
+        if (g.length !== K.CIPHER_LEN || g.some(x => x < 0 || x >= K.CIPHER_SYMS) || new Set(g).size !== g.length) return fail(`The key is ${K.CIPHER_LEN} different digits`);
+        const fb = E.cipherScore(cf.code, g), mk = E.cipherMarks(cf.code, g); cf.tries.push([g, fb[0], fb[1], mk]);
+        if (fb[0] === K.CIPHER_LEN) { cf.done = 'won'; cf.until = S.simT; decrypt(f, p, pid, K.CIPHER_TRIES - cf.tries.length); return { ok: true, hit: fb[0], near: fb[1], marks: mk, done: 'won', sfx: 'win' }; }
+        if (cf.tries.length >= K.CIPHER_TRIES) { cf.done = 'lost'; cf.until = S.simT; return { ok: true, hit: fb[0], near: fb[1], marks: mk, done: 'lost', sfx: 'err' }; }
+        return { ok: true, hit: fb[0], near: fb[1], marks: mk };
       }
       case 'envoy': {
         if (!valid(i) || cities[i].nation < 0) return fail('Envoys go to the free nations (former Russia)');
@@ -1146,7 +1183,7 @@ export function createEngine(NET, opts = {}) {
   // ---------- mirror support (client side, online mode) ----------
   // Serialise the visible state compactly; applySnapshot rebuilds it on the client.
   E.snapshot = (viewer = -1) => {
-    const vis = viewer >= 0 ? E.visibility(viewer) : null, hide = i => vis && !vis[i] && S.owner[i] !== viewer && S.owner[i] >= 0;
+    const vis = viewer >= 0 ? E.visibility(viewer) : null, hide = i => vis && !vis[i] && S.owner[i] !== viewer && S.owner[i] >= 0, radio = viewer >= 0 && E.decrypted(viewer);
     return {
     t: +S.simT.toFixed(4), season: S.season, ended: S.ended, fog: viewer,
     owner: Array.from(S.owner), troops: Array.from(S.troops, (x, i) => hide(i) ? -1 : Math.round(x * 10) / 10),
@@ -1164,12 +1201,12 @@ export function createEngine(NET, opts = {}) {
     roster: viewer >= 0 ? humansOnline(viewer).map(p => ({ pub: p.pub, name: p.name, rank: rankOf(p.xp || 0).name, votes: E.votesFor(viewer, p.pub) })).sort((a, b) => b.votes - a.votes).slice(0, 40) : [],
     era: S.era || null,
     drones: (S.drones || []).map(z => ({ f: z.f, i: z.i, until: +z.until.toFixed(1) })), ew: (S.ew || []).map(d => ({ f: d.f, i: d.i, until: +d.until.toFixed(1) })), blackout: S.blackout || [],
-    sats: (S.sats || []).filter(x => viewer < 0 || x.f === viewer), spies: (S.spies || []).filter(x => viewer < 0 || x.f === viewer),
+    sats: (S.sats || []).filter(x => viewer < 0 || x.f === viewer), spies: (S.spies || []).filter(x => viewer < 0 || x.f === viewer), decrypt: (S.decrypt || []).filter(x => viewer < 0 || x.f === viewer),
     favour: (S.favour || []).map(x => [Math.round(x[0]), Math.round(x[1])]),
     fleets: S.fleets.filter(fl => !vis || fl.f === viewer || (fl.at >= 0 ? vis[fl.at] : (vis[fl.moving.es[fl.moving.hop].a] || vis[fl.moving.es[fl.moving.hop].b]))).map(fl => ({ id: fl.id, f: fl.f, str: Math.round(fl.str), at: fl.at, who: pubOf(fl.who), mv: fl.moving ? { es: fl.moving.es.map(e => e.i), nodes: fl.moving.nodes, hop: fl.moving.hop, t: +fl.moving.t.toFixed(4) } : null })),
     missiles: S.missiles.filter(m => !m.done).map(m => ({ id: m.id, f: m.f, from: m.from, target: m.target, t: +m.t.toFixed(4), chance: +E.interceptChance(m.target, m.extra).toFixed(2), by: m.by })),
     orders: S.orders, regionHeld: S.regionHeld, mobil: S.mobil.map(x => +x.toFixed(3)), supplied: Array.from(S.supplied),
-    conv: S.convoys.filter(c => !vis || c.f === viewer || vis[c.e.a] || vis[c.e.b]).map(c => [c.id, c.f, Math.round(c.n), c.drop ? [-1, c.es[0].a, c.es[0].b] : c.es.map(e => e.i), c.nodes, c.hop, +c.t.toFixed(4), typeof c.who === 'string' ? pubOf(c.who) : '', c.kind === 'decoy' && viewer >= 0 && c.f !== viewer && !spiedNear(viewer, c.e) ? 'std' : c.kind || 'std']),
+    conv: S.convoys.filter(c => !vis || c.f === viewer || vis[c.e.a] || vis[c.e.b] || (radio && !c.drop && S.owner[c.nodes[c.nodes.length - 1]] === viewer)).map(c => [c.id, c.f, Math.round(c.n), c.drop ? [-1, c.es[0].a, c.es[0].b] : c.es.map(e => e.i), c.nodes, c.hop, +c.t.toFixed(4), typeof c.who === 'string' ? pubOf(c.who) : '', c.kind === 'decoy' && viewer >= 0 && c.f !== viewer && !radio && !spiedNear(viewer, c.e) ? 'std' : c.kind || 'std']),
   }; };
   const spiedNear = (f, e) => (S.spies || []).some(sp => sp.f === f && sp.until > S.simT && (sp.i === e.a || sp.i === e.b || adj[sp.i].some(x => x.to === e.a || x.to === e.b)));
   const pairs = (arr, min) => { const out = []; for (let i = 0; i < arr.length; i++) if (arr[i] > min) out.push([i, +arr[i].toFixed(2)]); return out; };
@@ -1190,7 +1227,7 @@ export function createEngine(NET, opts = {}) {
     if (snap.favour) S.favour = snap.favour;
     if (snap.era && (!S.era || S.era.k !== snap.era.k)) E.applyEra(snap.era); S.era = snap.era || S.era || null;
     S.drones = snap.drones || []; S.ew = snap.ew || []; S.blackout = snap.blackout || []; S.fund = snap.fund || [0, 0]; S.graft = snap.graft || [];
-    S.gev = snap.gev || null; S.capHold = snap.capHold || [null, null]; S.doctrine = snap.doctrine || [null, null]; S.exile = snap.exile || [-1, -1]; S.rail = new Uint8Array(edges.length); for (const k of snap.rail || []) S.rail[k] = 1; S.field = new Uint8Array(N); for (const k of snap.field || []) S.field[k] = 1; S.unrest = new Float32Array(N); for (const [k, v] of snap.unrest || []) S.unrest[k] = v; S.weather = snap.weather || []; S.scenario = snap.scenario || 'classic'; if (snap.caps) E.applyCaps(snap.caps); S.gov = new Array(N).fill(''); for (const [k, n] of snap.gov || []) S.gov[k] = n; S.ops = snap.ops || [null, null]; S.ships = (snap.ships || []).map(([id, e, fwd, t]) => ({ id, e, fwd: !!fwd, t })); S.opPts = snap.opPts || [0, 0]; S.tradePts = snap.tradePts || [0, 0]; S.cos = snap.cos || {}; S.marks = snap.marks || []; S.chiefInfo = snap.chief || [null, null]; S.roster = snap.roster || []; S.sats = snap.sats || []; S.spies = snap.spies || [];
+    S.gev = snap.gev || null; S.capHold = snap.capHold || [null, null]; S.doctrine = snap.doctrine || [null, null]; S.exile = snap.exile || [-1, -1]; S.rail = new Uint8Array(edges.length); for (const k of snap.rail || []) S.rail[k] = 1; S.field = new Uint8Array(N); for (const k of snap.field || []) S.field[k] = 1; S.unrest = new Float32Array(N); for (const [k, v] of snap.unrest || []) S.unrest[k] = v; S.weather = snap.weather || []; S.scenario = snap.scenario || 'classic'; if (snap.caps) E.applyCaps(snap.caps); S.gov = new Array(N).fill(''); for (const [k, n] of snap.gov || []) S.gov[k] = n; S.ops = snap.ops || [null, null]; S.ships = (snap.ships || []).map(([id, e, fwd, t]) => ({ id, e, fwd: !!fwd, t })); S.opPts = snap.opPts || [0, 0]; S.tradePts = snap.tradePts || [0, 0]; S.cos = snap.cos || {}; S.marks = snap.marks || []; S.chiefInfo = snap.chief || [null, null]; S.roster = snap.roster || []; S.sats = snap.sats || []; S.spies = snap.spies || []; S.decrypt = snap.decrypt || [];
     S.fleets = (snap.fleets || []).map(x => ({ id: x.id, f: x.f, str: x.str, at: x.at, who: x.who, moving: x.mv ? { es: x.mv.es.map(k => edges[k]), nodes: x.mv.nodes, hop: x.mv.hop, t: x.mv.t } : null }));
     const oldM = new Map((S.missiles || []).map(m => [m.id, m])); S.missiles = (snap.missiles || []).map(m => { const o = oldM.get(m.id); if (o && Math.abs(o.t - m.t) < 0.05) m.t = o.t; return m; });
     const old = new Map(S.convoys.map(c => [c.id, c]));
@@ -1215,7 +1252,7 @@ export function createEngine(NET, opts = {}) {
   E.save = () => ({
     v: 1, S: { simT: S.simT, season: S.season, ended: S.ended, owner: Array.from(S.owner), troops: Array.from(S.troops), fort: Array.from(S.fort), sab: Array.from(S.sab), hold: Array.from(S.hold),
       heat: Array.from(S.heat), regionHeld: S.regionHeld, mobil: S.mobil, orders: S.orders, history: S.history, frames: S.frames, cmdr: S.cmdr,
-      block: Array.from(S.block), blockBy: Array.from(S.blockBy), storms: S.storms, rad: Array.from(S.rad), penalty: S.penalty, rage: S.rage, strikes: S.strikes, winter: S.winter, nuke: S.nuke, favour: S.favour, gev: S.gev, marks: S.marks, era: S.era, drones: S.drones, ew: S.ew, blackout: S.blackout, fund: S.fund, graft: S.graft, graftDay: S.graftDay, sats: S.sats, spies: S.spies, gevDay: S.gevDay, gevUsed: S.gevUsed, missiles: S.missiles, capHold: S.capHold, doctrine: S.doctrine, exile: S.exile, rail: Array.from(S.rail), field: Array.from(S.field), unrest: Array.from(S.unrest), weather: S.weather, scenario: S.scenario, caps: CAPS.slice(), gov: S.gov, capBy: S.capBy, capAt: Array.from(S.capAt), ops: S.ops, opPts: S.opPts, tradePts: S.tradePts, ships: S.ships, scars: S.scars, scarUntil: S.scarUntil, fleets: S.fleets.map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(e => e.i) } : null })) },
+      block: Array.from(S.block), blockBy: Array.from(S.blockBy), storms: S.storms, rad: Array.from(S.rad), penalty: S.penalty, rage: S.rage, strikes: S.strikes, winter: S.winter, nuke: S.nuke, favour: S.favour, gev: S.gev, marks: S.marks, era: S.era, drones: S.drones, ew: S.ew, blackout: S.blackout, fund: S.fund, graft: S.graft, graftDay: S.graftDay, sats: S.sats, spies: S.spies, decrypt: S.decrypt, gevDay: S.gevDay, gevUsed: S.gevUsed, missiles: S.missiles, capHold: S.capHold, doctrine: S.doctrine, exile: S.exile, rail: Array.from(S.rail), field: Array.from(S.field), unrest: Array.from(S.unrest), weather: S.weather, scenario: S.scenario, caps: CAPS.slice(), gov: S.gov, capBy: S.capBy, capAt: Array.from(S.capAt), ops: S.ops, opPts: S.opPts, tradePts: S.tradePts, ships: S.ships, scars: S.scars, scarUntil: S.scarUntil, fleets: S.fleets.map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(e => e.i) } : null })) },
     conv: S.convoys.map(c => ({ kind: c.kind, f: c.f, n: c.n, es: c.drop ? null : c.es.map(x => x.i), drop: c.drop ? [c.es[0].a, c.es[0].b] : null, nodes: c.nodes, hop: c.hop, t: c.t, who: c.who })),
     inner: { orderUntil, botAcc, nextSupply, nextBotOrder, nextHist, nextStorm, heroes, convoySeq, bots: E.bots },
     players: [...players.values()].map(p => { const { online, ...rest } = p; return rest; }),
@@ -1229,7 +1266,7 @@ export function createEngine(NET, opts = {}) {
     S.nuke = s.nuke || [0, 1].map(() => ({ prog: 0, ready: false, used: false, arm: null })); S.missiles = s.missiles || []; S.capHold = s.capHold || [null, null]; S.doctrine = s.doctrine || [null, null]; S.exile = s.exile || [-1, -1]; S.rail = s.rail && s.rail.length === edges.length ? Uint8Array.from(s.rail) : new Uint8Array(edges.length); S.field = s.field ? Uint8Array.from(s.field) : new Uint8Array(N); S.unrest = s.unrest ? Float32Array.from(s.unrest) : new Float32Array(N); S.weather = s.weather || []; S.scenario = s.scenario || 'classic'; if (s.caps) E.applyCaps(s.caps); S.gov = s.gov || new Array(N).fill(''); S.capBy = s.capBy || new Array(N).fill(''); S.capAt = s.capAt ? Float32Array.from(s.capAt) : new Float32Array(N); S.ops = s.ops || [null, null]; S.opPts = s.opPts || [0, 0]; S.tradePts = s.tradePts || [0, 0]; S.ships = s.ships || []; S.scars = s.scars || []; S.scarUntil = s.scarUntil || 0;
     S.era = s.era || eraAt(Date.now()); E.applyEra(S.era);
     S.drones = s.drones || []; S.ew = s.ew || []; S.blackout = s.blackout || []; S.fund = s.fund || [0, 0]; S.graft = s.graft || []; S.graftDay = s.graftDay || 0;
-    S.gev = s.gev || null; S.marks = s.marks || []; S.sats = s.sats || []; S.spies = s.spies || []; S.gevDay = s.gevDay || 0; S.gevUsed = s.gevUsed || [];
+    S.gev = s.gev || null; S.marks = s.marks || []; S.sats = s.sats || []; S.spies = s.spies || []; S.decrypt = s.decrypt || []; S.gevDay = s.gevDay || 0; S.gevUsed = s.gevUsed || [];
     S.favour = s.favour || Array.from({ length: NN }, () => [0, 0]);
     S.fleets = (s.fleets || []).map(fl => ({ ...fl, moving: fl.moving ? { ...fl.moving, es: fl.moving.es.map(k => edges[k]) } : null }));
     S.heat = Float32Array.from(s.heat); S.block = Float32Array.from(s.block); S.blockBy = Int8Array.from(s.blockBy); S.supplied = new Uint8Array(N); S.frontDist = new Int16Array(N);
