@@ -438,5 +438,45 @@
  [
   "^The key is (\\d+) different digits$",
   "Ключ — це $1 різні цифри"
+ ],
+ [
+  "^(\\d+) MHz( · TX)?$",
+  "$1 МГц$2"
+ ],
+ [
+  "^(\\d+) of (\\d+) shot down · (\\d+) of (\\d+) warheads got through · score (\\d+)$",
+  "Збито $1 з $2 · прорвалося бойових частин: $3 з $4 · рахунок $5"
+ ],
+ [
+  "^SAM · (\\d+) fired$",
+  "ЗРК · пусків: $1"
+ ],
+ [
+  "^EW · (\\d+) links? cut$",
+  "РЕБ · обірвано каналів: $1"
+ ],
+ [
+  "^(\\d+) SAM spent on decoys\\. A decoy has no link: no spike in the spectrum, no bearing on the radar\\.$",
+  "Ракет витрачено на приманки: $1. У приманки немає каналу зв’язку: ні піка в спектрі, ні пеленга на радарі."
+ ],
+ [
+  "^Intel: a raid from (\\S+), three waves\\. Drag the SAM site \\(the frame with an arc\\) and the fire groups \\(the frames with a chevron\\) on the map, then buy what you need\\.$",
+  "Розвідка: наліт з напрямку $1, три хвилі. Перетягни на карті батарею ЗРК (рамка з дугою) і вогневі групи (рамки з кутом), потім купи потрібне спорядження."
+ ],
+ [
+  "^(\\d+) km$",
+  "$1 км"
+ ],
+ [
+  "^LINK ([A-Z]) CUT$",
+  "КАНАЛ $1 ОБІРВАНО"
+ ],
+ [
+  "^FIRE GROUP (\\d) LOST$",
+  "ВОГНЕВУ ГРУПУ $1 ЗНИЩЕНО"
+ ],
+ [
+  "^(\\d+) of (\\d+) shot down · (\\d+) of (\\d+) warheads got through$",
+  "Збито $1 з $2 · прорвалося бойових частин: $3 з $4"
  ]
 ]

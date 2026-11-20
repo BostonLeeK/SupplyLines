@@ -25,7 +25,7 @@ for (const f of ['tools/i18n-base-uk.json', 'tools/i18n-uk.json', 'tools/i18n-ex
 for (const k of Object.keys(dict)) dict[k] = dict[k].replace(/Росі(я|ї|ю|єю)/g, 'росі$1').replace(/Москові(я|ї|ю|єю)/g, 'москові$1');
 // sentence templates: every template literal, split at HTML tags (each piece becomes its own text node)
 const pat = [], seen = new Set();
-for (const f of ['index.html', 'world.html', 'game/engine.js', 'server/server.mjs']) {
+for (const f of ['index.html', 'world.html', 'game/engine.js', 'server/server.mjs', 'raid-ui.js']) {
   const src = read(f);
   for (const m of src.matchAll(/`((?:[^`\\]|\\.)*)`/g)) {
     // replace ${...} (with nesting) by a marker

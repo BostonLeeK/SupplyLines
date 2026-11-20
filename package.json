@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node server/server.mjs",
     "dev": "node tools/dev.mjs",
-    "test": "node tools/test-engine.mjs && node tools/test-persist.mjs && node tools/test-cipher.mjs",
+    "test": "node tools/test-engine.mjs && node tools/test-persist.mjs && node tools/test-cipher.mjs && node tools/test-raid.mjs",
     "balance": "node tools/balance.mjs 16",
     "build:net": "cd tools && npm install && node build-net.mjs",
     "icons": "node tools/make-brand.mjs app",
