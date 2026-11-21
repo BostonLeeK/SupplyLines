@@ -66,6 +66,13 @@ p.cipher = null; for (let k = 0; k < 40 && !p.cipher; k++) { p.cp = 99; E.S.spie
 for (let k = 0; k < (K.CIPHER_TIME + 25) * 10; k++) E.step(0.1);
 assert.equal(E.publicPlayer(p).cipher, null, 'an ignored cipher expires');
 
+// a won cipher does not follow the player into the next season or to the other side
+const spyWin = () => { p.cipher = null; for (let k = 0; k < 40 && !p.cipher; k++) { p.cp = 99; E.S.spies = []; E.command('p1', { type: 'spy', city: enemy.i }); } p.cipher.done = 'won'; p.cipher.until = E.S.simT; };
+spyWin(); assert.ok(E.publicPlayer(p).cipher, 'a fresh win shows');
+p.f = 1; assert.equal(E.publicPlayer(p).cipher, null, 'switching sides hides the old cipher'); p.f = 0;
+E.reset(); assert.equal(E.publicPlayer(p).cipher, null, 'a new season starts without a cipher');
+p.cipher = { code: [0, 1, 2, 3], tries: [], city: enemy.i, at: 0, until: 9999, done: 'won', season: E.S.season - 1, f: 0 }; E.step(0.1); assert.equal(E.publicPlayer(p).cipher, null, 'a cipher from an earlier season never shows');
+
 // state survives a save and load
 const M = createEngine(NET); M.load(JSON.parse(JSON.stringify(E.save()))); assert.ok(Array.isArray(M.S.decrypt));
 console.log('cipher ok', res.done, 'in', first.tries.length, 'tries');

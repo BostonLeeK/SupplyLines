@@ -226,7 +226,7 @@ export function createEngine(NET, opts = {}) {
     emit({ k: 'start', season: S.season });
     if (S.eraNew && S.era) emit({ k: 'era', era: S.era.k, end: S.era.end });
   };
-  const resetStats = p => Object.assign(p, { nukeCp: 0, cp: K.CP_BASE, caps: 0, sent: 0, clashes: 0, forts: 0, sabs: 0, drops: 0, blocks: 0, captured: [], far: null, missions: pickMissions() });
+  const resetStats = p => Object.assign(p, { cipher: null, nukeCp: 0, cp: K.CP_BASE, caps: 0, sent: 0, clashes: 0, forts: 0, sabs: 0, drops: 0, blocks: 0, captured: [], far: null, missions: pickMissions() });
   function pickMissions() {
     const pool = MISSIONS.slice().sort(() => Math.random() - 0.5).slice(0, 3);
     return pool.map(m => { const r = (Math.random() * REGIONS.length) | 0; return { id: m.id, text: m.text.replace('{R}', REGIONS[r]), goal: m.goal, prog: 0, done: false, r }; });
@@ -920,7 +920,7 @@ export function createEngine(NET, opts = {}) {
     if (S.sats && S.sats.length && S.sats.some(x => x.until <= S.simT)) S.sats = S.sats.filter(x => x.until > S.simT);
     if (S.spies && S.spies.length && S.spies.some(x => x.until <= S.simT)) S.spies = S.spies.filter(x => x.until > S.simT);
     if (S.decrypt && S.decrypt.length && S.decrypt.some(x => x.until <= S.simT)) { for (const d of S.decrypt) if (d.until <= S.simT) emit({ k: 'decrypt_end', f: d.f }); S.decrypt = S.decrypt.filter(x => x.until > S.simT); }
-    for (const p of players.values()) if (p.cipher && S.simT > p.cipher.until + 20) p.cipher = null;
+    for (const p of players.values()) if (p.cipher && (!cipherLive(p) || S.simT > p.cipher.until + 20)) p.cipher = null;
     if (S.airraids && S.airraids.length) tickAirRaids();   // a finished or lost cipher lingers a moment so its result can be shown
     for (const key of ['drones', 'ew', 'blackout', 'graft']) if (S[key] && S[key].length && S[key].some(x => x.until <= S.simT)) { if (key === 'blackout') for (const b of S[key]) if (b.until <= S.simT) emit({ k: 'power_back', f: b.f, r: b.r }); S[key] = S[key].filter(x => x.until > S.simT); }
     chiefT -= dt; if (chiefT <= 0) { chiefT = 2; updateChief(0); updateChief(1); if (S.marks.length && S.marks.some(m => m.until <= S.simT)) S.marks = S.marks.filter(m => m.until > S.simT); }
@@ -980,7 +980,8 @@ export function createEngine(NET, opts = {}) {
   // the same, digit by digit: h = in place, n = in the key elsewhere, x = not in the key
   E.cipherMarks = (code, g) => g.map((x, k) => code[k] === x ? 'h' : code.includes(x) ? 'n' : 'x').join('');
   // what the player may see of their cipher: never the code while it is still being broken
-  E.cipherView = p => { const cf = p && p.cipher; if (!cf || (cf.until <= S.simT && !cf.done)) return null;
+  const cipherLive = p => !!(p && p.cipher && p.cipher.season === S.season && p.cipher.f === p.f);
+  E.cipherView = p => { const cf = cipherLive(p) && p.cipher; if (!cf || (cf.until <= S.simT && !cf.done)) return null;
     return { city: cf.city, at: +cf.at.toFixed(1), until: +cf.until.toFixed(1), tries: cf.tries, max: K.CIPHER_TRIES, len: K.CIPHER_LEN, syms: K.CIPHER_SYMS, done: cf.done, code: cf.done ? cf.code : undefined }; };
   // the enemy radio is open: every enemy convoy heading for your cities shows through the fog and decoys are exposed
   E.decrypted = f => (S.decrypt || []).some(d => d.f === f && d.until > S.simT);
@@ -1202,14 +1203,14 @@ export function createEngine(NET, opts = {}) {
         p.cp -= K.SPY_COST; p.spies = (p.spies || 0) + 1;
         if (Math.random() < (E.isNight(i) ? K.NIGHT_SPY : K.SPY_CATCH)) { emit({ k: 'spy_caught', f, city: i, who: pubOf(pid) }); return { ok: true, sfx: 'err' }; }
         S.spies.push({ f, i, until: S.simT + K.SPY_TIME });
-        if (!p.cipher || p.cipher.done || p.cipher.until <= S.simT) p.cipher = newCipher(i);   // an unfinished cipher is never swapped out
+        if (!cipherLive(p) || p.cipher.done || p.cipher.until <= S.simT) p.cipher = { ...newCipher(i), season: S.season, f };   // an unfinished cipher is never swapped out
         { const fk = S.marks.findIndex(m => m.fake === 1 - f && m.f === f && m.i === i); if (fk >= 0) { S.marks.splice(fk, 1); emit({ k: 'fake_exposed', f, city: i, who: pubOf(pid) }); } }
         const e = 1 - f, nk = S.nuke[e];
         emit({ k: 'spy', f, city: i, who: pubOf(pid), troops: Math.round(S.troops[i]), order: S.orders[e], nuke: Math.round(nk.prog * 100), ready: !!nk.ready && !nk.used, arm: nk.arm ? nk.arm.target : -1, army: Math.round(S.troops.reduce((a, t, j) => a + (S.owner[j] === e ? t : 0), 0)) });
         return { ok: true, sfx: 'fort' };
       }
       case 'cipher': {
-        const cf = p.cipher;
+        const cf = cipherLive(p) ? p.cipher : null;
         if (!cf || cf.done || cf.until <= S.simT) return fail('No intercepted cipher: send a spy into an enemy city');
         const g = Array.isArray(c.g) ? c.g.map(x => x | 0) : [];
         if (g.length !== K.CIPHER_LEN || g.some(x => x < 0 || x >= K.CIPHER_SYMS) || new Set(g).size !== g.length) return fail(`The key is ${K.CIPHER_LEN} different digits`);
