@@ -130,6 +130,25 @@ npm run balance   # 16 bot-only seasons: are the factions balanced?
 3. Reload, press PLAY again (audio needs a click) and run `T.audio({ upload: 'http://127.0.0.1:5199/save', name: 'trailer-en-audio.webm' })`; keep the tab in front for ~95 s.
 4. `node tools/trailer-mux.mjs media/trailer-en-video.mp4 media/trailer-en-audio.webm media/supply-lines-trailer-en.mp4`
 
+## Shorts (TikTok, Reels, Shorts)
+
+Vertical 1080×1920 clips with an AI voice-over and word-by-word captions, filmed from the game like the trailer.
+Five are scripted in `tools/shorts/scripts.json` (English and Ukrainian): `capital`, `season`, `decoy`, `cipher`, `realwar`.
+You need ffmpeg (`brew install ffmpeg`).
+
+1. Voice: `node tools/shorts-voice.mjs all all`. With `ELEVENLABS_API_KEY` in `.env` it uses ElevenLabs (multilingual v2, exact word
+   timings; `ELEVENLABS_VOICE`, `ELEVENLABS_VOICE_EN` or `_UK` pick the voice). Without a key it falls back to the macOS `say` voice for
+   English (a draft, to check pacing) and to captions only for Ukrainian. Each short gets `media/shorts/<id>-<lang>/` with the beat audio,
+   `timeline.json` and `captions.srt`.
+2. `node tools/trailer-server.mjs`, then open `http://localhost:5177/?offline=1&lang=en` (or `lang=uk`), press PLAY, and in the console:
+   `SH = await import('http://127.0.0.1:5199/shorts.js')`. `await SH.preview('capital', 'en')` plays it in real time to check the look;
+   `await SH.run('capital', 'en')` renders it frame by frame into `media/short-capital-en-video.mp4`. Keep the tab visible while it renders.
+3. Reload, press PLAY, `SH = await import(...)` again and `await SH.audio('capital', 'en')`: the game's sounds and a music bed.
+4. `node tools/shorts-mux.mjs capital en` → `media/shorts/supply-lines-capital-en.mp4`: the voice on top, the game ducked under it, -14 LUFS.
+
+A new short is a new entry in `scripts.json`: beats of one voice line each, with a scene from `tools/shorts.js` (`hook`, `front`,
+`timelapse`, `capital_fall`, `capital_clock`, `capital_exile`, `decoy`, `decoy_follow`, `cipher`, `cipher_wait`, `decrypt`, `nuke`, `dark`, `outro`).
+
 ## Deploy
 
 See [DEPLOY.md](DEPLOY.md): one `docker compose up` on a VPS, behind the reverse proxy you already run.

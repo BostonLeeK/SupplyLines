@@ -4,6 +4,7 @@
 //   POST /frame                 one JPEG frame, piped into ffmpeg
 //   GET  /end                   closes the stream and waits for the mp4
 //   POST /save?name=            saves an uploaded file (the audio pass, or a real-time recording) to media/
+//   GET  /shorts.js, /shorts/<id>-<lang>/timeline.json   the shorts director and its voice timelines
 // node tools/trailer-server.mjs
 import http from 'http';
 import fs from 'fs';
@@ -18,6 +19,13 @@ http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); res.setHeader('Access-Control-Allow-Headers', '*');
   if (req.method === 'OPTIONS') return res.end();
   const u = new URL(req.url, 'http://x');
+  // shorts: the director script and each short's voice timeline (made by tools/shorts-voice.mjs)
+  if (req.method === 'GET' && u.pathname === '/shorts.js') { res.setHeader('Content-Type', 'text/javascript'); res.setHeader('Cache-Control', 'no-store'); return res.end(fs.readFileSync(path.join(here, 'shorts.js'))); }
+  if (req.method === 'GET' && u.pathname.startsWith('/shorts/')) {
+    const file = path.join(media, 'shorts', ...u.pathname.slice(8).split('/').map(x => path.basename(decodeURIComponent(x))));
+    if (!fs.existsSync(file)) { res.statusCode = 404; return res.end('no ' + u.pathname); }
+    res.setHeader('Cache-Control', 'no-store'); if (file.endsWith('.json')) res.setHeader('Content-Type', 'application/json'); return res.end(fs.readFileSync(file));
+  }
   if (req.method === 'GET' && u.pathname === '/trailer.js') { res.setHeader('Content-Type', 'text/javascript'); res.setHeader('Cache-Control', 'no-store'); return res.end(fs.readFileSync(path.join(here, 'trailer.js'))); }
   if (u.pathname === '/start') {
     if (ff) { ff.stdin.end(); await ffDone; }

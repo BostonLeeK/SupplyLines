@@ -1,0 +1,87 @@
+{
+  "_about": "Short vertical videos for TikTok / Reels / Shorts. Each beat is one voice line plus the scene it plays over. hook = the big line at the top (first beat only). min = shortest the beat may be (s), pad = silence after the line (s). Scenes live in tools/shorts.js.",
+  "shorts": [
+    {
+      "id": "capital",
+      "rubric": "What happens if",
+      "beats": [
+        { "scene": "hook", "hook": { "en": "WHAT IF YOU LOSE\nYOUR CAPITAL?", "uk": "ЩО БУДЕ, ЯКЩО ВТРАТИТИ\nСТОЛИЦЮ?" },
+          "say": { "en": "What happens if you lose your capital?", "uk": "Що буде, якщо втратити столицю?" } },
+        { "scene": "capital_fall", "min": 4,
+          "say": { "en": "In Supply Lines, a fallen capital starts a clock.", "uk": "У Supply Lines впала столиця запускає годинник." } },
+        { "scene": "capital_clock", "min": 4,
+          "say": { "en": "Twelve hours. If the enemy holds it, the war is over.", "uk": "Дванадцять годин. Якщо ворог її втримає, війні кінець." } },
+        { "scene": "capital_exile", "min": 3.5,
+          "say": { "en": "Move the government, and the clock runs at half speed.", "uk": "Перенеси уряд, і годинник піде вдвічі повільніше." } },
+        { "scene": "front", "min": 3,
+          "say": { "en": "Or throw everything you have at it.", "uk": "Або кинь на неї все, що маєш." } },
+        { "scene": "outro", "min": 3,
+          "say": { "en": "Supply Lines. Free, right in your browser.", "uk": "Supply Lines. Безкоштовно, просто в браузері." } }
+      ]
+    },
+    {
+      "id": "season",
+      "rubric": "Season in 30 seconds",
+      "beats": [
+        { "scene": "hook", "hook": { "en": "2 HOURS OF WAR\nIN 30 SECONDS", "uk": "2 ГОДИНИ ВІЙНИ\nЗА 30 СЕКУНД" },
+          "say": { "en": "This is two hours of a real season, in thirty seconds.", "uk": "Це дві години справжнього сезону за тридцять секунд." } },
+        { "scene": "timelapse", "min": 7, "pad": 1.5,
+          "say": { "en": "Every dot is a city. Every line is a supply route.", "uk": "Кожна точка — місто. Кожна лінія — шлях постачання." } },
+        { "scene": "timelapse", "min": 7, "pad": 1.5,
+          "say": { "en": "Blue against orange. Players and bots, on one planet.", "uk": "Синій проти помаранчевого. Гравці й боти на одній планеті." } },
+        { "scene": "timelapse", "min": 5,
+          "say": { "en": "Seven game days. Then a new war begins.", "uk": "Сім ігрових днів. А потім починається нова війна." } },
+        { "scene": "outro", "min": 3,
+          "say": { "en": "Pick a side. Supply Lines, free in your browser.", "uk": "Обери бік. Supply Lines, безкоштовно в браузері." } }
+      ]
+    },
+    {
+      "id": "decoy",
+      "rubric": "One move that changed everything",
+      "beats": [
+        { "scene": "hook", "hook": { "en": "HE SENT\nZERO SOLDIERS", "uk": "ВІН ВІДПРАВИВ\nНУЛЬ СОЛДАТІВ" },
+          "say": { "en": "He sent zero soldiers, and the enemy panicked.", "uk": "Він відправив нуль солдатів, і ворог запанікував." } },
+        { "scene": "decoy", "min": 5,
+          "say": { "en": "This convoy is fake. The enemy sees forty troops coming.", "uk": "Цей конвой фальшивий. Ворог бачить, що йдуть сорок солдатів." } },
+        { "scene": "decoy_follow", "min": 4,
+          "say": { "en": "They pull their reserves to defend, right where he wanted.", "uk": "Вони стягують резерви на оборону. Саме там, де він хотів." } },
+        { "scene": "front", "min": 4,
+          "say": { "en": "Meanwhile, the real army hits the other flank.", "uk": "А тим часом справжня армія б'є з іншого флангу." } },
+        { "scene": "outro", "min": 3,
+          "say": { "en": "Supply Lines. Free, right in your browser.", "uk": "Supply Lines. Безкоштовно, просто в браузері." } }
+      ]
+    },
+    {
+      "id": "cipher",
+      "rubric": "Spy mini-game",
+      "cipher": { "code": [7, 2, 9, 4], "guesses": [[1, 2, 3, 4], [5, 2, 7, 4], [7, 2, 8, 4]] },
+      "beats": [
+        { "scene": "hook", "hook": { "en": "CRACK THE CODE\nIN 6 TRIES", "uk": "ЗЛАМАЙ КОД\nЗА 6 СПРОБ" },
+          "say": { "en": "Our spy stole an enemy cipher. Six tries to crack it.", "uk": "Наш шпигун викрав ворожий шифр. Шість спроб, щоб його зламати." } },
+        { "scene": "cipher", "min": 6,
+          "say": { "en": "Green: right digit, right place. Yellow: right digit, wrong place.", "uk": "Зелений: правильна цифра на своєму місці. Жовтий: цифра є, але не там." } },
+        { "scene": "cipher_wait", "min": 4, "pad": 1,
+          "say": { "en": "One digit left. Can you guess it? Write it in the comments.", "uk": "Лишилась одна цифра. Вгадаєш? Пиши в коментарях." } },
+        { "scene": "decrypt", "min": 4,
+          "say": { "en": "Crack it, and every enemy convoy shows through the fog.", "uk": "Зламаєш, і кожен ворожий конвой видно крізь туман." } },
+        { "scene": "outro", "min": 3,
+          "say": { "en": "Supply Lines. Free, right in your browser.", "uk": "Supply Lines. Безкоштовно, просто в браузері." } }
+      ]
+    },
+    {
+      "id": "realwar",
+      "rubric": "Real War",
+      "beats": [
+        { "scene": "nuke", "hook": { "en": "IN THIS GAME\nA SIREN LASTS\nONE MINUTE", "uk": "У ЦІЙ ГРІ\nСИРЕНА ТРИВАЄ\nХВИЛИНУ" }, "min": 6, "pad": 1.5,
+          "say": { "en": "In this game, an air-raid siren lasts one minute.", "uk": "У цій грі повітряна тривога триває одну хвилину." } },
+        { "scene": "dark", "min": 5, "pad": 1,
+          "say": { "en": "In Kyiv, sirens have sounded for more than two thousand eight hundred hours.", "uk": "У Києві сирени звучали понад дві тисячі вісімсот годин." },
+          "big": { "en": "2,822 HOURS", "uk": "2 822 ГОДИНИ" } },
+        { "scene": "dark", "min": 4, "pad": 1,
+          "say": { "en": "This is a game. In Ukraine, it is not.", "uk": "Це гра. В Україні — ні." } },
+        { "scene": "outro", "min": 3.5,
+          "say": { "en": "Supply Lines. Are you ready for a real war?", "uk": "Supply Lines. Ви справді готові до справжньої війни?" } }
+      ]
+    }
+  ]
+}
